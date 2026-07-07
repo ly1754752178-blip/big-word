@@ -1,0 +1,84 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --bg-base: #FAF6F1;
+    --bg-card: rgba(255, 253, 250, 0.78);
+    --bg-glass: rgba(255, 255, 255, 0.45);
+    --border-soft: rgba(218, 205, 190, 0.5);
+    --text-primary: #3D3229;
+    --text-secondary: #7D6E5E;
+    --accent-sunset: #E88D4F;
+    --accent-amber: #F5C542;
+    --accent-teal: #5BA8A0;
+    --accent-green: #6BBF73;
+  }
+
+  * {
+    @apply border-border-soft;
+  }
+
+  html {
+    @apply bg-bg-base text-text-primary;
+    font-family: 'LXGW WenKai', 'Source Han Sans SC', 'Noto Sans SC', sans-serif;
+  }
+
+  body {
+    @apply m-0 min-h-screen overflow-hidden antialiased;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'HarmonyOS Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  }
+
+  /* 自定义滚动条 */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: rgba(125, 110, 94, 0.3);
+    border-radius: 3px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(125, 110, 94, 0.5);
+  }
+}
+
+@layer utilities {
+  .font-heading {
+    font-family: 'HarmonyOS Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  }
+
+  .font-body {
+    font-family: 'LXGW WenKai', 'Source Han Sans SC', 'Noto Sans SC', sans-serif;
+  }
+
+  .font-mono {
+    font-family: 'JetBrains Mono', 'Inter', monospace;
+  }
+
+  .glass-card {
+    @apply bg-bg-card backdrop-blur-glass rounded-2xl border border-border-soft shadow-soft;
+  }
+
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
