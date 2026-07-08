@@ -26,7 +26,7 @@ function EventListItem({
       : 'bg-accent-amber/10 border-accent-amber/20 text-accent-amber';
 
   return (
-    <GlassCard variant="raised" className={`p-2.5 border ${colorClass}`}>
+    <GlassCard variant="default" className={`p-2.5 border ${colorClass}`}>
       <div className="flex items-center justify-between mb-1">
         <span className="text-xs font-bold text-text-primary truncate">{title}</span>
         <span className="text-[10px] text-text-muted shrink-0">{date}</span>

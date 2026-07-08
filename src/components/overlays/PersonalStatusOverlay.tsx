@@ -79,7 +79,7 @@ export function PersonalStatusOverlay() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* 身体状态 */}
-        <GlassCard variant="raised" className="p-5 module-card-status">
+        <GlassCard variant="default" className="p-5 module-card-status">
           <h3 className="font-heading text-base font-bold text-text-primary flex items-center gap-2 mb-4">
             <Activity className="w-5 h-5 text-status-coral" /> 身体状态
           </h3>
@@ -117,7 +117,7 @@ export function PersonalStatusOverlay() {
         </GlassCard>
 
         {/* 个人资讯 */}
-        <GlassCard variant="raised" className="p-5 module-card-status">
+        <GlassCard variant="default" className="p-5 module-card-status">
           <h3 className="font-heading text-base font-bold text-text-primary flex items-center gap-2 mb-4">
             <Fingerprint className="w-5 h-5 text-status-coral" /> 个人讯息
           </h3>

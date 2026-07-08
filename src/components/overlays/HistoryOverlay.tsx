@@ -38,7 +38,7 @@ function HistoryMessage({ message, index }: { message: NarrativeMessage; index: 
             {message.speaker && (
               <span className="text-sm font-bold text-accent-sunset block mb-1">{message.speaker}</span>
             )}
-            <GlassCard variant="raised" className="inline-block px-5 py-3">
+            <GlassCard variant="default" className="inline-block px-5 py-3">
               <p className="text-base leading-relaxed text-text-primary">{message.content}</p>
             </GlassCard>
             <span className="text-[10px] text-text-muted mt-1.5 block">{message.timestamp}</span>
@@ -55,7 +55,7 @@ export function HistoryOverlay() {
 
   return (
     <div className="max-w-3xl mx-auto">
-      <GlassCard variant="raised" className="p-6 md:p-8 module-card-narrative min-h-[50vh]">
+      <GlassCard variant="default" className="p-6 md:p-8 module-card-narrative min-h-[50vh]">
         {messages.length === 0 && (
           <div className="text-center py-12 text-text-secondary">暂无叙事历史</div>
         )}

@@ -33,7 +33,7 @@ function TalentGrid() {
   const { state } = useGame();
 
   return (
-    <GlassCard variant="raised" className="p-5 module-card-talent">
+    <GlassCard variant="default" className="p-5 module-card-talent">
       <h3 className="font-heading text-base font-bold text-text-primary flex items-center gap-2 mb-4">
         <Sparkles className="w-5 h-5 text-talent-violet" /> 天赋
       </h3>
@@ -88,7 +88,7 @@ function SkillTreePreview({ skill }: { skill: SkillTree }) {
       whileTap={{ scale: 0.98 }}
       className="w-full text-left"
     >
-      <GlassCard variant="elevated" hover className="p-4 module-card-talent">
+      <GlassCard variant="elevated" className="p-4 module-card-talent">
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-3">
             <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${meta.gradient} flex items-center justify-center text-white shadow-md`}>
@@ -135,7 +135,7 @@ export function TalentsSkillsOverlay() {
     <div className="max-w-4xl mx-auto space-y-6">
       <TalentGrid />
 
-      <GlassCard variant="raised" className="p-5 module-card-talent">
+      <GlassCard variant="default" className="p-5 module-card-talent">
         <h3 className="font-heading text-base font-bold text-text-primary flex items-center gap-2 mb-4">
           <Brain className="w-5 h-5 text-talent-violet" /> 技能树
         </h3>

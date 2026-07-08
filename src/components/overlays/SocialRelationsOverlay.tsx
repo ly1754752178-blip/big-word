@@ -36,7 +36,7 @@ function RelationListItem({ relation, index }: { relation: Relation; index: numb
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.05 }}
     >
-      <GlassCard variant="raised" className="p-4 flex items-center gap-4 module-card-social"
+      <GlassCard variant="default" className="p-4 flex items-center gap-4 module-card-social"
       >
         <RelationAvatar name={relation.name} />
         <div className="flex-1 min-w-0">
@@ -61,7 +61,7 @@ export function SocialRelationsOverlay() {
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
-      <GlassCard variant="raised" className="p-5 module-card-social">
+      <GlassCard variant="default" className="p-5 module-card-social">
         <div className="flex items-center justify-between mb-5">
           <h3 className="font-heading text-base font-bold text-text-primary flex items-center gap-2">
             <Users className="w-5 h-5 text-social-teal" /> 关系列表

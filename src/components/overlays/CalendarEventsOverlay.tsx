@@ -56,7 +56,7 @@ export function CalendarEventsOverlay() {
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
-      <GlassCard variant="raised" className="p-5 module-card-calendar">
+      <GlassCard variant="default" className="p-5 module-card-calendar">
         <div className="flex items-center justify-between mb-5">
           <h3 className="font-heading text-base font-bold text-text-primary flex items-center gap-2">
             <Calendar className="w-5 h-5 text-calendar-indigo" /> 近期日程
@@ -78,7 +78,7 @@ export function CalendarEventsOverlay() {
         </div>
       </GlassCard>
 
-      <GlassCard variant="raised" className="p-5 module-card-calendar">
+      <GlassCard variant="default" className="p-5 module-card-calendar">
         <h3 className="font-heading text-base font-bold text-text-primary flex items-center gap-2 mb-4">
           <Globe className="w-5 h-5 text-calendar-sky" /> 世界事件
         </h3>
@@ -95,7 +95,7 @@ export function CalendarEventsOverlay() {
         </div>
       </GlassCard>
 
-      <GlassCard variant="raised" className="p-5 module-card-calendar">
+      <GlassCard variant="default" className="p-5 module-card-calendar">
         <h3 className="font-heading text-base font-bold text-text-primary flex items-center gap-2 mb-4">
           <MapPin className="w-5 h-5 text-calendar-indigo" /> 附近动态
         </h3>

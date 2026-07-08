@@ -67,7 +67,7 @@ export function SystemSettings() {
 
   return (
     <div className="h-full overflow-y-auto p-3 space-y-3">
-      <GlassCard variant="raised" className="p-4">
+      <GlassCard variant="default" className="p-4">
         <h3 className="font-heading text-xs font-semibold text-text-secondary uppercase tracking-wider flex items-center gap-2 mb-4">
           <Settings className="w-3.5 h-3.5" /> 系统设置
         </h3>

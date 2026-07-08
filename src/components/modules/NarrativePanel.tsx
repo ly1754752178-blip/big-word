@@ -71,7 +71,7 @@ export function NarrativePanel() {
   };
 
   return (
-    <GlassCard variant="raised" className="h-full flex flex-col overflow-hidden rounded-none border-0 bg-transparent">
+    <GlassCard variant="default" className="h-full flex flex-col overflow-hidden rounded-none border-0 bg-transparent">
       {/* 消息区 */}
       <div
         ref={scrollRef}

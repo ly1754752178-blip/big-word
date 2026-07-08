@@ -71,7 +71,7 @@ export function CalendarOverlay() {
 
   return (
     <div className="max-w-5xl mx-auto space-y-6">
-      <GlassCard variant="raised" className="p-5 module-card-calendar">
+      <GlassCard variant="default" className="p-5 module-card-calendar">
         <div className="flex items-center justify-between mb-5">
           <h3 className="font-heading text-xl font-bold text-text-primary flex items-center gap-2">
             <Calendar className="w-6 h-6 text-calendar-indigo" />

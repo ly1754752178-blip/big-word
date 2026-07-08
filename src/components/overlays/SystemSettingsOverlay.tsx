@@ -67,7 +67,7 @@ export function SystemSettingsOverlay() {
 
   return (
     <div className="max-w-3xl mx-auto space-y-6">
-      <GlassCard variant="raised" className="p-6">
+      <GlassCard variant="default" className="p-6">
         <h3 className="font-heading text-xl font-bold text-text-primary flex items-center gap-2 mb-6">
           <Settings className="w-6 h-6 text-accent-sunset" /> 系统设置
         </h3>

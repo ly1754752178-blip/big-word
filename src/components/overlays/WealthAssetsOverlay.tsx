@@ -72,7 +72,7 @@ function TransactionItem({ tx }: { tx: Transaction }) {
   const Icon = tx.type === 'income' ? TrendingUp : TrendingDown;
 
   return (
-    <GlassCard variant="raised" className="p-3 flex items-center justify-between">
+    <GlassCard variant="default" className="p-3 flex items-center justify-between">
       <div className="flex items-center gap-3">
         <div
           className={`w-9 h-9 rounded-lg flex items-center justify-center ${
@@ -111,7 +111,7 @@ function AssetList({
   isPoints?: boolean;
 }) {
   return (
-    <GlassCard variant="raised" className="p-5 module-card-wealth">
+    <GlassCard variant="default" className="p-5 module-card-wealth">
       <h3 className="font-heading text-base font-bold text-text-primary flex items-center gap-2 mb-4">
         <Wallet className="w-5 h-5 text-wealth-emerald" /> {title}
       </h3>
