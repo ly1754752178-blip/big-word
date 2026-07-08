@@ -38,6 +38,31 @@
     --phone-frame: #1C1C1E;
     --phone-screen-bg: #FAF6F1;
     --phone-screen-text: #3D3229;
+
+    /* Blue Archive 主题通用色板 */
+    --sky-50: #F0F9FF;
+    --sky-100: #E0F2FE;
+    --sky-300: #7DD3FC;
+    --sky-500: #0EA5E9;
+    --coral-50: #FFF1F2;
+    --coral-300: #FDA4AF;
+    --coral-500: #F43F5E;
+    --mint-50: #F0FDF4;
+    --mint-300: #86EFAC;
+    --mint-500: #22C55E;
+    --cream-50: #FFFBEB;
+    --cream-100: #FEF3C7;
+    --lavender-50: #F5F3FF;
+    --lavender-300: #C4B5FD;
+    --slate-800: #1E293B;
+    --slate-500: #64748B;
+    --slate-300: #CBD5E1;
+
+    --font-display: "Noto Sans JP", "PingFang SC", "Microsoft YaHei", sans-serif;
+    --font-number: Outfit, "DIN Alternate", "Helvetica Neue", sans-serif;
+
+    --shadow-soft: 0 2px 12px rgba(30, 41, 59, 0.06);
+    --shadow-soft-lg: 0 8px 30px rgba(30, 41, 59, 0.08);
   }
 
   * {
@@ -229,6 +254,38 @@
       radial-gradient(circle at 80% 70%, rgba(91,168,160,0.12) 0%, transparent 45%),
       url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.05'/%3E%3C/svg%3E");
   }
+
+  /* 通用卡片表面 */
+  .card-surface {
+    @apply bg-white rounded-2xl shadow-soft border border-slate-100 transition-all duration-200;
+  }
+  .card-surface:hover {
+    @apply -translate-y-0.5 shadow-soft-lg border-sky-100;
+  }
+
+  /* 主要按钮 */
+  .btn-primary {
+    @apply px-4 py-2 rounded-xl bg-gradient-to-r from-sky-400 to-sky-500 text-white font-medium
+           shadow-soft hover:shadow-glow-sky hover:-translate-y-0.5 active:scale-[0.97]
+           transition-all duration-150 ease-out;
+  }
+
+  /* 次要按钮 */
+  .btn-secondary {
+    @apply px-4 py-2 rounded-xl bg-white text-slate-700 font-medium border border-slate-200
+           hover:bg-slate-50 hover:border-sky-200 active:scale-[0.97]
+           transition-all duration-150 ease-out;
+  }
+
+  /* 天空渐变文字 */
+  .text-gradient-sky {
+    @apply bg-gradient-to-r from-sky-500 to-cyan-400 bg-clip-text text-transparent;
+  }
+
+  /* 奶油色表面 */
+  .surface-cream {
+    @apply bg-cream-50 border border-cream-100;
+  }
 }
 
 @layer utilities {
@@ -257,6 +314,25 @@
     background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
     pointer-events: none;
   }
+
+  /* 入场与强调动画 */
+  .animate-fade-in-up {
+    animation: fade-in-up 0.25s ease-out forwards;
+  }
+
+  .animate-pulse-soft {
+    animation: pulse-soft 1.5s ease-in-out infinite;
+  }
+}
+
+@keyframes fade-in-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulse-soft {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
 }
 
 @media (prefers-reduced-motion: reduce) {
