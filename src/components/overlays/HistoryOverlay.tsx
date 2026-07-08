@@ -1,0 +1,70 @@
+import { useGame } from '@/hooks/useGameState';
+import { GlassCard } from '@/components/ui/GlassCard';
+import { User } from 'lucide-react';
+import { motion } from 'framer-motion';
+import type { NarrativeMessage } from '@/types';
+
+function HistoryMessage({ message, index }: { message: NarrativeMessage; index: number }) {
+  const isScene = message.type === 'scene';
+  const isDialogue = message.type === 'dialogue';
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: index * 0.03 }}
+      className={`mb-6 ${isScene ? 'flex justify-center' : 'flex justify-start'}`}
+    >
+      {isScene && (
+        <div className="max-w-[85%] text-center">
+          <div className="inline-block rounded-2xl bg-narrative-cream/60 border border-narrative-cream px-6 py-4">
+            <p className="text-base leading-relaxed text-text-primary">{message.content}</p>
+          </div>
+          <span className="text-[10px] text-text-muted mt-2 block">{message.timestamp}</span>
+        </div>
+      )}
+
+      {isDialogue && (
+        <div className="w-full max-w-[90%] flex items-start gap-4">
+          <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-accent-amber/30 to-accent-sunset/30 border-4 border-white shadow-md flex items-center justify-center shrink-0"
+          >
+            {message.avatar ? (
+              <span className="text-lg font-bold text-text-primary">{message.avatar.slice(0, 1).toUpperCase()}</span>
+            ) : (
+              <User className="w-7 h-7 text-text-primary" />
+            )}
+          </div>
+          <div className="flex-1 min-w-0">
+            {message.speaker && (
+              <span className="text-sm font-bold text-accent-sunset block mb-1">{message.speaker}</span>
+            )}
+            <GlassCard variant="raised" className="inline-block px-5 py-3">
+              <p className="text-base leading-relaxed text-text-primary">{message.content}</p>
+            </GlassCard>
+            <span className="text-[10px] text-text-muted mt-1.5 block">{message.timestamp}</span>
+          </div>
+        </div>
+      )}
+    </motion.div>
+  );
+}
+
+export function HistoryOverlay() {
+  const { state } = useGame();
+  const { messages } = state.narrative;
+
+  return (
+    <div className="max-w-3xl mx-auto">
+      <GlassCard variant="raised" className="p-6 md:p-8 module-card-narrative min-h-[50vh]">
+        {messages.length === 0 && (
+          <div className="text-center py-12 text-text-secondary">暂无叙事历史</div>
+        )}
+        <div className="space-y-2">
+          {messages.map((message, idx) => (
+            <HistoryMessage key={message.id} message={message} index={idx} />
+          ))}
+        </div>
+      </GlassCard>
+    </div>
+  );
+}
