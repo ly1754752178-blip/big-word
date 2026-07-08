@@ -5,6 +5,48 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
+        sky: {
+          50: '#F0F9FF',
+          100: '#E0F2FE',
+          300: '#7DD3FC',
+          500: '#0EA5E9',
+        },
+        coral: {
+          50: '#FFF1F2',
+          100: '#FFE4E6',
+          300: '#FDA4AF',
+          500: '#F43F5E',
+        },
+        mint: {
+          50: '#F0FDF4',
+          100: '#DCFCE7',
+          300: '#86EFAC',
+          500: '#22C55E',
+        },
+        cream: {
+          50: '#FFFBEB',
+          100: '#FEF3C7',
+          300: '#FDE68A',
+        },
+        lavender: {
+          50: '#F5F3FF',
+          100: '#EDE9FE',
+          300: '#C4B5FD',
+          500: '#8B5CF6',
+        },
+        slate: {
+          50: '#F8FAFC',
+          100: '#F1F5F9',
+          200: '#E2E8F0',
+          300: '#CBD5E1',
+          400: '#94A3B8',
+          500: '#64748B',
+          600: '#475569',
+          700: '#334155',
+          800: '#1E293B',
+          900: '#0F172A',
+        },
+
         'bg-base': '#FAF6F1',
         'surface-base': '#FAF6F1',
         'bg-card': 'rgba(255, 253, 250, 0.78)',
@@ -49,13 +91,22 @@ const config: Config = {
         'phone-glass': '#1C1C1E',
       },
       fontFamily: {
+        display: ['"Noto Sans JP"', '"PingFang SC"', '"Microsoft YaHei"', 'sans-serif'],
         heading: ['HarmonyOS Sans SC', 'PingFang SC', 'Microsoft YaHei', 'sans-serif'],
-        body: ['LXGW WenKai', 'Source Han Sans SC', 'Noto Sans SC', 'sans-serif'],
+        body: ['"Noto Sans JP"', '"PingFang SC"', '"Microsoft YaHei"', 'sans-serif'],
         mono: ['JetBrains Mono', 'Inter', 'monospace'],
-        number: ['JetBrains Mono', 'Inter', 'monospace'],
+        number: ['Outfit', '"DIN Alternate"', '"Helvetica Neue"', 'sans-serif'],
+      },
+      borderRadius: {
+        '2xl': '16px',
+        '3xl': '20px',
+        '4xl': '24px',
       },
       boxShadow: {
-        soft: '0 8px 32px rgba(61, 50, 41, 0.08)',
+        soft: '0 2px 12px rgba(30, 41, 59, 0.06)',
+        'soft-lg': '0 8px 30px rgba(30, 41, 59, 0.08)',
+        'glow-sky': '0 0 20px rgba(14, 165, 233, 0.25)',
+        'glow-coral': '0 0 20px rgba(244, 63, 94, 0.2)',
         raised: '0 4px 16px rgba(61, 50, 41, 0.06)',
         elevated: '0 8px 28px rgba(61, 50, 41, 0.1)',
         floating: '0 16px 48px rgba(61, 50, 41, 0.14), 0 0 0 1px rgba(255,255,255,0.5)',
@@ -67,6 +118,9 @@ const config: Config = {
         'glow-indigo': '0 0 24px rgba(99, 102, 241, 0.22)',
         'phone-case':
           '0 0 0 2px #A1A1A6, 0 0 0 4px #C0C0C8, 0 24px 60px rgba(0,0,0,0.35), inset 0 0 20px rgba(255,255,255,0.15)',
+      },
+      transitionTimingFunction: {
+        spring: 'cubic-bezier(0.34, 1.56, 0.64, 1)',
       },
       backdropBlur: {
         glass: '20px',
