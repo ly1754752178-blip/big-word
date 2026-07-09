@@ -11,12 +11,13 @@ interface PhoneFrameProps {
 export function PhoneFrame({ expanded, onHeadClick, children }: PhoneFrameProps) {
   return (
     <>
-      {/* 收起状态：扁平手机头部 */}
+      {/* 收起状态：扁平手机头部 —— 在右侧面板内居中 */}
       {!expanded && (
         <motion.button
           type="button"
           onClick={onHeadClick}
-          className="fixed bottom-0 right-0 z-50 w-72 h-10 phone-case flex items-center justify-center cursor-pointer"
+          className="absolute bottom-0 left-1/2 -translate-x-1/2 z-50 h-10 phone-case flex items-center justify-center cursor-pointer"
+          style={{ width: '288px' }}
           aria-label="打开手机"
         >
           <div className="w-20 h-1 rounded-full bg-white/30" />
@@ -27,12 +28,13 @@ export function PhoneFrame({ expanded, onHeadClick, children }: PhoneFrameProps)
         </motion.button>
       )}
 
-      {/* 完整手机 */}
+      {/* 完整手机 —— 在右侧面板内居中 */}
       <motion.div
         initial={{ y: '110%' }}
         animate={{ y: expanded ? '0%' : '110%' }}
         transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-        className="fixed bottom-0 right-0 z-50 w-80 h-[560px] phone-case flex flex-col overflow-hidden"
+        className="absolute bottom-0 left-0 right-0 z-50 phone-case flex flex-col overflow-hidden mx-auto"
+        style={{ width: '288px', height: '560px' }}
       >
         {/* 顶部边框 / 可点击收起 */}
         <button
