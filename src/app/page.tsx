@@ -3,7 +3,6 @@ import { TopBar } from '@/components/layout/TopBar';
 import { LeftSidebar } from '@/components/layout/LeftSidebar';
 import { SidebarPreviewPanel } from '@/components/layout/SidebarPreviewPanel';
 import { RightPanel } from '@/components/layout/RightPanel';
-import { Phone } from '@/components/layout/Phone';
 import { NarrativePanel } from '@/components/modules/NarrativePanel';
 import { OverlayRenderer } from '@/components/overlays/OverlayRenderer';
 import { NotificationContainer } from '@/components/ui/NotificationContainer';
@@ -24,22 +23,22 @@ export default function App() {
         <div className="relative z-10 flex flex-col h-screen">
           <TopBar />
           <div className="flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-[auto_1fr_320px]">
-            <aside className="hidden lg:flex min-h-0 overflow-hidden">
+            {/* 左栏：功能按钮 + 信息预览 —— 暖灰底增强层次 */}
+            <aside className="hidden lg:flex min-h-0 overflow-hidden bg-[#F5F0EA] shadow-[inset_-1px_0_0_rgba(218,205,190,0.3)]">
               <LeftSidebar />
               <SidebarPreviewPanel />
             </aside>
-            <main className="min-h-0 overflow-hidden">
+            {/* 中间：叙事正文 —— 最亮纸色聚焦 */}
+            <main className="min-h-0 overflow-hidden bg-[#FDFAF5] border-x border-[#E8DFD3] shadow-[inset_0_0_30px_rgba(61,50,41,0.03)]">
               <NarrativePanel />
             </main>
-            <aside className="hidden lg:block min-h-0 overflow-hidden">
+            {/* 右栏：地图+通知 —— 略深于左栏 */}
+            <aside className="hidden lg:block min-h-0 overflow-hidden bg-[#F3EEE7] shadow-[inset_1px_0_0_rgba(218,205,190,0.3)]">
               <RightPanel />
             </aside>
           </div>
         </div>
 
-        <Phone />
-
-        {/* 游戏内通知 */}
         <NotificationContainer />
 
         {/* 全局全屏浮层 */}
