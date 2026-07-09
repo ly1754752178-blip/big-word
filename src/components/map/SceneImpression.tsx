@@ -25,7 +25,7 @@ export function SceneImpression({ className, imageUrl }: SceneImpressionProps) {
   return (
     <div
       className={cn(
-        'relative overflow-hidden map-texture',
+        'relative w-full h-full overflow-hidden map-texture',
         className
       )}
     >
