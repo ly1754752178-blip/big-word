@@ -509,6 +509,9 @@ export const mockGameState: GameState = {
       description: '更容易理解他人的情绪与想法，社交事件中获得额外好感度',
       icon: 'heart',
       rarity: 'rare',
+      level: 1,
+      effect: '社交事件中好感度获取 +15%，更易触发深度对话选项',
+      acquiredAt: '2026-04-06',
     },
     {
       id: 't2',
@@ -516,6 +519,9 @@ export const mockGameState: GameState = {
       description: '夜晚行动时精神与创造力提升，熬夜惩罚减少',
       icon: 'moon',
       rarity: 'common',
+      level: 1,
+      effect: '夜间行动时精神消耗 -20%，创造力相关事件成功率提升',
+      acquiredAt: '2026-04-06',
     },
     {
       id: 't3',
@@ -523,6 +529,9 @@ export const mockGameState: GameState = {
       description: '阅读与学习技能时经验获取提升，复习事件有概率触发',
       icon: 'book-open',
       rarity: 'epic',
+      level: 1,
+      effect: '阅读与学习技能经验获取 +25%，复习事件触发概率 +10%',
+      acquiredAt: '2026-04-06',
     },
   ],
   skills: {
