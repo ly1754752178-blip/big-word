@@ -100,6 +100,9 @@ export interface Talent {
   description: string;
   icon: string;
   rarity: 'common' | 'rare' | 'epic' | 'legendary';
+  level?: number;
+  effect?: string;
+  acquiredAt?: string;
 }
 
 export interface SkillNode {
