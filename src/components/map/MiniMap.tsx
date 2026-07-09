@@ -12,17 +12,16 @@ export function MiniMap() {
   };
 
   return (
-    <div className="relative w-full h-full rounded-2xl overflow-hidden card-tier-raised flex flex-col"
-    >
-      <SceneImpression />
+    <div className="relative w-full h-full rounded-2xl overflow-hidden border border-slate-100 shadow-soft bg-cream-50">
+      <SceneImpression className="absolute inset-0" />
 
-      <div className="relative flex-1 min-h-0 overflow-hidden">
+      <div className="relative flex-1 min-h-0 overflow-hidden w-full h-full">
         <div
           className="absolute inset-0 opacity-30"
           style={{
             backgroundImage: `
-              linear-gradient(rgba(141,110,99,0.25) 1px, transparent 1px),
-              linear-gradient(90deg, rgba(141,110,99,0.25) 1px, transparent 1px)
+              linear-gradient(rgba(100,116,139,0.2) 1px, transparent 1px),
+              linear-gradient(90deg, rgba(100,116,139,0.2) 1px, transparent 1px)
             `,
             backgroundSize: '20% 20%',
           }}
@@ -31,7 +30,7 @@ export function MiniMap() {
         {map.regions.map((region) => (
           <div
             key={region.id}
-            className="absolute rounded-lg border border-white/30"
+            className="absolute rounded-lg border border-white/40"
             style={{
               left: `${toPercent(region.x, map.center.x, viewRange)}%`,
               top: `${toPercent(region.y, map.center.y, viewRange)}%`,
@@ -55,7 +54,7 @@ export function MiniMap() {
         ))}
 
         <div
-          className="absolute w-3 h-3 rounded-full bg-accent-green border-2 border-white shadow-md z-10"
+          className="absolute w-3 h-3 rounded-full bg-sky-500 border-2 border-white shadow-md z-10"
           style={{
             left: '50%',
             top: '50%',
@@ -63,7 +62,7 @@ export function MiniMap() {
           }}
         />
 
-        <div className="absolute bottom-2 left-2 px-2 py-1 rounded-lg bg-bg-card-floating/80 backdrop-blur-sm border border-white/40 text-[10px] font-number text-text-secondary"
+        <div className="absolute bottom-2 left-2 px-2 py-1 rounded-lg bg-white/80 backdrop-blur-sm border border-white/60 shadow-soft text-[10px] font-number text-slate-500"
         >
           X:{Math.round(map.center.x)} Y:{Math.round(map.center.y)}
         </div>

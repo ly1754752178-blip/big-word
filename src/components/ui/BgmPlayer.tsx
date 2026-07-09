@@ -18,7 +18,7 @@ export function BgmPlayer({ coverUrl, title = '未播放歌曲' }: BgmPlayerProp
   return (
     <div
       id="topbar-bgm-player"
-      className="h-16 flex items-center gap-4 pl-4 pr-5 bg-bg-card-raised/95 border-l border-border-soft"
+      className="h-16 flex items-center gap-4 pl-4 pr-5 bg-white/80 backdrop-blur-sm border-l border-slate-100"
     >
       {/* 唱片 */}
       <div className="relative w-14 h-14 shrink-0">
@@ -27,7 +27,7 @@ export function BgmPlayer({ coverUrl, title = '未播放歌曲' }: BgmPlayerProp
           animate={{ rotate: 360 }}
           transition={{ duration: 12, repeat: Infinity, ease: 'linear' }}
         >
-          <div className="w-10 h-10 rounded-full border-2 border-accent-amber overflow-hidden flex items-center justify-center bg-[#333]">
+          <div className="w-10 h-10 rounded-full border-2 border-cream-100 overflow-hidden flex items-center justify-center bg-[#333]">
             {coverUrl ? (
               <img src={coverUrl} alt="cover" className="w-full h-full object-cover" />
             ) : (
@@ -45,7 +45,7 @@ export function BgmPlayer({ coverUrl, title = '未播放歌曲' }: BgmPlayerProp
 
       {/* 歌曲名 */}
       <div className="min-w-0">
-        <span className="block text-sm font-bold text-text-primary truncate">《{title}》</span>
+        <span className="block text-sm font-bold text-slate-800 truncate">《{title}》</span>
       </div>
 
       {/* 控制按钮 */}
@@ -57,8 +57,8 @@ export function BgmPlayer({ coverUrl, title = '未播放歌曲' }: BgmPlayerProp
             aria-label={label}
             className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${
               active
-                ? 'bg-accent-sunset text-white shadow-md'
-                : 'bg-bg-glass text-text-secondary hover:bg-white/60 hover:text-text-primary'
+                ? 'bg-sky-400 text-white shadow-md hover:bg-sky-500'
+                : 'bg-cream-50 text-slate-500 hover:bg-white hover:text-slate-700 border border-slate-100'
             }`}
           >
             <Icon className="w-4 h-4" />

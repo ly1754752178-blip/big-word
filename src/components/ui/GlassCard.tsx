@@ -1,6 +1,6 @@
 import { cn } from '@/lib/utils';
 import { cva, type VariantProps } from 'class-variance-authority';
-import { type ReactNode } from 'react';
+import { type ReactNode, type MouseEvent } from 'react';
 
 const glassCardVariants = cva(
   'rounded-2xl border transition-all duration-200 ease-out',
@@ -26,11 +26,17 @@ const glassCardVariants = cva(
 interface GlassCardProps extends VariantProps<typeof glassCardVariants> {
   children: ReactNode;
   className?: string;
+  onClick?: (e: MouseEvent<HTMLDivElement>) => void;
 }
 
-export function GlassCard({ children, className, variant = 'default' }: GlassCardProps) {
+export function GlassCard({ children, className, variant = 'default', onClick }: GlassCardProps) {
   return (
-    <div className={cn(glassCardVariants({ variant }), className)}>
+    <div
+      className={cn(glassCardVariants({ variant }), onClick && 'cursor-pointer', className)}
+      onClick={onClick}
+      role={onClick ? 'button' : undefined}
+      tabIndex={onClick ? 0 : undefined}
+    >
       {children}
     </div>
   );

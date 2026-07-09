@@ -1,7 +1,12 @@
 import { useGame } from '@/hooks/useGameState';
 import { MapPin } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
-export function SceneImpression() {
+interface SceneImpressionProps {
+  className?: string;
+}
+
+export function SceneImpression({ className }: SceneImpressionProps) {
   const { state } = useGame();
   const { map } = state;
 
@@ -17,25 +22,30 @@ export function SceneImpression() {
   });
 
   return (
-    <div className="relative h-full rounded-none overflow-hidden border-b border-border-soft map-texture">
-      <div className="absolute inset-0 bg-gradient-to-br from-map-sunset/15 via-map-earth/10 to-accent-teal/10" />
+    <div
+      className={cn(
+        'relative overflow-hidden map-texture',
+        className
+      )}
+    >
+      <div className="absolute inset-0 bg-gradient-to-br from-sky-100/60 via-cream-50/40 to-coral-100/40" />
 
       {/* 装饰性风景剪影 */}
       <div className="absolute bottom-0 left-0 right-0 h-1/2">
         <svg viewBox="0 0 200 60" className="w-full h-full" preserveAspectRatio="none">
           <path
             d="M0 60 L0 30 Q30 15 60 28 T120 22 T180 32 L200 25 L200 60 Z"
-            fill="rgba(61,50,41,0.12)"
+            fill="rgba(100, 116, 139, 0.1)"
           />
           <path
             d="M0 60 L0 42 Q40 36 80 44 T160 40 L200 48 L200 60 Z"
-            fill="rgba(61,50,41,0.2)"
+            fill="rgba(100, 116, 139, 0.16)"
           />
         </svg>
       </div>
 
-      <div className="absolute top-3 left-3 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-bg-card-floating/80 border border-white/50 text-[10px] text-text-secondary">
-        <MapPin className="w-3 h-3 text-map-sunset" />
+      <div className="absolute top-3 left-3 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/80 backdrop-blur-sm border border-white/60 shadow-soft text-[10px] text-slate-600">
+        <MapPin className="w-3 h-3 text-coral-400" />
         <span>{currentRegion?.name ?? '未知区域'}</span>
       </div>
     </div>

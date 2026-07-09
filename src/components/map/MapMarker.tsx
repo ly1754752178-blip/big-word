@@ -9,9 +9,9 @@ interface MapMarkerProps {
 }
 
 const typeColorMap: Record<MapMarkerType['type'], string> = {
-  location: 'text-accent-sunset',
-  event: 'text-accent-teal',
-  npc: 'text-accent-amber',
+  location: 'text-coral-400',
+  event: 'text-sky-500',
+  npc: 'text-mint-500',
 };
 
 export function MapMarker({ marker, onClick, className = '', style }: MapMarkerProps) {
@@ -23,8 +23,8 @@ export function MapMarker({ marker, onClick, className = '', style }: MapMarkerP
       className={`absolute flex flex-col items-center group ${className}`}
       style={{ ...style, transform: 'translate(-50%, -100%)' }}
     >
-      <MapPin className={`w-5 h-5 ${typeColorMap[marker.type]} drop-shadow-sm group-hover:scale-110 transition-transform`} />
-      <span className="mt-0.5 px-1.5 py-0.5 rounded bg-white/80 text-[10px] text-text-primary whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity shadow-sm">
+      <MapPin className={`w-5 h-5 ${typeColorMap[marker.type]} drop-shadow-soft group-hover:scale-110 transition-transform`} />
+      <span className="mt-0.5 px-1.5 py-0.5 rounded bg-white/90 text-[10px] text-slate-700 whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity shadow-soft">
         {marker.name}
       </span>
     </button>

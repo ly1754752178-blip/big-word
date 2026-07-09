@@ -9,9 +9,9 @@ const typeIconMap: Record<Notification['type'], typeof Bell> = {
 };
 
 const typeColorMap: Record<Notification['type'], string> = {
-  system: 'bg-accent-teal/15 text-accent-teal',
-  social: 'bg-accent-sunset/15 text-accent-sunset',
-  event: 'bg-accent-amber/15 text-accent-amber',
+  system: 'bg-sky-100 text-sky-500',
+  social: 'bg-coral-100 text-coral-500',
+  event: 'bg-lavender-100 text-lavender-500',
 };
 
 interface NotificationItemProps {
@@ -26,10 +26,10 @@ export function NotificationItem({ notification }: NotificationItemProps) {
     <button
       type="button"
       onClick={() => setExpanded(!expanded)}
-      className={`w-full text-left rounded-xl border p-2.5 transition-colors ${
+      className={`w-full text-left rounded-2xl border p-2.5 transition-all ${
         notification.read
-          ? 'bg-bg-glass/50 border-border-soft'
-          : 'bg-accent-sunset/5 border-accent-sunset/20'
+          ? 'bg-white border-slate-100'
+          : 'bg-coral-50/50 border-coral-100 shadow-soft'
       }`}
     >
       <div className="flex items-center gap-2.5">
@@ -38,15 +38,15 @@ export function NotificationItem({ notification }: NotificationItemProps) {
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-text-primary truncate">{notification.title}</span>
-            <span className="text-[10px] text-text-muted whitespace-nowrap ml-2">{notification.time}</span>
+            <span className="text-xs font-bold text-slate-700 truncate">{notification.title}</span>
+            <span className="text-[10px] text-slate-400 whitespace-nowrap ml-2 font-number">{notification.time}</span>
           </div>
-          <p className="text-[10px] text-text-secondary truncate mt-0.5">{notification.message}</p>
+          <p className="text-[10px] text-slate-500 truncate mt-0.5">{notification.message}</p>
         </div>
       </div>
 
       {expanded && (
-        <p className="mt-2 pl-10 text-[11px] text-text-secondary leading-relaxed">
+        <p className="mt-2 pl-10 text-[11px] text-slate-500 leading-relaxed">
           {notification.message} — 点击可查看完整内容（演示）。
         </p>
       )}

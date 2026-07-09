@@ -6,19 +6,19 @@ interface StatBarProps {
   icon?: React.ReactNode;
 }
 
-export function StatBar({ label, value, max = 100, color = 'bg-accent-sunset', icon }: StatBarProps) {
+export function StatBar({ label, value, max = 100, color = 'bg-sky-400', icon }: StatBarProps) {
   const percentage = Math.min(100, Math.max(0, (value / max) * 100));
 
   return (
     <div className="space-y-1.5">
-      <div className="flex justify-between text-sm">
-        <div className="flex items-center gap-1.5 text-text-secondary">
-          {icon && <span className="text-text-muted">{icon}</span>}
+      <div className="flex justify-between text-xs">
+        <div className="flex items-center gap-1.5 text-slate-500">
+          {icon && <span className="text-slate-400">{icon}</span>}
           <span>{label}</span>
         </div>
-        <span className="font-mono text-text-primary">{value}/{max}</span>
+        <span className="font-number text-slate-700">{value}/{max}</span>
       </div>
-      <div className="h-2 bg-border-soft/60 rounded-full overflow-hidden">
+      <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
         <div
           className={`h-full rounded-full transition-all duration-500 ${color}`}
           style={{ width: `${percentage}%` }}

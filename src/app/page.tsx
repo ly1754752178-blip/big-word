@@ -10,12 +10,12 @@ import { OverlayRenderer } from '@/components/overlays/OverlayRenderer';
 export default function App() {
   return (
     <GameProvider>
-      <div className="min-h-screen bg-bg-base text-text-primary font-body selection:bg-accent-sunset/20">
+      <div className="min-h-screen bg-cream-50 text-slate-800 font-body selection:bg-sky-200/40">
         {/* 背景装饰 */}
         <div className="fixed inset-0 pointer-events-none overflow-hidden">
-          <div className="absolute -top-40 -right-40 w-[600px] h-[600px] rounded-full bg-accent-sunset/10 blur-3xl" />
-          <div className="absolute top-1/2 -left-40 w-[500px] h-[500px] rounded-full bg-accent-teal/10 blur-3xl" />
-          <div className="absolute -bottom-40 right-1/4 w-[450px] h-[450px] rounded-full bg-accent-amber/10 blur-3xl" />
+          <div className="absolute -top-40 -right-40 w-[600px] h-[600px] rounded-full bg-sky-200/30 blur-3xl" />
+          <div className="absolute top-1/2 -left-40 w-[500px] h-[500px] rounded-full bg-coral-200/30 blur-3xl" />
+          <div className="absolute -bottom-40 right-1/4 w-[450px] h-[450px] rounded-full bg-mint-200/30 blur-3xl" />
           <div className="absolute inset-0 grain-overlay" />
         </div>
 

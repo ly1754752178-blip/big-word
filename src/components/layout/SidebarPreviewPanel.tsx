@@ -23,7 +23,7 @@ export function SidebarPreviewPanel() {
   return (
     <section
       id="sidebar-preview-panel"
-      className="w-[260px] h-full bg-bg-card/40 backdrop-blur-sm border-r border-border-soft overflow-y-auto"
+      className="w-[260px] h-full bg-sky-50/50 border-r border-slate-100 overflow-y-auto px-3 py-4"
     >
       <Preview />
     </section>

@@ -20,18 +20,16 @@ function EventListItem({
   description: string;
   type: 'world' | 'nearby';
 }) {
-  const colorClass =
-    type === 'world'
-      ? 'bg-calendar-sky/10 border-calendar-sky/20 text-calendar-sky'
-      : 'bg-accent-amber/10 border-accent-amber/20 text-accent-amber';
-
   return (
-    <GlassCard variant="default" className={`p-2.5 border ${colorClass}`}>
+    <GlassCard
+      variant={type === 'world' ? 'sky' : 'coral'}
+      className="p-2.5"
+    >
       <div className="flex items-center justify-between mb-1">
-        <span className="text-xs font-bold text-text-primary truncate">{title}</span>
-        <span className="text-[10px] text-text-muted shrink-0">{date}</span>
+        <span className="text-xs font-bold text-slate-700 truncate">{title}</span>
+        <span className="text-[10px] text-slate-400 shrink-0 font-number">{date}</span>
       </div>
-      <p className="text-[11px] text-text-secondary leading-relaxed line-clamp-2">{description}</p>
+      <p className="text-[11px] text-slate-500 leading-relaxed line-clamp-2">{description}</p>
     </GlassCard>
   );
 }
@@ -51,32 +49,32 @@ export function RightPanel() {
       </div>
 
       {/* GPS 大地图 */}
-      <div className="flex-[2] min-h-0 border-t border-border-soft p-2 flex flex-col">
+      <div className="flex-[2] min-h-0 border-t border-slate-100 p-2 flex flex-col bg-cream-50/30">
         <div className="flex items-center justify-between mb-1">
-          <span className="text-xs font-bold text-text-secondary flex items-center gap-1.5">
+          <span className="text-xs font-bold text-slate-500 flex items-center gap-1.5">
             <Map className="w-3.5 h-3.5" /> GPS
           </span>
           <button
             type="button"
             onClick={() => setMapOpen(true)}
-            className="flex items-center gap-0.5 text-[10px] text-text-secondary hover:text-accent-sunset transition-colors"
+            className="flex items-center gap-0.5 text-[10px] text-sky-500 hover:text-sky-600 transition-colors"
           >
             展开 <ChevronRight className="w-3 h-3" />
           </button>
         </div>
-        <div className="flex-1 min-h-0 rounded-xl overflow-hidden border border-border-soft">
+        <div className="flex-1 min-h-0 rounded-2xl overflow-hidden border border-slate-100 shadow-soft">
           <MiniMap />
         </div>
       </div>
 
       {/* 周边动态 + 通知合并 */}
-      <div className="flex-[3] min-h-0 border-t border-border-soft p-2 flex flex-col">
+      <div className="flex-[3] min-h-0 border-t border-slate-100 p-2 flex flex-col bg-cream-50/30">
         <div className="flex items-center gap-2 mb-2">
-          <MapPin className="w-3.5 h-3.5 text-accent-amber" />
-          <span className="text-xs font-bold text-text-secondary">周边动态</span>
-          <Bell className="w-3.5 h-3.5 text-text-muted ml-auto" />
+          <MapPin className="w-3.5 h-3.5 text-coral-400" />
+          <span className="text-xs font-bold text-slate-500">周边动态</span>
+          <Bell className="w-3.5 h-3.5 text-slate-400 ml-auto" />
           {unreadCount > 0 && (
-            <span className="w-4 h-4 rounded-full bg-accent-sunset text-white text-[9px] flex items-center justify-center">
+            <span className="w-4 h-4 rounded-full bg-coral-400 text-white text-[9px] flex items-center justify-center font-number">
               {unreadCount}
             </span>
           )}

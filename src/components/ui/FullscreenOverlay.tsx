@@ -14,13 +14,13 @@ interface FullscreenOverlayProps {
 }
 
 const accentBarClass: Record<NonNullable<FullscreenOverlayProps['accent']>, string> = {
-  status: 'bg-gradient-to-r from-status-coral to-status-salmon',
-  talent: 'bg-gradient-to-r from-talent-violet via-talent-magenta to-talent-gold',
-  social: 'bg-gradient-to-r from-social-teal to-social-cyan',
-  wealth: 'bg-gradient-to-r from-wealth-emerald to-wealth-gold',
-  calendar: 'bg-gradient-to-r from-calendar-indigo to-calendar-sky',
-  map: 'bg-gradient-to-r from-map-earth to-map-sunset',
-  default: 'bg-gradient-to-r from-accent-sunset to-accent-amber',
+  status: 'bg-gradient-to-r from-coral-300 to-coral-500',
+  talent: 'bg-gradient-to-r from-lavender-300 via-purple-300 to-amber-300',
+  social: 'bg-gradient-to-r from-sky-300 to-cyan-300',
+  wealth: 'bg-gradient-to-r from-mint-300 to-emerald-300',
+  calendar: 'bg-gradient-to-r from-sky-300 to-lavender-300',
+  map: 'bg-gradient-to-r from-orange-300 to-sky-300',
+  default: 'bg-gradient-to-r from-sky-400 to-coral-300',
 };
 
 export function FullscreenOverlay({
@@ -52,19 +52,19 @@ export function FullscreenOverlay({
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.25 }}
-          className="fixed inset-0 z-50 flex flex-col bg-text-primary/60 backdrop-blur-sm"
+          className="fixed inset-0 z-50 flex flex-col bg-slate-900/50 backdrop-blur-sm"
           onClick={onClose}
           role="dialog"
           aria-modal="true"
         >
           <motion.div
-            initial={{ y: 40, opacity: 0, scale: 0.98 }}
+            initial={{ y: 40, opacity: 0, scale: 0.96 }}
             animate={{ y: 0, opacity: 1, scale: 1 }}
-            exit={{ y: 40, opacity: 0, scale: 0.98 }}
+            exit={{ y: 40, opacity: 0, scale: 0.96 }}
             transition={{ type: 'spring', stiffness: 320, damping: 30 }}
             onClick={(e) => e.stopPropagation()}
             className={cn(
-              'relative m-4 md:m-6 flex flex-col rounded-3xl overflow-hidden bg-bg-card-floating shadow-floating border border-white/60',
+              'relative m-4 md:m-6 flex flex-col rounded-3xl overflow-hidden bg-cream-50 shadow-soft-lg border border-white/80',
               className
             )}
           >
@@ -72,17 +72,17 @@ export function FullscreenOverlay({
             <div className={cn('h-1.5 w-full', accentBarClass[accent])} />
 
             {/* 标题栏 */}
-            <div className="flex items-center justify-between px-6 py-4 border-b border-border-soft/60 bg-white/40">
-              <h2 className="font-heading text-xl md:text-2xl font-bold text-text-primary">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 bg-white/60">
+              <h2 className="font-heading text-xl md:text-2xl font-bold text-slate-800">
                 {title}
               </h2>
               <button
                 type="button"
                 onClick={onClose}
-                className="w-10 h-10 rounded-full bg-bg-glass hover:bg-bg-glass/70 border border-border-soft flex items-center justify-center transition-colors"
+                className="w-10 h-10 rounded-full bg-cream-50 hover:bg-white border border-slate-100 flex items-center justify-center transition-colors"
                 aria-label="关闭"
               >
-                <X className="w-5 h-5 text-text-secondary" />
+                <X className="w-5 h-5 text-slate-500" />
               </button>
             </div>
 

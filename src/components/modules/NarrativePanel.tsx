@@ -17,30 +17,29 @@ function MessageBubble({ message }: { message: NarrativeMessage }) {
     >
       {isScene && (
         <div className="max-w-[90%] text-center">
-          <p className="text-base leading-relaxed text-text-primary/90">{message.content}</p>
-          <span className="text-[10px] text-text-muted mt-1 block">{message.timestamp}</span>
+          <p className="text-sm leading-relaxed text-slate-700">{message.content}</p>
+          <span className="text-[10px] text-slate-400 mt-1 block font-number">{message.timestamp}</span>
         </div>
       )}
 
       {isDialogue && (
-        <div className="w-full max-w-[92%] flex items-start gap-4">
-          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-accent-amber/30 to-accent-sunset/30 border-[5px] border-white shadow-md flex items-center justify-center shrink-0"
+        <div className="w-full max-w-[92%] flex items-start gap-3">
+          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-coral-200 to-coral-300 border-2 border-white shadow-soft flex items-center justify-center shrink-0"
           >
             {message.avatar ? (
-              <span className="text-xl font-bold text-text-primary">{message.avatar.slice(0, 1).toUpperCase()}</span>
+              <span className="text-base font-bold text-white">{message.avatar.slice(0, 1).toUpperCase()}</span>
             ) : (
-              <User className="w-8 h-8 text-text-primary" />
+              <User className="w-6 h-6 text-white" />
             )}
           </div>
           <div className="flex-1 min-w-0">
             {message.speaker && (
-              <span className="text-base font-bold text-accent-sunset block mb-1">{message.speaker}</span>
+              <span className="text-xs font-bold text-coral-400 block mb-1">{message.speaker}</span>
             )}
-            <div className="inline-block px-5 py-3 rounded-2xl bg-bg-card-raised border border-border-soft shadow-sm"
-            >
-              <p className="text-base leading-snug text-text-primary">{message.content}</p>
-            </div>
-            <span className="text-[10px] text-text-muted mt-1 block">{message.timestamp}</span>
+            <GlassCard variant="default" className="inline-block px-4 py-2.5">
+              <p className="text-sm leading-snug text-slate-700">{message.content}</p>
+            </GlassCard>
+            <span className="text-[10px] text-slate-400 mt-1 block font-number">{message.timestamp}</span>
           </div>
         </div>
       )}
@@ -85,12 +84,12 @@ export function NarrativePanel() {
       </div>
 
       {/* 输入区 */}
-      <div className="px-5 py-3 border-t border-border-soft bg-white/30">
+      <div className="px-4 py-3 border-t border-slate-100 bg-white/50">
         <div className="flex items-center gap-2">
           <button
             type="button"
             onClick={() => openOverlayView('history')}
-            className="w-10 h-10 rounded-full bg-bg-glass hover:bg-white/60 flex items-center justify-center text-text-secondary transition-colors"
+            className="w-10 h-10 rounded-full bg-cream-50 hover:bg-white border border-cream-100 flex items-center justify-center text-slate-500 transition-colors"
             title="历史"
             aria-label="历史"
           >
@@ -102,13 +101,13 @@ export function NarrativePanel() {
             onChange={(e) => setNarrativeInput(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="输入你想说的话……"
-            className="flex-1 rounded-full bg-bg-glass border border-border-soft px-4 py-2.5 text-base text-text-primary placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-accent-sunset/30"
+            className="flex-1 rounded-full bg-cream-50 border border-cream-100 px-4 py-2.5 text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-200"
           />
           <button
             type="button"
             onClick={handleSend}
             disabled={!inputText.trim()}
-            className="w-10 h-10 rounded-full bg-accent-sunset text-white flex items-center justify-center disabled:opacity-40 disabled:cursor-not-allowed hover:bg-accent-sunset/90 transition-colors"
+            className="w-10 h-10 rounded-full bg-gradient-to-r from-sky-400 to-sky-500 text-white flex items-center justify-center disabled:opacity-40 disabled:cursor-not-allowed hover:shadow-glow-sky transition-all"
             title="发送"
             aria-label="发送"
           >
