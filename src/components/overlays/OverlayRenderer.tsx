@@ -10,6 +10,12 @@ import { HistoryOverlay } from './HistoryOverlay';
 import { NetworkOverlay } from './NetworkOverlay';
 import { SkillTreeOverlay } from './SkillTreeOverlay';
 import { CalendarOverlay } from './CalendarOverlay';
+import { CharacterGalleryOverlay } from './CharacterGalleryOverlay';
+import { CharacterDetailOverlay } from './CharacterDetailOverlay';
+import { CreativeWorkshopOverlay } from './CreativeWorkshopOverlay';
+import { ShopOverlay } from './ShopOverlay';
+import { MemoriesOverlay } from './MemoriesOverlay';
+import { AchievementsOverlay } from './AchievementsOverlay';
 
 const accentMap: Record<import('@/types').OverlayViewType, NonNullable<React.ComponentProps<typeof FullscreenOverlay>['accent']>> = {
   status: 'status',
@@ -22,6 +28,12 @@ const accentMap: Record<import('@/types').OverlayViewType, NonNullable<React.Com
   network: 'social',
   history: 'default',
   calendarFull: 'calendar',
+  characters: 'talent',
+  characterDetail: 'talent',
+  creativeWorkshop: 'talent',
+  shop: 'wealth',
+  memories: 'calendar',
+  achievements: 'wealth',
 };
 
 export function OverlayRenderer() {
@@ -48,6 +60,12 @@ export function OverlayRenderer() {
       {type === 'settings' && <SystemSettingsOverlay />}
       {type === 'history' && <HistoryOverlay />}
       {type === 'calendarFull' && <CalendarOverlay />}
+      {type === 'characters' && <CharacterGalleryOverlay />}
+      {type === 'characterDetail' && <CharacterDetailOverlay />}
+      {type === 'creativeWorkshop' && <CreativeWorkshopOverlay />}
+      {type === 'shop' && <ShopOverlay />}
+      {type === 'memories' && <MemoriesOverlay />}
+      {type === 'achievements' && <AchievementsOverlay />}
     </FullscreenOverlay>
   );
 }

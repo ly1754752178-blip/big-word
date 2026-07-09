@@ -26,8 +26,8 @@ function MessageBubble({ message }: { message: NarrativeMessage }) {
         <div className="w-full max-w-[92%] flex items-start gap-3">
           <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-coral-200 to-coral-300 border-2 border-white shadow-soft flex items-center justify-center shrink-0"
           >
-            {message.avatar ? (
-              <span className="text-base font-bold text-white">{message.avatar.slice(0, 1).toUpperCase()}</span>
+            {message.speakerAvatar ? (
+              <span className="text-base font-bold text-white">{message.speakerAvatar.slice(0, 1).toUpperCase()}</span>
             ) : (
               <User className="w-6 h-6 text-white" />
             )}

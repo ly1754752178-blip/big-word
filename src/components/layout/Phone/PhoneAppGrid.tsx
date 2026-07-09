@@ -6,6 +6,9 @@ import {
   MapPin,
   Mail,
   Image,
+  MessageSquare,
+  Heart,
+  Wallet,
 } from 'lucide-react';
 import type { PhoneAppId } from '@/types';
 
@@ -16,6 +19,9 @@ const appIconMap: Record<PhoneAppId, React.ReactNode> = {
   travel: <MapPin className="w-6 h-6" />,
   mail: <Mail className="w-6 h-6" />,
   gallery: <Image className="w-6 h-6" />,
+  chat: <MessageSquare className="w-6 h-6" />,
+  sns: <Heart className="w-6 h-6" />,
+  wallet: <Wallet className="w-6 h-6" />,
 };
 
 interface PhoneAppGridProps {
@@ -42,13 +48,13 @@ export function PhoneAppGrid({ apps, onAppClick }: PhoneAppGridProps) {
           >
             {appIconMap[app.id]}
             {app.badge && (
-              <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-accent-sunset text-white text-[10px] flex items-center justify-center border-2 border-white"
+              <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-coral-400 text-white text-[10px] flex items-center justify-center border-2 border-white"
               >
                 {app.badge}
               </span>
             )}
           </div>
-          <span className="text-[11px] text-text-primary/90">{app.name}</span>
+          <span className="text-[11px] text-slate-700/90">{app.name}</span>
         </motion.button>
       ))}
     </div>

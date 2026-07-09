@@ -6,6 +6,7 @@ import type {
   PhoneAppId,
   OverlayViewType,
   DateMark,
+  InAppNotification,
 } from '@/types';
 import { mockGameState } from '@/data/mockData';
 
@@ -27,6 +28,9 @@ interface GameContextValue {
   closeOverlayView: () => void;
   setDateMark: (date: string, mark: DateMark) => void;
   clearDateMark: (date: string) => void;
+  addInAppNotification: (notification: Omit<InAppNotification, 'id'>) => void;
+  removeInAppNotification: (id: string) => void;
+  buyShopItem: (itemId: string) => void;
 }
 
 const GameContext = createContext<GameContextValue | null>(null);
@@ -36,6 +40,7 @@ type Action =
   | { type: 'SET_PREVIEW_TAB'; payload: SidebarTab }
   | { type: 'SET_NARRATIVE_INPUT'; payload: string }
   | { type: 'ADD_NARRATIVE_MESSAGE'; payload: NarrativeMessage }
+  | { type: 'SET_NARRATIVE_GENERATING'; payload: boolean }
   | { type: 'REGENERATE_LAST_MESSAGE' }
   | { type: 'SET_MAP_ZOOM'; payload: number }
   | { type: 'SET_MAP_CENTER'; payload: { x: number; y: number } }
@@ -47,7 +52,10 @@ type Action =
   | { type: 'OPEN_OVERLAY_VIEW'; payload: OverlayViewType; meta?: Record<string, unknown> }
   | { type: 'CLOSE_OVERLAY_VIEW' }
   | { type: 'SET_DATE_MARK'; payload: DateMark }
-  | { type: 'CLEAR_DATE_MARK'; payload: string };
+  | { type: 'CLEAR_DATE_MARK'; payload: string }
+  | { type: 'ADD_IN_APP_NOTIFICATION'; payload: InAppNotification }
+  | { type: 'REMOVE_IN_APP_NOTIFICATION'; payload: string }
+  | { type: 'BUY_SHOP_ITEM'; payload: string };
 
 const overlayTitles: Record<OverlayViewType, string> = {
   status: '个人状态',
@@ -60,6 +68,12 @@ const overlayTitles: Record<OverlayViewType, string> = {
   network: '关系网络',
   history: '叙事历史',
   calendarFull: '完整日历',
+  characters: '角色图鉴',
+  characterDetail: '角色详情',
+  creativeWorkshop: '创作工坊',
+  shop: '商店与衣柜',
+  memories: '回忆相册',
+  achievements: '成就',
 };
 
 function gameReducer(state: GameState, action: Action): GameState {
@@ -74,6 +88,8 @@ function gameReducer(state: GameState, action: Action): GameState {
       const messages = [...state.narrative.messages, action.payload];
       return { ...state, narrative: { ...state.narrative, messages, inputText: '' } };
     }
+    case 'SET_NARRATIVE_GENERATING':
+      return { ...state, narrative: { ...state.narrative, isGenerating: action.payload } };
     case 'REGENERATE_LAST_MESSAGE': {
       const messages = state.narrative.messages.slice(0, -1);
       const regenerated: NarrativeMessage = {
@@ -126,6 +142,35 @@ function gameReducer(state: GameState, action: Action): GameState {
       delete next[date];
       return { ...state, dateMarks: next };
     }
+    case 'ADD_IN_APP_NOTIFICATION': {
+      return {
+        ...state,
+        inAppNotifications: [...state.inAppNotifications, action.payload],
+      };
+    }
+    case 'REMOVE_IN_APP_NOTIFICATION': {
+      return {
+        ...state,
+        inAppNotifications: state.inAppNotifications.filter((n) => n.id !== action.payload),
+      };
+    }
+    case 'BUY_SHOP_ITEM': {
+      const item = state.shopItems.find((i) => i.id === action.payload);
+      if (!item || state.finance.cash < item.price) return state;
+
+      const existing = state.inventory.find((i) => i.id === item.id);
+      const nextInventory = existing
+        ? state.inventory.map((i) =>
+            i.id === item.id ? { ...i, quantity: i.quantity + 1 } : i
+          )
+        : [...state.inventory, { ...item, quantity: 1 }];
+
+      return {
+        ...state,
+        finance: { ...state.finance, cash: state.finance.cash - item.price },
+        inventory: nextInventory,
+      };
+    }
     default:
       return state;
   }
@@ -169,6 +214,14 @@ export function GameProvider({ children }: GameProviderProps) {
     setDateMark: (date, mark) =>
       dispatch({ type: 'SET_DATE_MARK', payload: { ...mark, date } }),
     clearDateMark: (date) => dispatch({ type: 'CLEAR_DATE_MARK', payload: date }),
+    addInAppNotification: (notification) =>
+      dispatch({
+        type: 'ADD_IN_APP_NOTIFICATION',
+        payload: { ...notification, id: `notif-${Date.now()}` },
+      }),
+    removeInAppNotification: (id) =>
+      dispatch({ type: 'REMOVE_IN_APP_NOTIFICATION', payload: id }),
+    buyShopItem: (itemId) => dispatch({ type: 'BUY_SHOP_ITEM', payload: itemId }),
   };
 
   return <GameContext.Provider value={value}>{children}</GameContext.Provider>;

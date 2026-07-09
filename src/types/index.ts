@@ -3,15 +3,30 @@ export type SidebarTab = 'status' | 'talents' | 'social' | 'wealth' | 'calendar'
 export type SkillCategory = 'daily' | 'work' | 'special';
 export type FinanceTab = 'expenses' | 'virtual' | 'fixed';
 export type CalendarTab = 'calendar' | 'world' | 'nearby';
-export type PhoneAppId = 'news' | 'schedule' | 'messages' | 'travel' | 'mail' | 'gallery';
+export type PhoneAppId =
+  | 'news'
+  | 'schedule'
+  | 'messages'
+  | 'travel'
+  | 'mail'
+  | 'gallery'
+  | 'chat'
+  | 'sns'
+  | 'wallet';
 
-/** 全屏浮层视图类型：左侧六个模块 + 技能树/关系网/叙事历史 */
+/** 全屏浮层视图类型：左侧六个模块 + 技能树/关系网/叙事历史 + 生活系统 */
 export type OverlayViewType =
   | SidebarTab
   | 'skillTree'
   | 'network'
   | 'history'
-  | 'calendarFull';
+  | 'calendarFull'
+  | 'characters'
+  | 'characterDetail'
+  | 'creativeWorkshop'
+  | 'shop'
+  | 'memories'
+  | 'achievements';
 
 /** 保留旧名以兼容历史代码，语义上等同于 OverlayViewType */
 export type DetailViewType = OverlayViewType;
@@ -201,14 +216,130 @@ export interface PhoneApp {
   badge?: number;
 }
 
-/** 叙事消息严格限定为旁白/环境描写与角色对话两种 */
+export interface NarrativeOption {
+  id: string;
+  label: string;
+  impact?: string;
+}
+
 export interface NarrativeMessage {
   id: string;
-  type: 'scene' | 'dialogue';
-  speaker?: string;
-  avatar?: string;
+  type: 'scene' | 'dialogue' | 'option' | 'system';
   content: string;
+  speaker?: string;
+  speakerAvatar?: string;
   timestamp: string;
+  options?: NarrativeOption[];
+}
+
+export interface Character {
+  id: string;
+  name: string;
+  sourceWork: string;
+  avatar: string;
+  age: number;
+  identity: string;
+  school?: string;
+  occupation?: string;
+  address?: string;
+  personality: string[];
+  likes: string[];
+  dislikes: string[];
+  currentMood: string;
+  currentLocationId: string;
+  relationshipStage: 'stranger' | 'acquaintance' | 'friend' | 'close' | 'lover';
+  affection: number;
+  trust: number;
+  lastInteractionAt: string;
+  socialCircle: 'school' | 'work' | 'neighbor' | 'interest';
+}
+
+export interface Location {
+  id: string;
+  name: string;
+  type: 'home' | 'school' | 'company' | 'shop' | 'restaurant' | 'park' | 'station' | 'other';
+  description: string;
+  image: string;
+  coordinates: { x: number; y: number };
+  charactersPresent: string[];
+  eventsAvailable: string[];
+}
+
+export interface ScheduleEvent {
+  id: string;
+  title: string;
+  date: string;
+  time: string;
+  locationId: string;
+  type: 'class' | 'work' | 'appointment' | 'event' | 'deadline' | 'personal';
+  description?: string;
+  completed: boolean;
+}
+
+export interface Project {
+  id: string;
+  name: string;
+  type: 'novel' | 'manga' | 'game' | 'video' | 'music';
+  progress: number;
+  maxProgress: number;
+  deadline: string;
+  memberIds: string[];
+  tasks: { id: string; title: string; completed: boolean }[];
+  inspiration: number;
+}
+
+export interface ShopItem {
+  id: string;
+  name: string;
+  category: 'gift' | 'outfit' | 'furniture' | 'consumable' | 'book';
+  price: number;
+  effect: string;
+  description: string;
+  icon: string;
+}
+
+export interface InventoryItem extends ShopItem {
+  quantity: number;
+}
+
+export interface Memory {
+  id: string;
+  title: string;
+  date: string;
+  description: string;
+  image?: string;
+  characterIds: string[];
+}
+
+export interface Achievement {
+  id: string;
+  title: string;
+  description: string;
+  unlockedAt?: string;
+  icon: string;
+}
+
+export interface ChatThread {
+  id: string;
+  characterId: string;
+  messages: { id: string; role: 'user' | 'character'; content: string; timestamp: string }[];
+}
+
+export interface SNSPost {
+  id: string;
+  characterId: string;
+  content: string;
+  image?: string;
+  likes: number;
+  timestamp: string;
+}
+
+export interface InAppNotification {
+  id: string;
+  type: 'info' | 'success' | 'warning' | 'error';
+  title: string;
+  message?: string;
+  duration?: number;
 }
 
 export interface DetailViewState {
@@ -255,6 +386,8 @@ export interface GameState {
   narrative: {
     messages: NarrativeMessage[];
     inputText: string;
+    isGenerating: boolean;
+    branchRootId: string | null;
   };
   activeTab: SidebarTab;
   previewTab: SidebarTab;
@@ -264,4 +397,21 @@ export interface GameState {
   selectedMarkerId: string | null;
   /** 玩家自定义日历标记，key 为 YYYY-MM-DD */
   dateMarks: Record<string, DateMark>;
+
+  // Phase 2+ 新增数据层
+  characters: Character[];
+  locations: Location[];
+  scheduleEvents: ScheduleEvent[];
+  projects: Project[];
+  shopItems: ShopItem[];
+  inventory: InventoryItem[];
+  memories: Memory[];
+  achievements: Achievement[];
+  chatThreads: ChatThread[];
+  snsPosts: SNSPost[];
+  activeCharacterId: string | null;
+  activeLocationId: string;
+
+  // 内部临时通知
+  inAppNotifications: InAppNotification[];
 }
