@@ -99,22 +99,20 @@ export function FullMapModal({ onClose }: FullMapModalProps) {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4"
     >
-      <GlassCard variant="floating" className="w-full max-w-5xl h-[85vh] flex flex-col overflow-hidden"
-      >
+      <GlassCard variant="floating" className="w-full max-w-5xl h-[85vh] flex flex-col overflow-hidden">
         {/* 标题栏 */}
-        <div className="flex items-center justify-between px-5 py-4 border-b border-border-soft"
-        >
+        <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100">
           <div className="flex items-center gap-2">
-            <Navigation className="w-5 h-5 text-map-sunset" />
-            <h2 className="font-heading text-lg font-bold text-text-primary">世界地图</h2>
+            <Navigation className="w-5 h-5 text-sky-500" />
+            <h2 className="font-heading text-lg font-bold text-slate-800">世界地图</h2>
           </div>
           <button
             type="button"
             onClick={onClose}
             aria-label="关闭地图"
-            className="w-8 h-8 rounded-full bg-bg-glass hover:bg-white/60 flex items-center justify-center text-text-secondary transition-colors"
+            className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-500 transition-colors"
           >
             <X className="w-4 h-4" />
           </button>
@@ -128,16 +126,16 @@ export function FullMapModal({ onClose }: FullMapModalProps) {
           onMouseUp={handleMouseUp}
           onMouseLeave={handleMouseUp}
           onWheel={handleWheel}
-          className={`relative flex-1 overflow-hidden map-texture ${isDragging ? 'cursor-grabbing' : 'cursor-grab'}`}
+          className={`relative flex-1 overflow-hidden bg-sky-50 ${isDragging ? 'cursor-grabbing' : 'cursor-grab'}`}
         >
-          <div className="absolute inset-0 bg-gradient-to-br from-map-sunset/10 via-map-earth/5 to-accent-teal/5" />
+          <div className="absolute inset-0 bg-gradient-to-br from-sky-100/50 via-cream-50/30 to-mint-50/40" />
 
           <div
             className="absolute inset-0 opacity-25"
             style={{
               backgroundImage: `
-                linear-gradient(rgba(141,110,99,0.3) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(141,110,99,0.3) 1px, transparent 1px)
+                linear-gradient(rgba(148,163,184,0.25) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(148,163,184,0.25) 1px, transparent 1px)
               `,
               backgroundSize: '10% 10%',
             }}
@@ -146,7 +144,7 @@ export function FullMapModal({ onClose }: FullMapModalProps) {
           {map.regions.map((region) => (
             <div
               key={region.id}
-              className="absolute rounded-xl border border-white/40 flex items-center justify-center"
+              className="absolute rounded-xl border border-white/60 flex items-center justify-center"
               style={{
                 left: `${toPercent(region.x, map.center.x, viewRange)}%`,
                 top: `${toPercent(region.y, map.center.y, viewRange)}%`,
@@ -156,7 +154,7 @@ export function FullMapModal({ onClose }: FullMapModalProps) {
                 backgroundColor: region.color,
               }}
             >
-              <span className="text-xs font-medium text-text-primary/70">{region.name}</span>
+              <span className="text-xs font-medium text-slate-700/80">{region.name}</span>
             </div>
           ))}
 
@@ -173,7 +171,7 @@ export function FullMapModal({ onClose }: FullMapModalProps) {
           ))}
 
           <div
-            className="absolute w-4 h-4 rounded-full bg-accent-green border-2 border-white shadow-lg z-10"
+            className="absolute w-4 h-4 rounded-full bg-mint-500 border-2 border-white shadow-lg z-10"
             style={{
               left: '50%',
               top: '50%',
@@ -183,24 +181,23 @@ export function FullMapModal({ onClose }: FullMapModalProps) {
         </div>
 
         {/* 控制栏 */}
-        <div className="flex items-center justify-between px-5 py-3 border-t border-border-soft"
-        >
-          <span className="text-xs text-text-secondary">按住左键拖动 · 滚轮缩放 · 点击标记查看详情</span>
+        <div className="flex items-center justify-between px-5 py-3 border-t border-slate-100">
+          <span className="text-xs text-slate-500">按住左键拖动 · 滚轮缩放 · 点击标记查看详情</span>
 
           <div className="flex items-center gap-2">
             <button
               type="button"
               onClick={() => setMapZoom(Math.max(0.5, map.zoom - 0.2))}
-              className="w-8 h-8 rounded-full bg-bg-glass hover:bg-white/60 flex items-center justify-center text-text-secondary transition-colors"
+              className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-500 transition-colors"
               aria-label="缩小"
             >
               <Minus className="w-4 h-4" />
             </button>
-            <span className="text-sm font-number text-text-secondary w-12 text-center">{map.zoom.toFixed(1)}x</span>
+            <span className="text-sm font-number text-slate-500 w-12 text-center">{map.zoom.toFixed(1)}x</span>
             <button
               type="button"
               onClick={() => setMapZoom(Math.min(5, map.zoom + 0.2))}
-              className="w-8 h-8 rounded-full bg-bg-glass hover:bg-white/60 flex items-center justify-center text-text-secondary transition-colors"
+              className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-500 transition-colors"
               aria-label="放大"
             >
               <Plus className="w-4 h-4" />

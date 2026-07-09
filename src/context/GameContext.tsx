@@ -1,4 +1,4 @@
-import { createContext, useContext, useReducer, ReactNode } from 'react';
+import { createContext, useContext, useReducer, ReactNode, useCallback } from 'react';
 import type {
   GameState,
   SidebarTab,
@@ -9,6 +9,7 @@ import type {
   InAppNotification,
 } from '@/types';
 import { mockGameState } from '@/data/mockData';
+import { useLLM } from '@/hooks/useLLM';
 
 interface GameContextValue {
   state: GameState;
@@ -16,7 +17,9 @@ interface GameContextValue {
   setPreviewTab: (tab: SidebarTab) => void;
   setNarrativeInput: (text: string) => void;
   sendNarrativeMessage: (content: string) => void;
+  selectNarrativeOption: (optionId: string) => void;
   regenerateLastMessage: () => void;
+  branchNarrativeTo: (messageId: string) => void;
   setMapZoom: (zoom: number) => void;
   setMapCenter: (center: { x: number; y: number }) => void;
   setSelectedMarker: (id: string | null) => void;
@@ -41,6 +44,8 @@ type Action =
   | { type: 'SET_NARRATIVE_INPUT'; payload: string }
   | { type: 'ADD_NARRATIVE_MESSAGE'; payload: NarrativeMessage }
   | { type: 'SET_NARRATIVE_GENERATING'; payload: boolean }
+  | { type: 'SELECT_NARRATIVE_OPTION'; payload: string }
+  | { type: 'BRANCH_NARRATIVE_TO'; payload: string }
   | { type: 'REGENERATE_LAST_MESSAGE' }
   | { type: 'SET_MAP_ZOOM'; payload: number }
   | { type: 'SET_MAP_CENTER'; payload: { x: number; y: number } }
@@ -90,6 +95,42 @@ function gameReducer(state: GameState, action: Action): GameState {
     }
     case 'SET_NARRATIVE_GENERATING':
       return { ...state, narrative: { ...state.narrative, isGenerating: action.payload } };
+    case 'SELECT_NARRATIVE_OPTION': {
+      const optionLabel =
+        state.narrative.messages
+          .flatMap((m) => m.options ?? [])
+          .find((o) => o.id === action.payload)?.label ?? '';
+      const userMsg: NarrativeMessage = {
+        id: `msg-${Date.now()}`,
+        type: 'system',
+        content: `你选择了：${optionLabel}`,
+        timestamp: new Date().toLocaleTimeString('zh-CN', {
+          hour: '2-digit',
+          minute: '2-digit',
+        }),
+      };
+      return {
+        ...state,
+        narrative: {
+          ...state.narrative,
+          messages: [...state.narrative.messages, userMsg],
+          inputText: '',
+        },
+      };
+    }
+    case 'BRANCH_NARRATIVE_TO': {
+      const index = state.narrative.messages.findIndex((m) => m.id === action.payload);
+      if (index < 0) return state;
+      return {
+        ...state,
+        narrative: {
+          ...state.narrative,
+          messages: state.narrative.messages.slice(0, index + 1),
+          branchRootId: action.payload,
+          isGenerating: false,
+        },
+      };
+    }
     case 'REGENERATE_LAST_MESSAGE': {
       const messages = state.narrative.messages.slice(0, -1);
       const regenerated: NarrativeMessage = {
@@ -182,25 +223,118 @@ interface GameProviderProps {
 
 export function GameProvider({ children }: GameProviderProps) {
   const [state, dispatch] = useReducer(gameReducer, mockGameState);
+  const llm = useLLM();
+
+  const timestamp = useCallback(
+    () => new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' }),
+    []
+  );
+
+  const generateNarrative = useCallback(
+    async (input: string) => {
+      dispatch({ type: 'SET_NARRATIVE_GENERATING', payload: true });
+      const location = state.locations.find((l) => l.id === state.activeLocationId);
+      try {
+        const result = await llm.send(input, {
+          locationName: location?.name || '未知地点',
+          time: `${String(state.time.hour).padStart(2, '0')}:${String(state.time.minute).padStart(2, '0')}`,
+          playerName: state.player.name,
+          charactersPresent:
+            location?.charactersPresent
+              .map((id) => state.characters.find((c) => c.id === id)?.name)
+              .filter((name): name is string => Boolean(name)) ?? [],
+          history: state.narrative.messages.slice(-8).map((m) => m.content),
+        });
+
+        const now = timestamp();
+        const baseId = Date.now();
+        const messages: NarrativeMessage[] = [];
+        if (result.scene) {
+          messages.push({
+            id: `msg-${baseId}-scene`,
+            type: 'scene',
+            content: result.scene,
+            timestamp: now,
+          });
+        }
+        result.dialogues.forEach((d, i) =>
+          messages.push({
+            id: `msg-${baseId}-dlg-${i}`,
+            type: 'dialogue',
+            content: d.content,
+            speaker: d.speaker,
+            timestamp: now,
+          })
+        );
+        if (result.options.length > 0) {
+          messages.push({
+            id: `msg-${baseId}-opt`,
+            type: 'option',
+            content: '你要怎么做？',
+            options: result.options,
+            timestamp: now,
+          });
+        }
+        messages.forEach((m) => dispatch({ type: 'ADD_NARRATIVE_MESSAGE', payload: m }));
+      } finally {
+        dispatch({ type: 'SET_NARRATIVE_GENERATING', payload: false });
+      }
+    },
+    [state, llm, timestamp]
+  );
+
+  const sendNarrativeMessage = useCallback(
+    async (content: string) => {
+      const userMsg: NarrativeMessage = {
+        id: `msg-${Date.now()}`,
+        type: 'dialogue',
+        content,
+        timestamp: timestamp(),
+      };
+      dispatch({ type: 'ADD_NARRATIVE_MESSAGE', payload: userMsg });
+      await generateNarrative(content);
+    },
+    [generateNarrative, timestamp]
+  );
+
+  const selectNarrativeOption = useCallback(
+    (optionId: string) => {
+      const label =
+        state.narrative.messages
+          .flatMap((m) => m.options ?? [])
+          .find((o) => o.id === optionId)?.label ?? '';
+      dispatch({ type: 'SELECT_NARRATIVE_OPTION', payload: optionId });
+      generateNarrative(label);
+    },
+    [state.narrative.messages, generateNarrative]
+  );
+
+  const branchNarrativeTo = useCallback(
+    (messageId: string) => dispatch({ type: 'BRANCH_NARRATIVE_TO', payload: messageId }),
+    []
+  );
+
+  const regenerateLastMessage = useCallback(async () => {
+    const messages = state.narrative.messages;
+    const reverseIdx = [...messages].reverse().findIndex(
+      (m) => m.type === 'dialogue' && !m.speaker
+    );
+    if (reverseIdx < 0) return;
+    const idx = messages.length - 1 - reverseIdx;
+    const input = messages[idx].content;
+    dispatch({ type: 'BRANCH_NARRATIVE_TO', payload: messages[idx].id });
+    await generateNarrative(input);
+  }, [state.narrative.messages, generateNarrative]);
 
   const value: GameContextValue = {
     state,
     setActiveTab: (tab) => dispatch({ type: 'SET_ACTIVE_TAB', payload: tab }),
     setPreviewTab: (tab) => dispatch({ type: 'SET_PREVIEW_TAB', payload: tab }),
     setNarrativeInput: (text) => dispatch({ type: 'SET_NARRATIVE_INPUT', payload: text }),
-    sendNarrativeMessage: (content) => {
-      const message: NarrativeMessage = {
-        id: `msg-${Date.now()}`,
-        type: 'dialogue',
-        content,
-        timestamp: new Date().toLocaleTimeString('zh-CN', {
-          hour: '2-digit',
-          minute: '2-digit',
-        }),
-      };
-      dispatch({ type: 'ADD_NARRATIVE_MESSAGE', payload: message });
-    },
-    regenerateLastMessage: () => dispatch({ type: 'REGENERATE_LAST_MESSAGE' }),
+    sendNarrativeMessage,
+    selectNarrativeOption,
+    regenerateLastMessage,
+    branchNarrativeTo,
     setMapZoom: (zoom) => dispatch({ type: 'SET_MAP_ZOOM', payload: zoom }),
     setMapCenter: (center) => dispatch({ type: 'SET_MAP_CENTER', payload: center }),
     setSelectedMarker: (id) => dispatch({ type: 'SET_SELECTED_MARKER', payload: id }),
@@ -208,19 +342,15 @@ export function GameProvider({ children }: GameProviderProps) {
     closePhoneApp: () => dispatch({ type: 'CLOSE_PHONE_APP' }),
     expandPhone: () => dispatch({ type: 'EXPAND_PHONE' }),
     collapsePhone: () => dispatch({ type: 'COLLAPSE_PHONE' }),
-    openOverlayView: (type, payload) =>
-      dispatch({ type: 'OPEN_OVERLAY_VIEW', payload: type, meta: payload }),
+    openOverlayView: (type, payload) => dispatch({ type: 'OPEN_OVERLAY_VIEW', payload: type, meta: payload }),
     closeOverlayView: () => dispatch({ type: 'CLOSE_OVERLAY_VIEW' }),
-    setDateMark: (date, mark) =>
-      dispatch({ type: 'SET_DATE_MARK', payload: { ...mark, date } }),
+    setDateMark: (date, mark) => dispatch({ type: 'SET_DATE_MARK', payload: { ...mark, date } }),
     clearDateMark: (date) => dispatch({ type: 'CLEAR_DATE_MARK', payload: date }),
-    addInAppNotification: (notification) =>
-      dispatch({
-        type: 'ADD_IN_APP_NOTIFICATION',
-        payload: { ...notification, id: `notif-${Date.now()}` },
-      }),
-    removeInAppNotification: (id) =>
-      dispatch({ type: 'REMOVE_IN_APP_NOTIFICATION', payload: id }),
+    addInAppNotification: (notification) => dispatch({
+      type: 'ADD_IN_APP_NOTIFICATION',
+      payload: { ...notification, id: `notif-${Date.now()}` },
+    }),
+    removeInAppNotification: (id) => dispatch({ type: 'REMOVE_IN_APP_NOTIFICATION', payload: id }),
     buyShopItem: (itemId) => dispatch({ type: 'BUY_SHOP_ITEM', payload: itemId }),
   };
 

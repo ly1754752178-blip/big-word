@@ -67,9 +67,9 @@ export function SystemSettingsOverlay() {
 
   return (
     <div className="max-w-3xl mx-auto space-y-6">
-      <GlassCard variant="default" className="p-6">
-        <h3 className="font-heading text-xl font-bold text-text-primary flex items-center gap-2 mb-6">
-          <Settings className="w-6 h-6 text-accent-sunset" /> 系统设置
+      <GlassCard variant="cream" className="p-6">
+        <h3 className="font-heading text-xl font-bold text-slate-800 flex items-center gap-2 mb-6">
+          <Settings className="w-6 h-6 text-sky-500" /> 系统设置
         </h3>
 
         <div className="space-y-3 mb-6">
@@ -79,15 +79,15 @@ export function SystemSettingsOverlay() {
               initial={{ opacity: 0, x: -8 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: index * 0.06 }}
-              className="flex items-center justify-between rounded-2xl bg-bg-glass border border-border-soft p-4"
+              className="flex items-center justify-between rounded-2xl bg-white border border-slate-100 p-4"
             >
               <div className="flex items-center gap-4">
-                <div className="w-11 h-11 rounded-xl bg-accent-amber/15 flex items-center justify-center text-text-primary">
+                <div className="w-11 h-11 rounded-xl bg-sky-100 flex items-center justify-center text-sky-500">
                   {item.icon}
                 </div>
-                <span className="text-base text-text-primary font-medium">{item.label}</span>
+                <span className="text-base text-slate-700 font-medium">{item.label}</span>
               </div>
-              <span className="text-base font-medium text-text-secondary">{item.value}</span>
+              <span className="text-base font-medium text-slate-500">{item.value}</span>
             </motion.div>
           ))}
         </div>
@@ -96,28 +96,28 @@ export function SystemSettingsOverlay() {
           <button
             type="button"
             onClick={handleSave}
-            className="flex items-center justify-center gap-2 rounded-xl bg-accent-sunset/15 hover:bg-accent-sunset/25 text-accent-sunset py-3 text-sm font-medium transition-colors"
+            className="flex items-center justify-center gap-2 rounded-xl bg-sky-100 hover:bg-sky-200 text-sky-600 py-3 text-sm font-medium transition-colors"
           >
             <Save className="w-4 h-4" /> 保存
           </button>
           <button
             type="button"
             onClick={handleExport}
-            className="flex items-center justify-center gap-2 rounded-xl bg-accent-teal/15 hover:bg-accent-teal/25 text-accent-teal py-3 text-sm font-medium transition-colors"
+            className="flex items-center justify-center gap-2 rounded-xl bg-mint-100 hover:bg-mint-200 text-mint-600 py-3 text-sm font-medium transition-colors"
           >
             <Download className="w-4 h-4" /> 导出
           </button>
           <button
             type="button"
             onClick={handleImport}
-            className="flex items-center justify-center gap-2 rounded-xl bg-accent-amber/15 hover:bg-accent-amber/25 text-accent-amber py-3 text-sm font-medium transition-colors"
+            className="flex items-center justify-center gap-2 rounded-xl bg-amber-100 hover:bg-amber-200 text-amber-600 py-3 text-sm font-medium transition-colors"
           >
             <Upload className="w-4 h-4" /> 导入
           </button>
           <button
             type="button"
             onClick={() => showMessage('已重置为默认状态（演示模式）')}
-            className="flex items-center justify-center gap-2 rounded-xl bg-bg-glass hover:bg-white/60 text-text-secondary py-3 text-sm font-medium transition-colors"
+            className="flex items-center justify-center gap-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-500 py-3 text-sm font-medium transition-colors"
           >
             <RotateCcw className="w-4 h-4" /> 重置
           </button>
@@ -127,7 +127,7 @@ export function SystemSettingsOverlay() {
           <motion.div
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
-            className="mt-4 text-center text-sm text-accent-sunset font-medium"
+            className="mt-4 text-center text-sm text-coral-500 font-medium"
           >
             {message}
           </motion.div>

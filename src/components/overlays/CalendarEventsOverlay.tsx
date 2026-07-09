@@ -17,26 +17,23 @@ function EventMiniCard({
   const festival = getFestivalName(date);
 
   return (
-    <GlassCard variant="elevated" className="p-4 module-card-calendar flex flex-col"
-    >
+    <GlassCard variant="elevated" className="p-4 flex flex-col">
       <div className="flex items-center justify-between mb-2">
-        <span className="text-xs font-bold text-calendar-indigo uppercase tracking-wider">{label}</span>
-        <span className="text-[10px] text-text-muted">{getWeekdayCn(date)}</span>
+        <span className="text-xs font-bold text-sky-500 uppercase tracking-wider">{label}</span>
+        <span className="text-[10px] text-slate-400">{getWeekdayCn(date)}</span>
       </div>
-      <div className="font-number text-2xl font-bold text-text-primary mb-1">
-        {date.slice(5)}
-      </div>
+      <div className="font-number text-2xl font-bold text-slate-800 mb-1">{date.slice(5)}</div>
       {festival && (
-        <span className="inline-block px-2 py-0.5 rounded-full bg-calendar-indigo/15 text-calendar-indigo text-xs font-medium mb-2">
+        <span className="inline-block px-2 py-0.5 rounded-full bg-sky-100 text-sky-600 text-xs font-medium mb-2 w-fit">
           {festival}
         </span>
       )}
       <div className="flex-1 space-y-1.5 mt-1">
-        {events.length === 0 && (
-          <span className="text-xs text-text-muted">无日程</span>
-        )}
+        {events.length === 0 && <span className="text-xs text-slate-400">无日程</span>}
         {events.map((event) => (
-          <div key={event.id} className="text-xs text-text-secondary truncate">{event.title}</div>
+          <div key={event.id} className="text-xs text-slate-500 truncate">
+            {event.title}
+          </div>
         ))}
       </div>
     </GlassCard>
@@ -56,16 +53,16 @@ export function CalendarEventsOverlay() {
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
-      <GlassCard variant="default" className="p-5 module-card-calendar">
+      <GlassCard variant="sky" className="p-5">
         <div className="flex items-center justify-between mb-5">
-          <h3 className="font-heading text-base font-bold text-text-primary flex items-center gap-2">
-            <Calendar className="w-5 h-5 text-calendar-indigo" /> 近期日程
+          <h3 className="font-heading text-base font-bold text-slate-800 flex items-center gap-2">
+            <Calendar className="w-5 h-5 text-sky-500" /> 近期日程
           </h3>
           <motion.button
             type="button"
             onClick={() => openOverlayView('calendarFull')}
             whileTap={{ scale: 0.97 }}
-            className="px-4 py-2 rounded-full bg-calendar-indigo/15 text-calendar-indigo text-sm font-medium border border-calendar-indigo/25 hover:bg-calendar-indigo/25 transition-colors"
+            className="px-4 py-2 rounded-full bg-sky-100 text-sky-600 text-sm font-medium border border-sky-200 hover:bg-sky-200 transition-colors"
           >
             完整日历
           </motion.button>
@@ -78,35 +75,35 @@ export function CalendarEventsOverlay() {
         </div>
       </GlassCard>
 
-      <GlassCard variant="default" className="p-5 module-card-calendar">
-        <h3 className="font-heading text-base font-bold text-text-primary flex items-center gap-2 mb-4">
-          <Globe className="w-5 h-5 text-calendar-sky" /> 世界事件
+      <GlassCard variant="cream" className="p-5">
+        <h3 className="font-heading text-base font-bold text-slate-800 flex items-center gap-2 mb-4">
+          <Globe className="w-5 h-5 text-lavender-500" /> 世界事件
         </h3>
         <div className="space-y-2">
           {worldEvents.map((event) => (
-            <GlassCard key={event.id} variant="elevated" className="p-3">
+            <GlassCard key={event.id} variant="default" className="p-3">
               <div className="flex items-center justify-between">
-                <span className="text-sm font-bold text-text-primary">{event.title}</span>
-                <span className="text-[10px] text-text-muted">{event.date}</span>
+                <span className="text-sm font-bold text-slate-700">{event.title}</span>
+                <span className="text-[10px] text-slate-400">{event.date}</span>
               </div>
-              <p className="text-xs text-text-secondary mt-1">{event.description}</p>
+              <p className="text-xs text-slate-500 mt-1">{event.description}</p>
             </GlassCard>
           ))}
         </div>
       </GlassCard>
 
-      <GlassCard variant="default" className="p-5 module-card-calendar">
-        <h3 className="font-heading text-base font-bold text-text-primary flex items-center gap-2 mb-4">
-          <MapPin className="w-5 h-5 text-calendar-indigo" /> 附近动态
+      <GlassCard variant="coral" className="p-5">
+        <h3 className="font-heading text-base font-bold text-slate-800 flex items-center gap-2 mb-4">
+          <MapPin className="w-5 h-5 text-coral-400" /> 附近动态
         </h3>
         <div className="space-y-2">
           {nearbyEvents.map((event) => (
-            <GlassCard key={event.id} variant="elevated" className="p-3">
+            <GlassCard key={event.id} variant="default" className="p-3">
               <div className="flex items-center justify-between">
-                <span className="text-sm font-bold text-text-primary">{event.title}</span>
-                <span className="text-[10px] text-text-muted">{event.date}</span>
+                <span className="text-sm font-bold text-slate-700">{event.title}</span>
+                <span className="text-[10px] text-slate-400">{event.date}</span>
               </div>
-              <p className="text-xs text-text-secondary mt-1">{event.description}</p>
+              <p className="text-xs text-slate-500 mt-1">{event.description}</p>
             </GlassCard>
           ))}
         </div>

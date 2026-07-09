@@ -17,10 +17,10 @@ export function Phone() {
           <>
             {/* 状态栏 */}
             <div className="flex items-center justify-between px-5 pt-3 pb-2">
-              <span className="text-xs font-number text-text-primary/80">
+              <span className="text-xs font-number text-slate-700/80">
                 {String(time.hour).padStart(2, '0')}:{String(time.minute).padStart(2, '0')}
               </span>
-              <div className="flex items-center gap-1.5 text-text-primary/70">
+              <div className="flex items-center gap-1.5 text-slate-700/70">
                 <span className="text-[10px]">5G</span>
               </div>
             </div>
@@ -31,7 +31,7 @@ export function Phone() {
               <>
                 {/* 通知摘要 */}
                 <div className="px-5 mb-2">
-                  <h4 className="text-xs font-semibold text-text-primary/80 mb-2">通知</h4>
+                  <h4 className="text-xs font-semibold text-slate-700/80 mb-2">通知</h4>
                   <div className="space-y-1.5">
                     {notifications.slice(0, 3).map((notification) => (
                       <NotificationItem key={notification.id} notification={notification} />

@@ -11,6 +11,9 @@ import {
   Wallet,
 } from 'lucide-react';
 import type { PhoneAppId } from '@/types';
+import { ChatApp } from './apps/ChatApp';
+import { SNSApp } from './apps/SNSApp';
+import { WalletApp } from './apps/WalletApp';
 
 const appIconMap: Record<PhoneAppId, React.ReactNode> = {
   news: <Newspaper className="w-6 h-6" />,
@@ -38,7 +41,10 @@ export function PhoneAppScreen({ app, onBack }: PhoneAppScreenProps) {
         return (
           <div className="space-y-3">
             {state.calendar.worldEvents.map((event) => (
-              <div key={event.id} className="rounded-2xl bg-white border border-slate-100 shadow-soft p-3">
+              <div
+                key={event.id}
+                className="rounded-2xl bg-white border border-slate-100 shadow-soft p-3"
+              >
                 <h4 className="text-sm font-bold text-slate-800">{event.title}</h4>
                 <p className="text-xs text-slate-500 mt-1">{event.description}</p>
               </div>
@@ -49,7 +55,10 @@ export function PhoneAppScreen({ app, onBack }: PhoneAppScreenProps) {
         return (
           <div className="space-y-3">
             {state.calendar.calendarEvents.map((event) => (
-              <div key={event.id} className="rounded-2xl bg-white border border-slate-100 shadow-soft p-3">
+              <div
+                key={event.id}
+                className="rounded-2xl bg-white border border-slate-100 shadow-soft p-3"
+              >
                 <h4 className="text-sm font-bold text-slate-800">{event.title}</h4>
                 <p className="text-xs text-slate-500 mt-1">{event.date}</p>
               </div>
@@ -60,7 +69,10 @@ export function PhoneAppScreen({ app, onBack }: PhoneAppScreenProps) {
         return (
           <div className="space-y-3">
             {state.relationships.list.slice(0, 3).map((relation) => (
-              <div key={relation.id} className="flex items-center gap-3 rounded-2xl bg-white border border-slate-100 shadow-soft p-3">
+              <div
+                key={relation.id}
+                className="flex items-center gap-3 rounded-2xl bg-white border border-slate-100 shadow-soft p-3"
+              >
                 <div className="w-9 h-9 rounded-full bg-cream-100 flex items-center justify-center text-sm font-bold text-slate-700"
                 >
                   {relation.name.slice(0, 1)}
@@ -74,66 +86,11 @@ export function PhoneAppScreen({ app, onBack }: PhoneAppScreenProps) {
           </div>
         );
       case 'chat':
-        return (
-          <div className="space-y-3">
-            {state.chatThreads.map((thread) => {
-              const character = state.characters.find((c) => c.id === thread.characterId);
-              const last = thread.messages[thread.messages.length - 1];
-              return (
-                <div key={thread.id} className="flex items-center gap-3 rounded-2xl bg-white border border-slate-100 shadow-soft p-3">
-                  <div className="w-9 h-9 rounded-full bg-sky-100 flex items-center justify-center text-sm font-bold text-slate-700">
-                    {character?.name.slice(0, 1) ?? '?'}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <h4 className="text-sm font-bold text-slate-800 truncate">{character?.name ?? '未知角色'}</h4>
-                    <p className="text-xs text-slate-500 truncate">{last?.content ?? '暂无消息'}</p>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        );
+        return <ChatApp />;
       case 'sns':
-        return (
-          <div className="space-y-3">
-            {state.snsPosts.map((post) => {
-              const character = state.characters.find((c) => c.id === post.characterId);
-              return (
-                <div key={post.id} className="rounded-2xl bg-white border border-slate-100 shadow-soft p-3">
-                  <div className="flex items-center gap-2 mb-2">
-                    <div className="w-7 h-7 rounded-full bg-coral-100 flex items-center justify-center text-xs font-bold text-slate-700">
-                      {character?.name.slice(0, 1) ?? '?'}
-                    </div>
-                    <span className="text-xs font-bold text-slate-700">{character?.name ?? '未知角色'}</span>
-                  </div>
-                  <p className="text-sm text-slate-700">{post.content}</p>
-                  <div className="mt-2 flex items-center gap-1 text-xs text-slate-400">
-                    <Heart className="w-3 h-3" /> {post.likes}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        );
+        return <SNSApp />;
       case 'wallet':
-        return (
-          <div className="space-y-3">
-            <div className="rounded-2xl bg-mint-50 border border-mint-100 p-4 text-center">
-              <div className="text-xs text-slate-500">当前现金</div>
-              <div className="mt-1 text-2xl font-number font-bold text-slate-800">¥{state.finance.cash.toLocaleString()}</div>
-            </div>
-            <div className="space-y-2">
-              {state.finance.expenses.slice(0, 5).map((tx) => (
-                <div key={tx.id} className="flex items-center justify-between text-xs rounded-xl bg-white border border-slate-100 p-2.5">
-                  <span className="text-slate-700 truncate">{tx.title}</span>
-                  <span className={`font-number ${tx.type === 'income' ? 'text-mint-500' : 'text-coral-500'}`}>
-                    {tx.type === 'income' ? '+' : ''}{tx.amount.toLocaleString()}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
-        );
+        return <WalletApp />;
       default:
         return (
           <div className="text-center py-12">

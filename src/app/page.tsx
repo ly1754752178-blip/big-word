@@ -6,6 +6,7 @@ import { RightPanel } from '@/components/layout/RightPanel';
 import { Phone } from '@/components/layout/Phone';
 import { NarrativePanel } from '@/components/modules/NarrativePanel';
 import { OverlayRenderer } from '@/components/overlays/OverlayRenderer';
+import { NotificationContainer } from '@/components/ui/NotificationContainer';
 
 export default function App() {
   return (
@@ -37,6 +38,9 @@ export default function App() {
         </div>
 
         <Phone />
+
+        {/* 游戏内通知 */}
+        <NotificationContainer />
 
         {/* 全局全屏浮层 */}
         <OverlayRenderer />
