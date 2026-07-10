@@ -60,64 +60,65 @@ function TreeCircles({
         const r = isRoot ? 5.5 : 4;
         const isSelected = node.id === selectedId;
         return (
-          <motion.g
-            key={node.id}
-            custom={i}
-            variants={nodeVariants}
-            initial="hidden"
-            animate="visible"
-            style={{ originX: `${node.position.x}px`, originY: `${node.position.y}px` }}
-            transform={`translate(${node.position.x}, ${node.position.y})`}
-            onClick={() => onSelect(node)}
-            className="cursor-pointer"
-          >
-            {/* 选中脉冲光环 */}
-            {isSelected && (
-              <circle r={r + 3} fill="none" stroke={color} strokeWidth="0.8" opacity={0.5}>
-                <animate attributeName="r" from={r + 3} to={r + 6} dur="1.5s" repeatCount="indefinite" />
-                <animate attributeName="opacity" from="0.5" to="0" dur="1.5s" repeatCount="indefinite" />
-              </circle>
-            )}
-            {/* 双重光环（根节点） */}
-            {isRoot && node.unlocked && (
-              <circle r={r + 2} fill="none" stroke={color} strokeWidth="0.3" opacity={0.35} />
-            )}
-            {/* 主体圆 */}
-            <circle
-              r={r}
-              fill={node.unlocked ? `url(#nodeGradient-${node.id})` : '#E2E8F0'}
-              stroke={node.unlocked ? color : '#94A3B8'}
-              strokeWidth={isSelected ? 1.2 : 0.6}
-            />
-            {/* 渐变定义 */}
+          /* 外层 <g> 负责 SVG 坐标定位，不受动画影响 */
+          <g key={node.id} transform={`translate(${node.position.x}, ${node.position.y})`}>
+            {/* 渐变定义放在此处，确保 id 在 SVG 中唯一 */}
             <defs>
               <radialGradient id={`nodeGradient-${node.id}`}>
                 <stop offset="0%" stopColor={node.unlocked ? color : '#CBD5E1'} />
                 <stop offset="100%" stopColor={node.unlocked ? `${color}88` : '#E2E8F0'} />
               </radialGradient>
             </defs>
-            {/* 名称 */}
-            <text
-              y={r + 3.2}
-              textAnchor="middle"
-              fontSize={isRoot ? 2.8 : 2.3}
-              fill={node.unlocked ? '#1E293B' : '#94A3B8'}
-              fontWeight={isRoot ? 'bold' : 'normal'}
-              className="select-none pointer-events-none"
+            {/* 内层 motion.g 只负责动画（scale/opacity），不影响坐标 */}
+            <motion.g
+              custom={i}
+              variants={nodeVariants}
+              initial="hidden"
+              animate="visible"
+              onClick={() => onSelect(node)}
+              className="cursor-pointer"
             >
-              {node.name}
-            </text>
-            {/* 等级 */}
-            <text
-              y={r + 5.5}
-              textAnchor="middle"
-              fontSize="1.8"
-              fill={node.unlocked ? '#64748B' : '#CBD5E1'}
-              className="select-none pointer-events-none"
-            >
-              Lv.{node.level}/{node.maxLevel}
-            </text>
-          </motion.g>
+              {/* 选中脉冲光环 */}
+              {isSelected && (
+                <circle r={r + 3} fill="none" stroke={color} strokeWidth="0.8" opacity={0.5}>
+                  <animate attributeName="r" from={r + 3} to={r + 6} dur="1.5s" repeatCount="indefinite" />
+                  <animate attributeName="opacity" from="0.5" to="0" dur="1.5s" repeatCount="indefinite" />
+                </circle>
+              )}
+              {/* 双重光环（根节点） */}
+              {isRoot && node.unlocked && (
+                <circle r={r + 2} fill="none" stroke={color} strokeWidth="0.3" opacity={0.35} />
+              )}
+              {/* 主体圆 */}
+              <circle
+                r={r}
+                fill={node.unlocked ? `url(#nodeGradient-${node.id})` : '#E2E8F0'}
+                stroke={node.unlocked ? color : '#94A3B8'}
+                strokeWidth={isSelected ? 1.2 : 0.6}
+              />
+              {/* 名称 */}
+              <text
+                y={r + 3.2}
+                textAnchor="middle"
+                fontSize={isRoot ? 2.8 : 2.3}
+                fill={node.unlocked ? '#1E293B' : '#94A3B8'}
+                fontWeight={isRoot ? 'bold' : 'normal'}
+                className="select-none pointer-events-none"
+              >
+                {node.name}
+              </text>
+              {/* 等级 */}
+              <text
+                y={r + 5.5}
+                textAnchor="middle"
+                fontSize="1.8"
+                fill={node.unlocked ? '#64748B' : '#CBD5E1'}
+                className="select-none pointer-events-none"
+              >
+                Lv.{node.level}/{node.maxLevel}
+              </text>
+            </motion.g>
+          </g>
         );
       })}
     </g>
