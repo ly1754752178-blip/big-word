@@ -17,6 +17,7 @@ export type PhoneAppId =
 /** 全屏浮层视图类型：左侧六个模块 + 技能树/关系网/叙事历史 + 生活系统 */
 export type OverlayViewType =
   | SidebarTab
+  | 'skills'
   | 'skillTree'
   | 'network'
   | 'history'

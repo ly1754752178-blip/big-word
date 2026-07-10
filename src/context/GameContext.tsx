@@ -50,6 +50,7 @@ type Action =
   | { type: 'SET_MAP_ZOOM'; payload: number }
   | { type: 'SET_MAP_CENTER'; payload: { x: number; y: number } }
   | { type: 'SET_SELECTED_MARKER'; payload: string | null }
+  | { type: 'TOGGLE_PHONE' }
   | { type: 'EXPAND_PHONE' }
   | { type: 'COLLAPSE_PHONE' }
   | { type: 'OPEN_PHONE_APP'; payload: PhoneAppId }
@@ -69,6 +70,7 @@ const overlayTitles: Record<OverlayViewType, string> = {
   wealth: '财富资产',
   calendar: '日历事件',
   settings: '系统设置',
+  skills: '技能',
   skillTree: '技能树',
   network: '关系网络',
   history: '叙事历史',
@@ -151,6 +153,8 @@ function gameReducer(state: GameState, action: Action): GameState {
       return { ...state, map: { ...state.map, center: action.payload } };
     case 'SET_SELECTED_MARKER':
       return { ...state, selectedMarkerId: action.payload };
+    case 'TOGGLE_PHONE':
+      return { ...state, phoneExpanded: !state.phoneExpanded };
     case 'EXPAND_PHONE':
       return { ...state, phoneExpanded: true };
     case 'COLLAPSE_PHONE':
@@ -340,7 +344,7 @@ export function GameProvider({ children }: GameProviderProps) {
     setSelectedMarker: (id) => dispatch({ type: 'SET_SELECTED_MARKER', payload: id }),
     openPhoneApp: (appId) => dispatch({ type: 'OPEN_PHONE_APP', payload: appId }),
     closePhoneApp: () => dispatch({ type: 'CLOSE_PHONE_APP' }),
-    expandPhone: () => dispatch({ type: 'EXPAND_PHONE' }),
+    expandPhone: () => dispatch({ type: 'TOGGLE_PHONE' }),
     collapsePhone: () => dispatch({ type: 'COLLAPSE_PHONE' }),
     openOverlayView: (type, payload) => dispatch({ type: 'OPEN_OVERLAY_VIEW', payload: type, meta: payload }),
     closeOverlayView: () => dispatch({ type: 'CLOSE_OVERLAY_VIEW' }),

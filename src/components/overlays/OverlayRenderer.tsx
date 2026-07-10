@@ -24,6 +24,7 @@ const accentMap: Record<import('@/types').OverlayViewType, NonNullable<React.Com
   wealth: 'wealth',
   calendar: 'calendar',
   settings: 'default',
+  skills: 'talent',
   skillTree: 'talent',
   network: 'social',
   history: 'default',
@@ -36,12 +37,23 @@ const accentMap: Record<import('@/types').OverlayViewType, NonNullable<React.Com
   achievements: 'wealth',
 };
 
+const talentsCategoryLabels: Record<string, string> = {
+  daily: '日常技能',
+  work: '工作技能',
+  special: '特殊技能',
+};
+
 export function OverlayRenderer() {
   const { state, closeOverlayView } = useGame();
   const { detailView } = state;
   const isOpen = detailView !== null;
   const type = detailView?.type;
-  const title = detailView?.title ?? '';
+
+  // 天赋/技能分类界面使用分类名作为标题，而非固定的"天赋才能"
+  let title = detailView?.title ?? '';
+  if (type === 'talents' && detailView?.payload?.category) {
+    title = talentsCategoryLabels[detailView.payload.category as string] ?? title;
+  }
 
   return (
     <FullscreenOverlay
