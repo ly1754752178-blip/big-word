@@ -121,6 +121,8 @@ export interface SkillNode {
   parentIds?: string[];
   /** 节点在技能树画布中的相对坐标（百分比 0–100） */
   position?: { x: number; y: number };
+  /** 大技能节点：上限1级，可折叠/展开其子节点 */
+  isMajor?: boolean;
 }
 
 export interface SkillTree {
