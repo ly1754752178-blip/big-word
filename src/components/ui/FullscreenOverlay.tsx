@@ -80,7 +80,12 @@ export function FullscreenOverlay({
           exit={{ opacity: 0 }}
           transition={{ duration: 0.25 }}
           className="fixed inset-0 z-50 flex items-center justify-center p-4 md:p-6 bg-slate-900/50 backdrop-blur-sm"
-          onClick={onClose}
+          onClick={(e) => {
+            // 仅当点击的是遮罩本身（而非其子元素）时才关闭
+            if (e.target === e.currentTarget) {
+              onClose();
+            }
+          }}
           role="dialog"
           aria-modal="true"
         >
@@ -89,7 +94,10 @@ export function FullscreenOverlay({
             animate={{ y: 0, opacity: 1, scale: 1 }}
             exit={{ y: 40, opacity: 0, scale: 0.96 }}
             transition={{ type: 'spring', stiffness: 320, damping: 30 }}
-            onClick={(e) => e.stopPropagation()}
+            onClick={(e) => {
+              // 阻止冒泡到遮罩，防止意外关闭
+              e.stopPropagation();
+            }}
             className={cn(
               'relative max-h-[calc(100vh-2rem)] md:max-h-[calc(100vh-3rem)] w-full max-w-6xl flex flex-col rounded-3xl overflow-hidden bg-cream-50 shadow-soft-lg border border-white/80',
               className
