@@ -11,7 +11,7 @@ export function TopBar() {
   return (
     <header
       id="top-bar"
-      className="relative h-16 px-5 flex items-center justify-between bg-gradient-to-r from-sky-50 via-cream-50 to-sky-50 border-b border-sky-100 z-20"
+      className="relative h-16 px-5 flex items-center justify-between bg-[#FDFAF5] z-20 shadow-sm overflow-visible"
     >
       {/* 左侧日期与节日 */}
       <div className="flex items-center gap-4 w-1/3">
@@ -50,11 +50,24 @@ export function TopBar() {
         </button>
       </div>
 
-      {/* 中间天气球凹槽 */}
-      <div className="absolute left-1/2 -translate-x-1/2 -bottom-5 w-28 h-14 bg-gradient-to-r from-sky-50 via-cream-50 to-sky-50 rounded-b-full border-b border-x border-sky-100 shadow-soft">
-        <div className="absolute left-1/2 -translate-x-1/2 -top-10">
-          <SkyOrb />
-        </div>
+      {/* 底部边框：左段水平线 */}
+      <div
+        className="absolute left-0 bottom-0 border-b-2 border-[#E8DFD3] pointer-events-none"
+        style={{ right: 'calc(50% + 39px)' }}
+      />
+
+      {/* 底部边框：右段水平线 */}
+      <div
+        className="absolute right-0 bottom-0 border-b-2 border-[#E8DFD3] pointer-events-none"
+        style={{ left: 'calc(50% + 39px)' }}
+      />
+
+      {/* 底部边框：中间半圆浅凸出，包裹天气球露出部分（~15px） */}
+      <div className="absolute left-1/2 bottom-[-18px] -translate-x-1/2 w-[78px] h-[18px] border-2 border-t-0 border-[#E8DFD3] rounded-b-full bg-[#FDFAF5] pointer-events-none" />
+
+      {/* 天气球 — 约20%露出 TopBar 下方 */}
+      <div className="absolute left-1/2 -translate-x-1/2 bottom-[-15px] z-10">
+        <SkyOrb />
       </div>
 
       {/* 右侧 BGM 播放器 */}

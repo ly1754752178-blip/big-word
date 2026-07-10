@@ -2,14 +2,28 @@ import { useGame } from '@/hooks/useGameState';
 import { MapMarker } from './MapMarker';
 import { SceneImpression } from './SceneImpression';
 
-export function MiniMap() {
+interface MiniMapProps {
+  view?: 'city' | 'national';
+}
+
+export function MiniMap({ view = 'city' }: MiniMapProps) {
   const { state } = useGame();
   const { map } = state;
 
-  const viewRange = 2500 / map.zoom;
-  const toPercent = (value: number, center: number, range: number) => {
-    return 50 + ((value - center) / range) * 50;
+  // 城市地图：近距离，高缩放；全国地图：远距离，低缩放
+  const isCity = view === 'city';
+  const zoom = isCity ? map.zoom : map.zoom * 0.4;
+  const center = isCity ? map.center : { x: 0, y: 0 };
+
+  const viewRange = 2500 / Math.max(0.3, zoom);
+  const toPercent = (value: number, c: number, range: number) => {
+    return 50 + ((value - c) / range) * 50;
   };
+
+  // 全国地图显示所有标记，城市地图只显示附近的
+  const visibleMarkers = isCity
+    ? map.markers.filter(m => Math.abs(m.x - map.center.x) < 2000 && Math.abs(m.y - map.center.y) < 2000)
+    : map.markers;
 
   return (
     <div className="relative w-full h-full rounded-2xl overflow-hidden border border-slate-100 shadow-soft bg-cream-50">
@@ -23,7 +37,7 @@ export function MiniMap() {
               linear-gradient(rgba(100,116,139,0.2) 1px, transparent 1px),
               linear-gradient(90deg, rgba(100,116,139,0.2) 1px, transparent 1px)
             `,
-            backgroundSize: '20% 20%',
+            backgroundSize: `${isCity ? '20%' : '10%'} ${isCity ? '20%' : '10%'}`,
           }}
         />
 
@@ -32,8 +46,8 @@ export function MiniMap() {
             key={region.id}
             className="absolute rounded-lg border border-white/40"
             style={{
-              left: `${toPercent(region.x, map.center.x, viewRange)}%`,
-              top: `${toPercent(region.y, map.center.y, viewRange)}%`,
+              left: `${toPercent(region.x, center.x, viewRange)}%`,
+              top: `${toPercent(region.y, center.y, viewRange)}%`,
               width: `${(region.width / viewRange) * 50}%`,
               height: `${(region.height / viewRange) * 50}%`,
               transform: 'translate(-50%, -50%)',
@@ -42,13 +56,13 @@ export function MiniMap() {
           />
         ))}
 
-        {map.markers.map((marker) => (
+        {visibleMarkers.map((marker) => (
           <MapMarker
             key={marker.id}
             marker={marker}
             style={{
-              left: `${toPercent(marker.x, map.center.x, viewRange)}%`,
-              top: `${toPercent(marker.y, map.center.y, viewRange)}%`,
+              left: `${toPercent(marker.x, center.x, viewRange)}%`,
+              top: `${toPercent(marker.y, center.y, viewRange)}%`,
             }}
           />
         ))}
@@ -62,9 +76,10 @@ export function MiniMap() {
           }}
         />
 
-        <div className="absolute bottom-2 left-2 px-2 py-1 rounded-lg bg-white/80 backdrop-blur-sm border border-white/60 shadow-soft text-[10px] font-number text-slate-500"
-        >
-          X:{Math.round(map.center.x)} Y:{Math.round(map.center.y)}
+        <div className="absolute bottom-2 left-2 px-2 py-1 rounded-lg bg-white/80 backdrop-blur-sm border border-white/60 shadow-soft text-[10px] font-number text-slate-500">
+          {isCity
+            ? `X:${Math.round(map.center.x)} Y:${Math.round(map.center.y)}`
+            : '全国概览'}
         </div>
       </div>
     </div>

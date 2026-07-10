@@ -1,0 +1,173 @@
+- generic [ref=f5e3]:
+  - generic [ref=f5e4]:
+    - banner [ref=f5e5]:
+      - button "2026 / 07 / 08 水曜日 今天是七夕哦！ 周三 · 黄昏" [ref=f5e7] [cursor=pointer]:
+        - img [ref=f5e10]
+        - generic [ref=f5e12]:
+          - generic [ref=f5e13]:
+            - generic [ref=f5e14]: 2026 / 07 / 08
+            - generic [ref=f5e15]: 水曜日
+          - generic [ref=f5e16]:
+            - generic [ref=f5e17]:
+              - img [ref=f5e18]
+              - text: 今天是七夕哦！
+            - generic [ref=f5e20]: 周三 · 黄昏
+      - generic [ref=f5e24]:
+        - img [ref=f5e28]
+        - generic [ref=f5e31]:
+          - img [ref=f5e32]
+          - generic [ref=f5e38]: 18:30
+      - generic [ref=f5e41]:
+        - generic [ref=f5e45]: 封面
+        - generic [ref=f5e48]: 《黄昏的车站》
+        - generic [ref=f5e49]:
+          - button "循环" [ref=f5e50] [cursor=pointer]:
+            - img [ref=f5e51]
+          - button "上一首" [ref=f5e56] [cursor=pointer]:
+            - img [ref=f5e57]
+          - button "暂停" [ref=f5e59] [cursor=pointer]:
+            - img [ref=f5e60]
+          - button "下一首" [ref=f5e63] [cursor=pointer]:
+            - img [ref=f5e64]
+          - button "列表" [ref=f5e66] [cursor=pointer]:
+            - img [ref=f5e67]
+    - generic [ref=f5e69]:
+      - complementary [ref=f5e70]:
+        - complementary [ref=f5e71]:
+          - button "个人状态" [ref=f5e72] [cursor=pointer]:
+            - img [ref=f5e73]
+          - button "天赋才能" [active] [ref=f5e76] [cursor=pointer]:
+            - img [ref=f5e77]
+          - button "社交关系" [ref=f5e79] [cursor=pointer]:
+            - img [ref=f5e80]
+          - button "财富资产" [ref=f5e85] [cursor=pointer]:
+            - img [ref=f5e86]
+          - button "日历事件" [ref=f5e89] [cursor=pointer]:
+            - img [ref=f5e90]
+          - button "系统设置" [ref=f5e92] [cursor=pointer]:
+            - img [ref=f5e93]
+          - button "角色图鉴" [ref=f5e97] [cursor=pointer]:
+            - img [ref=f5e98]
+        - generic [ref=f5e305]:
+          - generic [ref=f5e307]: 天赋才能
+          - generic [ref=f5e308]:
+            - generic [ref=f5e310]:
+              - img [ref=f5e311]
+              - generic [ref=f5e313]: 共感者
+            - generic [ref=f5e315]:
+              - img [ref=f5e316]
+              - generic [ref=f5e318]: 夜猫子
+            - generic [ref=f5e320]:
+              - img [ref=f5e321]
+              - generic [ref=f5e324]: 过目不忘
+          - generic [ref=f5e325]:
+            - button "日常技能 料理 Lv.3/10 打扫 Lv.2/10" [ref=f5e326] [cursor=pointer]:
+              - generic [ref=f5e327]:
+                - generic [ref=f5e328]:
+                  - img [ref=f5e330]
+                  - generic [ref=f5e335]: 日常技能
+                - img [ref=f5e336]
+              - generic [ref=f5e338]:
+                - generic "料理 Lv.3/10" [ref=f5e339]:
+                  - img [ref=f5e340]
+                  - generic [ref=f5e345]: 料理
+                  - generic [ref=f5e346]: Lv.3/10
+                - generic "打扫 Lv.2/10" [ref=f5e347]:
+                  - img [ref=f5e348]
+                  - generic [ref=f5e351]: 打扫
+                  - generic [ref=f5e352]: Lv.2/10
+            - button "工作技能 编程 Lv.4/10" [ref=f5e360] [cursor=pointer]:
+              - generic [ref=f5e361]:
+                - generic [ref=f5e362]:
+                  - img [ref=f5e364]
+                  - generic [ref=f5e367]: 工作技能
+                - img [ref=f5e368]
+              - generic "编程 Lv.4/10" [ref=f5e371]:
+                - img [ref=f5e372]
+                - generic [ref=f5e375]: 编程
+                - generic [ref=f5e376]: Lv.4/10
+            - button "特殊技能 魔术 Lv.1/10" [ref=f5e385] [cursor=pointer]:
+              - generic [ref=f5e386]:
+                - generic [ref=f5e387]:
+                  - img [ref=f5e389]
+                  - generic [ref=f5e392]: 特殊技能
+                - img [ref=f5e393]
+              - generic "魔术 Lv.1/10" [ref=f5e396]:
+                - img [ref=f5e397]
+                - generic [ref=f5e400]: 魔术
+                - generic [ref=f5e401]: Lv.1/10
+      - main [ref=f5e181]:
+        - generic [ref=f5e182]:
+          - generic [ref=f5e183]:
+            - paragraph [ref=f5e186]: 你醒来时，窗外是四月的黄昏。远处传来电车的声音，风把窗帘吹得轻轻晃动。
+            - generic [ref=f5e188]:
+              - generic [ref=f5e190]: S
+              - generic [ref=f5e191]:
+                - generic [ref=f5e192]: 朝比奈樱
+                - paragraph [ref=f5e194]: 悠真，今天放学后要一起去学生会室吗？
+            - paragraph [ref=f5e197]: 她将书包抱在胸前，夕阳把她的发梢染成温暖的橘色。车站方向的铃声隐约传来。
+          - generic [ref=f5e199]:
+            - button "历史" [ref=f5e200] [cursor=pointer]:
+              - img [ref=f5e201]
+            - textbox "输入你想说的话……" [ref=f5e205]
+            - button "发送" [disabled] [ref=f5e206]:
+              - img [ref=f5e207]
+      - complementary [ref=f5e210]:
+        - generic [ref=f5e211]:
+          - generic [ref=f5e212]:
+            - generic:
+              - generic:
+                - img
+              - generic [ref=f5e215]:
+                - img [ref=f5e216]
+                - generic [ref=f5e219]: 学区
+          - generic [ref=f5e220]:
+            - generic [ref=f5e221]:
+              - generic [ref=f5e222]:
+                - img [ref=f5e223]
+                - text: GPS
+              - button "展开" [ref=f5e225] [cursor=pointer]:
+                - text: 展开
+                - img [ref=f5e226]
+            - generic [ref=f5e229]:
+              - generic [ref=f5e230]:
+                - img [ref=f5e233]
+                - generic [ref=f5e236]:
+                  - img [ref=f5e237]
+                  - generic [ref=f5e240]: 学区
+              - generic [ref=f5e241]:
+                - button "自家公寓：两室一厅，位于安静的住宅区" [ref=f5e246] [cursor=pointer]:
+                  - img [ref=f5e247]
+                  - generic [ref=f5e250]: 自家公寓
+                - button "樱丘高中：你就读的高中，放学后经常热闹到傍晚" [ref=f5e251] [cursor=pointer]:
+                  - img [ref=f5e252]
+                  - generic [ref=f5e255]: 樱丘高中
+                - button "车站前书店：藤堂静打工的地方，二楼有咖啡馆" [ref=f5e256] [cursor=pointer]:
+                  - img [ref=f5e257]
+                  - generic [ref=f5e260]: 车站前书店
+                - button "公园长椅：傍晚常有街头艺人在这里弹唱" [ref=f5e261] [cursor=pointer]:
+                  - img [ref=f5e262]
+                  - generic [ref=f5e265]: 公园长椅
+                - generic [ref=f5e267]: X:3500 Y:-1200
+          - generic [ref=f5e268]:
+            - generic [ref=f5e269]:
+              - button "周边动态" [ref=f5e270] [cursor=pointer]:
+                - img [ref=f5e271]
+                - text: 周边动态
+              - button "当前通知 1" [ref=f5e274] [cursor=pointer]:
+                - img [ref=f5e275]
+                - text: 当前通知
+                - generic [ref=f5e278]: "1"
+            - generic [ref=f5e280]:
+              - generic [ref=f5e281]:
+                - generic [ref=f5e282]:
+                  - generic [ref=f5e283]: 便利店新品试吃
+                  - generic [ref=f5e284]: 2026-07-09
+                - paragraph [ref=f5e285]: 车站前的 Lawson 推出夏日限定甜品
+              - generic [ref=f5e286]:
+                - generic [ref=f5e287]:
+                  - generic [ref=f5e288]: 公园街头艺人
+                  - generic [ref=f5e289]: 2026-07-08
+                - paragraph [ref=f5e290]: 傍晚有人在公园弹唱，吸引了不少路人
+  - button "打开手机" [ref=f5e291] [cursor=pointer]
+  - button [ref=f5e295] [cursor=pointer]

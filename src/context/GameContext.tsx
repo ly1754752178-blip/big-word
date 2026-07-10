@@ -65,13 +65,11 @@ type Action =
 
 const overlayTitles: Record<OverlayViewType, string> = {
   status: '个人状态',
-  talents: '天赋才能',
   social: '社交关系',
   wealth: '财富资产',
   calendar: '日历事件',
   settings: '系统设置',
   skills: '技能',
-  skillTree: '技能树',
   network: '关系网络',
   history: '叙事历史',
   calendarFull: '完整日历',

@@ -22,7 +22,7 @@ export function LeftSidebar() {
   };
 
   return (
-    <aside className="w-16 h-full bg-cream-50 border-r border-slate-100 flex flex-col items-center py-4 gap-3 z-10">
+    <aside className="w-16 h-full bg-[#F5F0EA] border-r border-[#E8DFD3] flex flex-col items-center py-3 gap-2 z-10">
       {sidebarItems.map((item) => {
         const Icon = item.icon;
         const active = state.activeTab === item.id;

@@ -7,11 +7,13 @@ import { motion } from 'framer-motion';
 
 interface FullMapModalProps {
   onClose: () => void;
+  view?: 'city' | 'national';
 }
 
-export function FullMapModal({ onClose }: FullMapModalProps) {
+export function FullMapModal({ onClose, view = 'city' }: FullMapModalProps) {
   const { state, setMapCenter, setMapZoom, setSelectedMarker } = useGame();
   const { map } = state;
+  const isCity = view === 'city';
 
   const containerRef = useRef<HTMLDivElement>(null);
   const [isDragging, setIsDragging] = useState(false);
@@ -86,9 +88,16 @@ export function FullMapModal({ onClose }: FullMapModalProps) {
 
   useEffect(() => {
     const handleGlobalMouseUp = () => setIsDragging(false);
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
     window.addEventListener('mouseup', handleGlobalMouseUp);
-    return () => window.removeEventListener('mouseup', handleGlobalMouseUp);
-  }, []);
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('mouseup', handleGlobalMouseUp);
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [onClose]);
 
   const handleMarkerClick = (markerId: string) => {
     setSelectedMarker(markerId);
@@ -106,7 +115,7 @@ export function FullMapModal({ onClose }: FullMapModalProps) {
         <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100">
           <div className="flex items-center gap-2">
             <Navigation className="w-5 h-5 text-sky-500" />
-            <h2 className="font-heading text-lg font-bold text-slate-800">世界地图</h2>
+            <h2 className="font-heading text-lg font-bold text-slate-800">{isCity ? '城市地图' : '全国地图'}</h2>
           </div>
           <button
             type="button"

@@ -1,0 +1,214 @@
+- generic [ref=f9e3]:
+  - generic [ref=f9e4]:
+    - banner [ref=f9e5]:
+      - button "2026 / 07 / 08 水曜日 今天是七夕哦！ 周三 · 黄昏" [ref=f9e7] [cursor=pointer]:
+        - img [ref=f9e10]
+        - generic [ref=f9e12]:
+          - generic [ref=f9e13]:
+            - generic [ref=f9e14]: 2026 / 07 / 08
+            - generic [ref=f9e15]: 水曜日
+          - generic [ref=f9e16]:
+            - generic [ref=f9e17]:
+              - img [ref=f9e18]
+              - text: 今天是七夕哦！
+            - generic [ref=f9e20]: 周三 · 黄昏
+      - generic [ref=f9e24]:
+        - img [ref=f9e28]
+        - generic [ref=f9e31]:
+          - img [ref=f9e32]
+          - generic [ref=f9e38]: 18:30
+      - generic [ref=f9e41]:
+        - generic [ref=f9e45]: 封面
+        - generic [ref=f9e48]: 《黄昏的车站》
+        - generic [ref=f9e49]:
+          - button "循环" [ref=f9e50] [cursor=pointer]:
+            - img [ref=f9e51]
+          - button "上一首" [ref=f9e56] [cursor=pointer]:
+            - img [ref=f9e57]
+          - button "暂停" [ref=f9e59] [cursor=pointer]:
+            - img [ref=f9e60]
+          - button "下一首" [ref=f9e63] [cursor=pointer]:
+            - img [ref=f9e64]
+          - button "列表" [ref=f9e66] [cursor=pointer]:
+            - img [ref=f9e67]
+    - generic [ref=f9e69]:
+      - complementary [ref=f9e70]:
+        - complementary [ref=f9e71]:
+          - button "个人状态" [ref=f9e72] [cursor=pointer]:
+            - img [ref=f9e73]
+          - button "天赋才能" [ref=f9e76] [cursor=pointer]:
+            - img [ref=f9e77]
+          - button "社交关系" [active] [ref=f9e79] [cursor=pointer]:
+            - img [ref=f9e80]
+          - button "财富资产" [ref=f9e85] [cursor=pointer]:
+            - img [ref=f9e86]
+          - button "日历事件" [ref=f9e89] [cursor=pointer]:
+            - img [ref=f9e90]
+          - button "系统设置" [ref=f9e92] [cursor=pointer]:
+            - img [ref=f9e93]
+          - button "角色图鉴" [ref=f9e97] [cursor=pointer]:
+            - img [ref=f9e98]
+        - generic [ref=f9e305]:
+          - generic [ref=f9e306]: 社交关系
+          - button "关系网络" [ref=f9e308] [cursor=pointer]:
+            - img [ref=f9e309]
+            - text: 关系网络
+          - generic [ref=f9e315]: 在场角色
+          - generic [ref=f9e316]:
+            - generic [ref=f9e317]:
+              - img "叶和美" [ref=f9e319]
+              - generic [ref=f9e320]:
+                - generic [ref=f9e321]: 叶和美
+                - generic [ref=f9e322]: 母亲
+              - generic [ref=f9e323]:
+                - img [ref=f9e324]
+                - generic [ref=f9e326]: "92"
+            - generic [ref=f9e327]:
+              - img "叶健太" [ref=f9e329]
+              - generic [ref=f9e330]:
+                - generic [ref=f9e331]: 叶健太
+                - generic [ref=f9e332]: 父亲
+              - generic [ref=f9e333]:
+                - img [ref=f9e334]
+                - generic [ref=f9e336]: "85"
+            - generic [ref=f9e337]:
+              - img "朝比奈樱" [ref=f9e339]
+              - generic [ref=f9e340]:
+                - generic [ref=f9e341]: 朝比奈樱
+                - generic [ref=f9e342]: 同班同学
+              - generic [ref=f9e343]:
+                - img [ref=f9e344]
+                - generic [ref=f9e346]: "74"
+            - generic [ref=f9e347]:
+              - img "桐谷莲" [ref=f9e349]
+              - generic [ref=f9e350]:
+                - generic [ref=f9e351]: 桐谷莲
+                - generic [ref=f9e352]: 同班同学
+              - generic [ref=f9e353]:
+                - img [ref=f9e354]
+                - generic [ref=f9e356]: "68"
+            - generic [ref=f9e357]:
+              - img "藤堂静" [ref=f9e359]
+              - generic [ref=f9e360]:
+                - generic [ref=f9e361]: 藤堂静
+                - generic [ref=f9e362]: 邻居
+              - generic [ref=f9e363]:
+                - img [ref=f9e364]
+                - generic [ref=f9e366]: "61"
+          - generic [ref=f9e368]: 最高好感
+          - generic [ref=f9e369]:
+            - generic [ref=f9e370]:
+              - img "叶和美" [ref=f9e372]
+              - generic [ref=f9e373]:
+                - generic [ref=f9e374]: 叶和美
+                - generic [ref=f9e375]: 母亲
+              - generic [ref=f9e376]:
+                - img [ref=f9e377]
+                - generic [ref=f9e379]: "92"
+            - generic [ref=f9e380]:
+              - img "叶健太" [ref=f9e382]
+              - generic [ref=f9e383]:
+                - generic [ref=f9e384]: 叶健太
+                - generic [ref=f9e385]: 父亲
+              - generic [ref=f9e386]:
+                - img [ref=f9e387]
+                - generic [ref=f9e389]: "85"
+            - generic [ref=f9e390]:
+              - img "朝比奈樱" [ref=f9e392]
+              - generic [ref=f9e393]:
+                - generic [ref=f9e394]: 朝比奈樱
+                - generic [ref=f9e395]: 同班同学
+              - generic [ref=f9e396]:
+                - img [ref=f9e397]
+                - generic [ref=f9e399]: "74"
+            - generic [ref=f9e400]:
+              - img "桐谷莲" [ref=f9e402]
+              - generic [ref=f9e403]:
+                - generic [ref=f9e404]: 桐谷莲
+                - generic [ref=f9e405]: 同班同学
+              - generic [ref=f9e406]:
+                - img [ref=f9e407]
+                - generic [ref=f9e409]: "68"
+            - generic [ref=f9e410]:
+              - img "藤堂静" [ref=f9e412]
+              - generic [ref=f9e413]:
+                - generic [ref=f9e414]: 藤堂静
+                - generic [ref=f9e415]: 邻居
+              - generic [ref=f9e416]:
+                - img [ref=f9e417]
+                - generic [ref=f9e419]: "61"
+      - main [ref=f9e181]:
+        - generic [ref=f9e182]:
+          - generic [ref=f9e183]:
+            - paragraph [ref=f9e186]: 你醒来时，窗外是四月的黄昏。远处传来电车的声音，风把窗帘吹得轻轻晃动。
+            - generic [ref=f9e188]:
+              - generic [ref=f9e190]: S
+              - generic [ref=f9e191]:
+                - generic [ref=f9e192]: 朝比奈樱
+                - paragraph [ref=f9e194]: 悠真，今天放学后要一起去学生会室吗？
+            - paragraph [ref=f9e197]: 她将书包抱在胸前，夕阳把她的发梢染成温暖的橘色。车站方向的铃声隐约传来。
+          - generic [ref=f9e199]:
+            - button "历史" [ref=f9e200] [cursor=pointer]:
+              - img [ref=f9e201]
+            - textbox "输入你想说的话……" [ref=f9e205]
+            - button "发送" [disabled] [ref=f9e206]:
+              - img [ref=f9e207]
+      - complementary [ref=f9e210]:
+        - generic [ref=f9e211]:
+          - generic [ref=f9e212]:
+            - generic:
+              - generic:
+                - img
+              - generic [ref=f9e215]:
+                - img [ref=f9e216]
+                - generic [ref=f9e219]: 学区
+          - generic [ref=f9e220]:
+            - generic [ref=f9e221]:
+              - generic [ref=f9e222]:
+                - img [ref=f9e223]
+                - text: GPS
+              - button "展开" [ref=f9e225] [cursor=pointer]:
+                - text: 展开
+                - img [ref=f9e226]
+            - generic [ref=f9e229]:
+              - generic [ref=f9e230]:
+                - img [ref=f9e233]
+                - generic [ref=f9e236]:
+                  - img [ref=f9e237]
+                  - generic [ref=f9e240]: 学区
+              - generic [ref=f9e241]:
+                - button "自家公寓：两室一厅，位于安静的住宅区" [ref=f9e246] [cursor=pointer]:
+                  - img [ref=f9e247]
+                  - generic [ref=f9e250]: 自家公寓
+                - button "樱丘高中：你就读的高中，放学后经常热闹到傍晚" [ref=f9e251] [cursor=pointer]:
+                  - img [ref=f9e252]
+                  - generic [ref=f9e255]: 樱丘高中
+                - button "车站前书店：藤堂静打工的地方，二楼有咖啡馆" [ref=f9e256] [cursor=pointer]:
+                  - img [ref=f9e257]
+                  - generic [ref=f9e260]: 车站前书店
+                - button "公园长椅：傍晚常有街头艺人在这里弹唱" [ref=f9e261] [cursor=pointer]:
+                  - img [ref=f9e262]
+                  - generic [ref=f9e265]: 公园长椅
+                - generic [ref=f9e267]: X:3500 Y:-1200
+          - generic [ref=f9e268]:
+            - generic [ref=f9e269]:
+              - button "周边动态" [ref=f9e270] [cursor=pointer]:
+                - img [ref=f9e271]
+                - text: 周边动态
+              - button "当前通知 1" [ref=f9e274] [cursor=pointer]:
+                - img [ref=f9e275]
+                - text: 当前通知
+                - generic [ref=f9e278]: "1"
+            - generic [ref=f9e280]:
+              - generic [ref=f9e281]:
+                - generic [ref=f9e282]:
+                  - generic [ref=f9e283]: 便利店新品试吃
+                  - generic [ref=f9e284]: 2026-07-09
+                - paragraph [ref=f9e285]: 车站前的 Lawson 推出夏日限定甜品
+              - generic [ref=f9e286]:
+                - generic [ref=f9e287]:
+                  - generic [ref=f9e288]: 公园街头艺人
+                  - generic [ref=f9e289]: 2026-07-08
+                - paragraph [ref=f9e290]: 傍晚有人在公园弹唱，吸引了不少路人
+  - button "打开手机" [ref=f9e291] [cursor=pointer]
+  - button [ref=f9e295] [cursor=pointer]

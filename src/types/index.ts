@@ -14,11 +14,14 @@ export type PhoneAppId =
   | 'sns'
   | 'wallet';
 
-/** 全屏浮层视图类型：左侧六个模块 + 技能树/关系网/叙事历史 + 生活系统 */
+/** 全屏浮层视图类型：左侧六个模块 + 关系网/叙事历史 + 生活系统 */
 export type OverlayViewType =
-  | SidebarTab
+  | 'status'
   | 'skills'
-  | 'skillTree'
+  | 'social'
+  | 'wealth'
+  | 'calendar'
+  | 'settings'
   | 'network'
   | 'history'
   | 'calendarFull'

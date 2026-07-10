@@ -1,4 +1,4 @@
-import { Settings, Save, FolderOpen, Volume2, Monitor, Bell } from 'lucide-react';
+import { Save, FolderOpen, Volume2, Monitor, Bell } from 'lucide-react';
 import { GlassCard } from '@/components/ui/GlassCard';
 
 const items = [
@@ -12,9 +12,10 @@ const items = [
 export function SettingsPreview() {
   return (
     <div className="space-y-3">
-      <div className="flex items-center justify-between">
-        <span className="px-3 py-1 rounded-full bg-slate-100 text-slate-600 text-sm font-medium">系统设置</span>
-        <Settings className="w-4 h-4 text-slate-400" />
+      {/* 系统设置 —— 居中标题横栏 */}
+      <div className="-mx-2.5 -mt-3 px-3 py-3 bg-gradient-to-r from-slate-50 via-slate-100/40 to-slate-50 border-b border-slate-200/60 text-center">
+        <span className="text-base font-bold text-slate-800 tracking-wide">系统设置</span>
+        <div className="mt-1 mx-auto w-8 h-0.5 rounded-full bg-slate-400" />
       </div>
 
       <div className="grid grid-cols-1 gap-2">

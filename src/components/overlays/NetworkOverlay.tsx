@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useRef, useCallback, useEffect } from 'react';
 import { useGame } from '@/hooks/useGameState';
 import { GlassCard } from '@/components/ui/GlassCard';
 import type { Character } from '@/types';
@@ -28,6 +28,17 @@ export function NetworkOverlay() {
   const { state } = useGame();
   const { characters } = state;
   const [hoveredId, setHoveredId] = useState<string | null>(null);
+  const [scale, setScale] = useState(1);
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [dragging, setDragging] = useState(false);
+  const dragStartRef = useRef({ x: 0, y: 0 });
+  const positionRef = useRef(position);
+  const scaleRef = useRef(scale);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  // 保持 ref 同步
+  useEffect(() => { positionRef.current = position; }, [position]);
+  useEffect(() => { scaleRef.current = scale; }, [scale]);
 
   const center = { x: 400, y: 260 };
 
@@ -59,20 +70,82 @@ export function NetworkOverlay() {
     return result;
   }, [characters, center.x, center.y]);
 
+  // 非被动滚轮监听 —— 阻止父容器滚动
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+
+    const handleWheel = (e: WheelEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const delta = e.deltaY > 0 ? -0.1 : 0.1;
+      setScale((prev) => Math.min(2.5, Math.max(0.4, prev + delta)));
+    };
+
+    el.addEventListener('wheel', handleWheel, { passive: false });
+    return () => el.removeEventListener('wheel', handleWheel);
+  }, []);
+
+  // 拖拽
+  const handleMouseDown = useCallback((e: React.MouseEvent) => {
+    if (e.button !== 0) return;
+    e.preventDefault();
+    setDragging(true);
+    dragStartRef.current = { x: e.clientX - positionRef.current.x, y: e.clientY - positionRef.current.y };
+  }, []);
+
+  useEffect(() => {
+    if (!dragging) return;
+
+    const handleMouseMove = (e: MouseEvent) => {
+      const newPos = {
+        x: e.clientX - dragStartRef.current.x,
+        y: e.clientY - dragStartRef.current.y,
+      };
+      setPosition(newPos);
+    };
+
+    const handleMouseUp = () => setDragging(false);
+
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mouseup', handleMouseUp);
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [dragging]);
+
   return (
-    <div className="w-full h-full min-h-[480px] flex flex-col">
-      <div className="flex flex-wrap items-center gap-3 px-5 py-3 border-b border-slate-100 bg-white/40">
-        {circleConfig.map((cfg) => (
-          <div key={cfg.key} className="flex items-center gap-1.5 text-xs text-slate-600">
-            <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: cfg.color }} />
-            {cfg.label}
-          </div>
-        ))}
+    <div className="w-full h-full min-h-[520px] flex flex-col">
+      <div className="flex flex-wrap items-center justify-between gap-3 px-5 py-3 border-b border-slate-100 bg-white/40">
+        <div className="flex flex-wrap items-center gap-3">
+          {circleConfig.map((cfg) => (
+            <div key={cfg.key} className="flex items-center gap-1.5 text-xs text-slate-600">
+              <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: cfg.color }} />
+              {cfg.label}
+            </div>
+          ))}
+        </div>
+        <span className="text-xs text-slate-400">滚轮缩放 · 拖拽平移 · {Math.round(scale * 100)}%</span>
       </div>
 
       <GlassCard variant="default" className="flex-1 min-h-0 m-4 p-0 overflow-hidden">
-        <div className="relative w-full h-full bg-gradient-to-br from-sky-50/40 to-cream-50/40">
-          <svg width="100%" height="100%" viewBox="0 0 800 520">
+        <div
+          ref={containerRef}
+          className="relative w-full h-full bg-gradient-to-br from-sky-50/40 to-cream-50/40"
+          style={{ cursor: dragging ? 'grabbing' : 'grab' }}
+          onMouseDown={handleMouseDown}
+        >
+          <svg
+            width="100%"
+            height="100%"
+            viewBox="0 0 800 520"
+            style={{
+              transform: `translate(${position.x}px, ${position.y}px) scale(${scale})`,
+              transformOrigin: 'center center',
+              transition: dragging ? 'none' : 'transform 0.15s ease-out',
+            }}
+          >
             {nodes.map((node) => (
               <line
                 key={`line-${node.character.id}`}
