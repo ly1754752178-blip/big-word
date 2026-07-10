@@ -90,7 +90,7 @@ function CategoryCard({ category }: { category: SkillCategory }) {
     <GlassCard
       variant="default"
       className="p-2.5 w-full cursor-pointer hover:-translate-y-0.5 transition-all"
-      onClick={() => openOverlayView('talents', { category })}
+      onClick={() => openOverlayView('skills', { category })}
     >
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-1.5">
