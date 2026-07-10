@@ -9,6 +9,7 @@ import { SystemSettingsOverlay } from './SystemSettingsOverlay';
 import { HistoryOverlay } from './HistoryOverlay';
 import { NetworkOverlay } from './NetworkOverlay';
 import { SkillTreeOverlay } from './SkillTreeOverlay';
+import { SkillsOverlay } from './SkillsOverlay';
 import { CalendarOverlay } from './CalendarOverlay';
 import { CharacterGalleryOverlay } from './CharacterGalleryOverlay';
 import { CharacterDetailOverlay } from './CharacterDetailOverlay';
@@ -65,6 +66,7 @@ export function OverlayRenderer() {
       {type === 'status' && <PersonalStatusOverlay />}
       {type === 'talents' && <TalentsSkillsOverlay />}
       {type === 'skillTree' && <SkillTreeOverlay />}
+      {type === 'skills' && <SkillsOverlay />}
       {type === 'social' && <SocialRelationsOverlay />}
       {type === 'network' && <NetworkOverlay />}
       {type === 'wealth' && <WealthAssetsOverlay />}
