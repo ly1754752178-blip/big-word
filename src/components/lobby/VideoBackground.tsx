@@ -56,18 +56,22 @@ export function VideoBackground() {
   // 光球点击后：启动 + 解除静音（用户手势允许有声播放）
   useEffect(() => {
     const handler = () => {
+      userWantsSound.current = true;
       const v = getCurrentVideo();
       const urls = videosRef.current;
       if (v && urls.length > 0) {
-        v.src = urls[0]; // 从第一个视频开始
-        v.load();
-        userWantsSound.current = true;
+        v.src = urls[0];
         v.muted = false;
+        v.volume = volumeRef.current;
+        skipReload.current = true;
         setIsMuted(false);
         setMuteAuto(false);
-        v.volume = volumeRef.current;
-        skipReload.current = true; // 避免 useEffect 重复加载
-        v.play().catch(() => {});
+        // play() 必须在用户手势回调中，等 loadeddata 后再 play
+        if (v.readyState >= 2) {
+          v.play().catch(() => {});
+        } else {
+          v.addEventListener('loadeddata', () => v.play().catch(() => {}), { once: true });
+        }
       }
       setStarted(true);
     };
