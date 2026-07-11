@@ -160,7 +160,9 @@ export function VideoBackground() {
           opacity, transition: 'opacity 0.8s ease-in-out',
         }}
       />
-      <div style={{ position:'fixed',inset:0,zIndex:1,background:'rgba(0,0,0,0.4)',pointerEvents:'none' }} />
+      <div style={{ position:'fixed',inset:0,zIndex:1,
+        background: 'linear-gradient(to top, rgba(0,0,0,0.45) 0%, rgba(0,0,0,0.1) 50%, rgba(0,0,0,0) 100%)',
+        pointerEvents:'none' }} />
       <div style={ctrlBar}>
         <p style={ctrlTitle}>《{fileName}》</p>
         <div style={ctrlRow}>
