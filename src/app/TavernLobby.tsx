@@ -101,41 +101,48 @@ export function TavernLobby({ onEnterGame }: TavernLobbyProps) {
         </button>
       </nav>
 
-      {/* 所有弹窗包裹在 z-index: 100000 的 fixed 容器中 */}
+      {/* 存档列表 */}
       {showChats && (
-        <div style={modalWrap}><ChatModal chats={st.chats} activeChatId={st.activeChatId}
+        <ChatModal chats={st.chats} activeChatId={st.activeChatId}
           onCreate={async (name) => { const id = await st.createChat(name); setShowChats(false); onEnterGame(); return id; }}
-          onSelect={handleSelectChat} onDelete={st.removeChat} onClose={() => setShowChats(false)} /></div>)}
+          onSelect={handleSelectChat} onDelete={st.removeChat} onClose={() => setShowChats(false)} />
+      )}
 
+      {/* 世界书 */}
       {showLorebooks && (
-        <div style={modalWrap}><LorebookModal lorebooks={st.lorebooks} activeIds={st.activeLorebookIds}
+        <LorebookModal lorebooks={st.lorebooks} activeIds={st.activeLorebookIds}
           onToggle={st.toggleLorebook} onAdd={st.addLorebook} onUpdate={st.updateLorebook}
-          onDelete={st.removeLorebook} onClose={() => setShowLorebooks(false)} /></div>)}
+          onDelete={st.removeLorebook} onClose={() => setShowLorebooks(false)} />
+      )}
 
+      {/* API 配置 */}
       {showApiConfig && st.settings && (
-        <div style={modalWrap} onClick={() => setShowApiConfig(false)}>
-          <div style={{ display:'flex',alignItems:'center',justifyContent:'center',width:'100%',height:'100%',padding:20 }}>
-            <div className="modal modal--settings" onClick={(e) => e.stopPropagation()} style={{ position:'relative',zIndex:1 }}>
-              <div className="modal__header"><h2>API 配置</h2><button onClick={() => setShowApiConfig(false)}><X size={20} /></button></div>
-              <div className="modal__body">
-                <ApiConfigForm config={st.settings.api} onChange={(api) => st.updateSettings({ api })} label="主 API" />
-                <ApiConfigForm config={st.settings.secondaryApi} onChange={(s: any) => st.updateSettings({ secondaryApi: s })} label="次 API" />
-              </div>
-              <div className="modal__footer">
-                <button onClick={() => setShowApiConfig(false)} className="btn-ghost">取消</button>
-                <button onClick={() => setShowApiConfig(false)} className="btn-primary"><Save size={14} /> 完成</button>
-              </div>
+        <div className="modal-overlay" onClick={() => setShowApiConfig(false)}>
+          <div className="modal modal--settings" onClick={(e) => e.stopPropagation()}>
+            <div className="modal__header"><h2>API 配置</h2><button onClick={() => setShowApiConfig(false)}><X size={20} /></button></div>
+            <div className="modal__body">
+              <ApiConfigForm config={st.settings.api} onChange={(api) => st.updateSettings({ api })} label="主 API" />
+              <ApiConfigForm config={st.settings.secondaryApi} onChange={(s: any) => st.updateSettings({ secondaryApi: s })} label="次 API" />
+            </div>
+            <div className="modal__footer">
+              <button onClick={() => setShowApiConfig(false)} className="btn-ghost">取消</button>
+              <button onClick={() => setShowApiConfig(false)} className="btn-primary"><Save size={14} /> 完成</button>
             </div>
           </div>
-        </div>)}
+        </div>
+      )}
 
+      {/* 预设 */}
       {showPresets && (
-        <div style={modalWrap}><PresetModal presets={st.presets} settings={st.settings}
+        <PresetModal presets={st.presets} settings={st.settings}
           onAdd={st.addPreset} onUpdate={st.updatePreset} onDelete={st.removePreset}
-          onSetActive={(id) => st.updateSettings({ activePresetId: id })} onClose={() => setShowPresets(false)} /></div>)}
+          onSetActive={(id) => st.updateSettings({ activePresetId: id })} onClose={() => setShowPresets(false)} />
+      )}
 
+      {/* 设置 */}
       {showSettings && st.settings && (
-        <div style={modalWrap}><SettingsModal settings={st.settings} onSave={st.updateSettings} onClose={() => setShowSettings(false)} /></div>)}
+        <SettingsModal settings={st.settings} onSave={st.updateSettings} onClose={() => setShowSettings(false)} />
+      )}
     </div>
   );
 }
