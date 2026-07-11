@@ -188,8 +188,8 @@ const ctrlBar: React.CSSProperties = {
   position:'fixed',top:20,right:20,zIndex:9999,
   display:'flex',flexDirection:'column',alignItems:'center',gap:8,
   padding:'12px 16px',borderRadius:12,
-  background:'rgba(255,255,255,0.08)',backdropFilter:'blur(16px)',
-  WebkitBackdropFilter:'blur(16px)',border:'1px solid rgba(255,255,255,0.15)',
+  background:'rgba(255,255,255,0.14)',backdropFilter:'blur(16px)',
+  WebkitBackdropFilter:'blur(16px)',border:'1px solid rgba(255,255,255,0.2)',
 };
 const ctrlTitle: React.CSSProperties = { color:'rgba(255,255,255,0.9)',fontSize:'0.8rem',margin:0 };
 const ctrlRow: React.CSSProperties = { display:'flex',alignItems:'center',gap:6 };

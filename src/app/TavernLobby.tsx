@@ -17,7 +17,7 @@ interface TavernLobbyProps { onEnterGame: () => void; }
 const menuItemStyle: React.CSSProperties = {
   display: 'flex', alignItems: 'center', gap: 14, padding: '14px 24px',
   border: '1px solid rgba(255,255,255,0.15)', borderRadius: 10,
-  background: 'rgba(255,255,255,0.07)', backdropFilter: 'blur(16px)',
+  background: 'rgba(255,255,255,0.14)', backdropFilter: 'blur(16px)',
   WebkitBackdropFilter: 'blur(16px)', color: 'white', fontSize: '1.05rem',
   fontWeight: 500, cursor: 'pointer', minWidth: 200, width: '100%',
 };
@@ -78,7 +78,7 @@ export function TavernLobby({ onEnterGame }: TavernLobbyProps) {
     e.currentTarget.style.boxShadow = '0 0 24px rgba(124,58,237,0.2)';
   };
   const menuHoverOut = (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.currentTarget.style.background = 'rgba(255,255,255,0.07)';
+    e.currentTarget.style.background = 'rgba(255,255,255,0.14)';
     e.currentTarget.style.borderColor = 'rgba(255,255,255,0.15)';
     e.currentTarget.style.transform = 'translateX(0)';
     e.currentTarget.style.boxShadow = 'none';
