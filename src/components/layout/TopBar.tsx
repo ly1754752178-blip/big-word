@@ -1,17 +1,21 @@
 import { useGame } from '@/hooks/useGameState';
 import { SkyOrb } from '@/components/ui/SkyOrb';
 import { BgmPlayer } from '@/components/ui/BgmPlayer';
-import { Calendar, Star } from 'lucide-react';
+import { Calendar, Star, ArrowLeft } from 'lucide-react';
 import type { Festival } from '@/types';
 
-export function TopBar() {
+interface TopBarProps {
+  onBackToLobby: () => void;
+}
+
+export function TopBar({ onBackToLobby }: TopBarProps) {
   const { state, openOverlayView } = useGame();
   const { date, time, festival } = state;
 
   return (
     <header
       id="top-bar"
-      className="relative h-16 px-5 flex items-center justify-between bg-[#FDFAF5] z-20 shadow-sm overflow-visible"
+      className="relative h-16 pl-5 pr-0 flex items-center justify-between bg-[#FDFAF5] z-20 shadow-sm overflow-visible"
     >
       {/* 左侧日期与节日 */}
       <div className="flex items-center gap-4 w-1/3">
@@ -53,26 +57,34 @@ export function TopBar() {
       {/* 底部边框：左段水平线 */}
       <div
         className="absolute left-0 bottom-0 border-b-2 border-[#E8DFD3] pointer-events-none"
-        style={{ right: 'calc(50% + 39px)' }}
+        style={{ right: 'calc(50% + 53px)' }}
       />
 
       {/* 底部边框：右段水平线 */}
       <div
         className="absolute right-0 bottom-0 border-b-2 border-[#E8DFD3] pointer-events-none"
-        style={{ left: 'calc(50% + 39px)' }}
+        style={{ left: 'calc(50% + 53px)' }}
       />
 
-      {/* 底部边框：中间半圆浅凸出，包裹天气球露出部分（~15px） */}
-      <div className="absolute left-1/2 bottom-[-18px] -translate-x-1/2 w-[78px] h-[18px] border-2 border-t-0 border-[#E8DFD3] rounded-b-full bg-[#FDFAF5] pointer-events-none" />
+      {/* 底部边框：中间半圆浅凸出，包裹放大后的天气球露出部分 */}
+      <div className="absolute left-1/2 bottom-[-24px] -translate-x-1/2 w-[105px] h-[24px] border-2 border-t-0 border-[#E8DFD3] rounded-b-full bg-[#FDFAF5] pointer-events-none" />
 
-      {/* 天气球 — 约20%露出 TopBar 下方 */}
-      <div className="absolute left-1/2 -translate-x-1/2 bottom-[-15px] z-10">
+      {/* 天气球 — 放大35% */}
+      <div className="absolute left-1/2 -translate-x-1/2 bottom-[-20px] z-10">
         <SkyOrb />
       </div>
 
-      {/* 右侧 BGM 播放器 */}
-      <div className="flex items-center justify-end h-full w-1/3">
-        <BgmPlayer title="黄昏的车站" />
+      {/* 右侧 BGM 播放器 + 返回大厅按钮 */}
+      <div className="flex items-center justify-end h-full gap-2">
+        <button
+          onClick={onBackToLobby}
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-purple-100 hover:bg-purple-200 text-purple-600 text-xs font-medium transition-colors"
+          title="返回酒馆大厅"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          <span>大厅</span>
+        </button>
+        <BgmPlayer />
       </div>
     </header>
   );
