@@ -178,10 +178,12 @@ export function VideoBackground() {
     if (v.paused) { v.play(); setIsPlaying(true); } else { v.pause(); setIsPlaying(false); }
   };
   const prevVideo = () => {
+    if (videos.length <= 1) return;
     if (timerRef.current) clearTimeout(timerRef.current);
     crossfadeTo(currentIndex === 0 ? videos.length - 1 : currentIndex - 1);
   };
   const nextVideo = () => {
+    if (videos.length <= 1) return;
     if (timerRef.current) clearTimeout(timerRef.current);
     crossfadeTo((currentIndex + 1) % videos.length);
   };
@@ -227,7 +229,7 @@ export function VideoBackground() {
       {/* 视频 A */}
       <video ref={videoARef} autoPlay playsInline
         onEnded={handleEnded}
-        onError={() => crossfadeTo((currentIndex + 1) % videos.length)}
+        onError={() => { if (videos.length > 1) crossfadeTo((currentIndex + 1) % videos.length); }}
         style={{
           position: 'fixed', inset: 0, width: '100%', height: '100%',
           objectFit: 'cover', zIndex: 0, pointerEvents: 'none', opacity: activeVideo === 'A' ? 1 : 0,
@@ -236,7 +238,7 @@ export function VideoBackground() {
       {/* 视频 B */}
       <video ref={videoBRef} playsInline
         onEnded={handleEnded}
-        onError={() => crossfadeTo((currentIndex + 1) % videos.length)}
+        onError={() => { if (videos.length > 1) crossfadeTo((currentIndex + 1) % videos.length); }}
         style={{
           position: 'fixed', inset: 0, width: '100%', height: '100%',
           objectFit: 'cover', zIndex: 0, pointerEvents: 'none', opacity: activeVideo === 'B' ? 1 : 0,
