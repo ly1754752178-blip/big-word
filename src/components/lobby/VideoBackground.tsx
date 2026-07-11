@@ -31,9 +31,13 @@ export function VideoBackground() {
   const videoBRef = useRef<HTMLVideoElement>(null);
   const [activeVideo, setActiveVideo] = useState<'A' | 'B'>('A');
   const [fading, setFading] = useState(false);
-  const skipReload = useRef(false); // 交叉渐变后跳过 useEffect 重载
+  const skipReload = useRef(false);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const preloadedRef = useRef<Set<number>>(new Set());
+  const videosRef = useRef<string[]>([]);
+  const volumeRef = useRef(0.5);
+  useEffect(() => { videosRef.current = videos; }, [videos]);
+  useEffect(() => { volumeRef.current = volume; }, [volume]);
 
   // 获取当前和备用的 video ref
   const getCurrentVideo = () => activeVideo === 'A' ? videoARef.current : videoBRef.current;
@@ -52,16 +56,19 @@ export function VideoBackground() {
   // 光球点击后：启动 + 解除静音（用户手势允许有声播放）
   useEffect(() => {
     const handler = () => {
-      setStarted(true);
       const v = getCurrentVideo();
-      if (v) {
+      const urls = videosRef.current;
+      if (v && urls.length > 0) {
+        v.src = urls[0]; // 从第一个视频开始
+        v.load();
         userWantsSound.current = true;
         v.muted = false;
         setIsMuted(false);
         setMuteAuto(false);
-        v.volume = volume;
+        v.volume = volumeRef.current;
         v.play().catch(() => {});
       }
+      setStarted(true);
     };
     window.addEventListener('orb-clicked', handler);
     return () => window.removeEventListener('orb-clicked', handler);
