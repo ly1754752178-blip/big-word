@@ -86,7 +86,6 @@ export function VideoBackground() {
   useEffect(() => {
     const currVid = getCurrentVideo();
     if (!currVid || videos.length === 0 || !started) return;
-    const prevSrc = currVid.src;
     currVid.src = videos[currentIndex];
     currVid.volume = isMuted ? 0 : volume;
     currVid.muted = isMuted;
