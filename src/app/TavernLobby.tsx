@@ -34,9 +34,15 @@ export function TavernLobby({ onEnterGame }: TavernLobbyProps) {
     onEnterGame();
   };
 
-  const handleContinue = () => {
-    setShowChats(true);
+  const closeAll = () => {
+    setShowChats(false);
+    setShowLorebooks(false);
+    setShowApiConfig(false);
+    setShowPresets(false);
+    setShowSettings(false);
   };
+
+  const handleContinue = () => { closeAll(); setShowChats(true); };
 
   const handleSelectChat = (id: string) => {
     st.loadChat(id);
@@ -50,10 +56,10 @@ export function TavernLobby({ onEnterGame }: TavernLobbyProps) {
       <LobbyMenu
         onStartGame={handleStartGame}
         onContinue={handleContinue}
-        onWorldBooks={() => setShowLorebooks(true)}
-        onApiConfig={() => setShowApiConfig(true)}
-        onPresets={() => setShowPresets(true)}
-        onSettings={() => setShowSettings(true)}
+        onWorldBooks={() => { closeAll(); setShowLorebooks(true); }}
+        onApiConfig={() => { closeAll(); setShowApiConfig(true); }}
+        onPresets={() => { closeAll(); setShowPresets(true); }}
+        onSettings={() => { closeAll(); setShowSettings(true); }}
       />
 
       {/* 存档列表（继续游戏） */}

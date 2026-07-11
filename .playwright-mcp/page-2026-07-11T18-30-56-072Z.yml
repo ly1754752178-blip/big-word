@@ -1,0 +1,70 @@
+- generic [ref=f10e3]:
+  - generic [ref=f10e4]:
+    - paragraph [ref=f10e5]: 《孤独摇滚2》
+    - generic [ref=f10e6]:
+      - button "上一曲" [ref=f10e7] [cursor=pointer]
+      - button "暂停" [ref=f10e10] [cursor=pointer]
+      - button "下一曲" [ref=f10e14] [cursor=pointer]
+    - generic [ref=f10e17]:
+      - button "取消静音" [ref=f10e18] [cursor=pointer]
+      - slider [ref=f10e23]: "0"
+  - navigation [ref=f10e24]:
+    - button "开始游戏" [ref=f10e25] [cursor=pointer]
+    - button "继续游戏" [ref=f10e29] [cursor=pointer]
+    - button "世界书" [ref=f10e33] [cursor=pointer]
+    - button "API 配置" [ref=f10e38] [cursor=pointer]
+    - button "预设" [ref=f10e42] [cursor=pointer]
+    - button "设置" [active] [ref=f10e45] [cursor=pointer]
+  - generic [ref=f10e51]:
+    - generic [ref=f10e52]:
+      - heading "预设管理" [level=2] [ref=f10e53]
+      - button [ref=f10e54] [cursor=pointer]
+    - generic [ref=f10e58]:
+      - button "新建预设" [ref=f10e59] [cursor=pointer]
+      - paragraph [ref=f10e62]: 暂无预设
+  - generic [ref=f10e64]:
+    - generic [ref=f10e65]:
+      - heading "全局设置" [level=2] [ref=f10e66]
+      - button [ref=f10e67] [cursor=pointer]
+    - generic [ref=f10e71]:
+      - generic [ref=f10e72]:
+        - heading "角色信息" [level=3] [ref=f10e73]
+        - generic [ref=f10e74]:
+          - text: 角色名
+          - textbox [ref=f10e75]: 未命名角色
+        - generic [ref=f10e76]:
+          - text: 用户名
+          - textbox [ref=f10e77]: 玩家
+        - generic [ref=f10e78]:
+          - text: UI 模式
+          - combobox [ref=f10e79]:
+            - option "游戏模式" [selected]
+            - option "聊天模式"
+      - generic [ref=f10e81]:
+        - heading "主 API 配置（剧情生成）" [level=4] [ref=f10e82]
+        - generic [ref=f10e83]:
+          - text: API 地址
+          - textbox "https://api.openai.com/v1" [ref=f10e84]
+        - generic [ref=f10e85]:
+          - text: API 密钥
+          - generic [ref=f10e86]:
+            - textbox "sk-..." [ref=f10e87]
+            - button [ref=f10e88] [cursor=pointer]
+        - generic [ref=f10e92]:
+          - text: 模型名称
+          - textbox "gpt-4o" [ref=f10e93]
+      - generic [ref=f10e96]:
+        - heading "次 API 配置（变量/总结分流）" [level=4] [ref=f10e97]
+        - generic [ref=f10e98]:
+          - checkbox "启用" [ref=f10e99]
+          - text: 启用
+      - generic [ref=f10e100]:
+        - heading "其他" [level=3] [ref=f10e101]
+        - generic [ref=f10e102]:
+          - text: 自动流式输出
+          - checkbox [checked] [ref=f10e103]
+    - generic [ref=f10e104]:
+      - button "重置" [ref=f10e105] [cursor=pointer]
+      - generic [ref=f10e109]:
+        - button "取消" [ref=f10e110] [cursor=pointer]
+        - button "保存" [ref=f10e111] [cursor=pointer]
