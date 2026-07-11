@@ -70,7 +70,10 @@ export function VideoBackground() {
         if (v.readyState >= 2) {
           v.play().catch(() => {});
         } else {
-          v.addEventListener('loadeddata', () => v.play().catch(() => {}), { once: true });
+          let played = false;
+          const doPlay = () => { if (!played) { played = true; v.play().catch(() => {}); } };
+          v.addEventListener('loadeddata', doPlay, { once: true });
+          setTimeout(doPlay, 3000); // 3秒兜底
         }
       }
       setStarted(true);
@@ -232,7 +235,7 @@ export function VideoBackground() {
   return (
     <>
       {/* 视频 A */}
-      <video ref={videoARef} autoPlay playsInline
+      <video ref={videoARef} playsInline preload="auto"
         onEnded={handleEnded}
         onError={() => { if (videos.length > 1) crossfadeTo((currentIndex + 1) % videos.length); }}
         style={{
@@ -241,7 +244,7 @@ export function VideoBackground() {
         }}
       />
       {/* 视频 B */}
-      <video ref={videoBRef} playsInline
+      <video ref={videoBRef} playsInline preload="auto"
         onEnded={handleEnded}
         onError={() => { if (videos.length > 1) crossfadeTo((currentIndex + 1) % videos.length); }}
         style={{
