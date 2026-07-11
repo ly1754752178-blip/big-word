@@ -4,9 +4,17 @@ import {
   Volume2, VolumeX,
 } from 'lucide-react';
 
-function getVideoUrls(folder: string): string[] {
-  const knownVideos = ['孤独摇滚1.mp4', '孤独摇滚2.mp4', '孤独摇滚3.mp4'];
-  return knownVideos.map((name) => `/${folder}/${name}`);
+/** 探测文件夹中实际存在的视频 */
+async function detectVideos(folder: string): Promise<string[]> {
+  const candidates = ['孤独摇滚1.mp4', '孤独摇滚2.mp4', '孤独摇滚3.mp4'];
+  const results: string[] = [];
+  for (const name of candidates) {
+    try {
+      const res = await fetch(`/${folder}/${name}`, { method: 'HEAD' });
+      if (res.ok) results.push(`/${folder}/${name}`);
+    } catch { /* skip */ }
+  }
+  return results;
 }
 
 type PlayMode = 'timer' | 'natural';
@@ -22,12 +30,16 @@ export function VideoBackground() {
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
-    const folder = Math.random() < 0.5
-      ? 'videos/shipinbeijing60'
-      : 'videos/shipinbeijing00';
-    const selectedMode: PlayMode = folder.includes('60') ? 'timer' : 'natural';
-    setMode(selectedMode);
-    setVideos(getVideoUrls(folder));
+    (async () => {
+      const folder = Math.random() < 0.5
+        ? 'videos/shipinbeijing60'
+        : 'videos/shipinbeijing00';
+      const selectedMode: PlayMode = folder.includes('60') ? 'timer' : 'natural';
+      setMode(selectedMode);
+      const urls = await detectVideos(folder);
+      setVideos(urls);
+      if (urls.length > 0) setIsPlaying(true);
+    })();
   }, []);
 
   useEffect(() => {
@@ -80,7 +92,9 @@ export function VideoBackground() {
   const currentFileName = videos[currentIndex]
     ?.split('/').pop()?.replace(/\.[^/.]+$/, '') ?? '';
 
-  if (videos.length === 0) return null;
+  if (videos.length === 0) {
+    return <div style={{ position:'fixed',inset:0,zIndex:0,background:'#1a1a2e' }} />;
+  }
 
   // --- 内联样式，强制可见 ---
   const ctrlBar: React.CSSProperties = {
@@ -121,6 +135,7 @@ export function VideoBackground() {
         autoPlay
         muted={isMuted}
         onEnded={handleEnded}
+        onError={() => setCurrentIndex((i) => (i + 1) % videos.length)}
         playsInline
         loop={mode === 'timer'}
         style={{
