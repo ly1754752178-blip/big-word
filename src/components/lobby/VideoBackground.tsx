@@ -43,6 +43,19 @@ export function VideoBackground() {
     })();
   }, []);
 
+  // 首次用户交互后自动开启声音
+  useEffect(() => {
+    const unmute = () => {
+      const v = videoRef.current;
+      if (v && v.muted) { v.muted = false; setIsMuted(false); setMuteAuto(false); }
+      document.removeEventListener('click', unmute);
+      document.removeEventListener('keydown', unmute);
+    };
+    document.addEventListener('click', unmute);
+    document.addEventListener('keydown', unmute);
+    return () => { document.removeEventListener('click', unmute); document.removeEventListener('keydown', unmute); };
+  }, []);
+
   useEffect(() => {
     const video = videoRef.current;
     if (!video || videos.length === 0) return;
