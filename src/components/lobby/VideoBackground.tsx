@@ -37,28 +37,35 @@ export function VideoBackground() {
     })();
   }, []);
 
-  // 光球点击 → 加载并播放
+  // 视频列表加载完成后立即静音播放（不等光球）
+  useEffect(() => {
+    const v = videoRef.current;
+    if (!v || videos.length === 0) return;
+    v.src = videos[currentIndex];
+    v.muted = true; // 先静音自动播放
+    setIsMuted(true);
+    setMuteAuto(true);
+    v.volume = volume;
+    v.play().catch(() => {});
+    setIsPlaying(true);
+  }, [currentIndex, videos]);
+
+  // 光球点击后解除静音
   useEffect(() => {
     const handler = () => {
       userWantsSound.current = true;
-      setIsMuted(false);
-      setMuteAuto(false);
+      const v = videoRef.current;
+      if (v) {
+        v.muted = false;
+        setIsMuted(false);
+        setMuteAuto(false);
+        v.volume = volume;
+      }
       setStarted(true);
     };
     window.addEventListener('orb-clicked', handler);
     return () => window.removeEventListener('orb-clicked', handler);
   }, []);
-
-  // 当 started 变为 true 且有视频时，加载播放
-  useEffect(() => {
-    const v = videoRef.current;
-    if (!v || videos.length === 0 || !started) return;
-    v.src = videos[currentIndex];
-    v.muted = false;
-    v.volume = volume;
-    v.play().catch((e) => { console.warn('播放失败:', e); v.muted = true; setIsMuted(true); setMuteAuto(true); v.play(); });
-    setIsPlaying(true);
-  }, [started, currentIndex, videos]);
 
   // 定时模式：120 秒切换（渐变过渡）
   useEffect(() => {
