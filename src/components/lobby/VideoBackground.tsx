@@ -25,8 +25,8 @@ export function VideoBackground() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(true);
   const [volume, setVolume] = useState(0.5);
-  const [isMuted, setIsMuted] = useState(false);
-  const [showControls, setShowControls] = useState(false);
+  const [isMuted, setIsMuted] = useState(true); // 默认静音以允许自动播放
+  const [showControls, setShowControls] = useState(true);
   const videoRef = useRef<HTMLVideoElement>(null);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -103,9 +103,11 @@ export function VideoBackground() {
       <video
         ref={videoRef}
         className="video-bg__video"
+        autoPlay
         muted={isMuted}
         onEnded={handleEnded}
         playsInline
+        loop={mode === 'timer'}
       />
       <div className="video-bg__overlay" />
 
