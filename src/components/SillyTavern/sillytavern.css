@@ -1463,3 +1463,47 @@
   width: 60px;
   accent-color: white;
 }
+
+/* ---- 大厅菜单 ---- */
+.lobby-menu {
+  position: fixed;
+  left: 48px;
+  bottom: 120px;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.lobby-menu__item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 20px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(8px);
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  min-width: 180px;
+  text-align: left;
+}
+
+.lobby-menu__item:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.3);
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.08);
+  transform: translateX(4px);
+}
+
+.lobby-menu__icon {
+  opacity: 0.7;
+}
+
+.lobby-menu__label {
+  font-weight: 500;
+  letter-spacing: 0.05em;
+}
