@@ -8,27 +8,19 @@ import { SettingsModal } from '@/components/SillyTavern/SettingsModal';
 import { ApiConfigForm } from '@/components/SillyTavern/ApiConfigForm';
 import { useSillytavern } from '@/hooks/useSillytavern';
 
-interface TavernLobbyProps {
-  onEnterGame: () => void;
-}
+interface TavernLobbyProps { onEnterGame: () => void; }
 
-// 菜单按钮的内联样式
 const menuItemStyle: React.CSSProperties = {
-  display: 'flex',
-  alignItems: 'center',
-  gap: 14,
-  padding: '14px 24px',
-  border: '1px solid rgba(255,255,255,0.15)',
-  borderRadius: 10,
-  background: 'rgba(255,255,255,0.07)',
-  backdropFilter: 'blur(16px)',
-  WebkitBackdropFilter: 'blur(16px)',
-  color: 'white',
-  fontSize: '1.05rem',
-  fontWeight: 500,
-  cursor: 'pointer',
-  minWidth: 200,
-  width: '100%',
+  display: 'flex', alignItems: 'center', gap: 14, padding: '14px 24px',
+  border: '1px solid rgba(255,255,255,0.15)', borderRadius: 10,
+  background: 'rgba(255,255,255,0.07)', backdropFilter: 'blur(16px)',
+  WebkitBackdropFilter: 'blur(16px)', color: 'white', fontSize: '1.05rem',
+  fontWeight: 500, cursor: 'pointer', minWidth: 200, width: '100%',
+};
+
+// 弹窗容器 — z-index 极高，强制在所有元素之上
+const modalWrap: React.CSSProperties = {
+  position: 'fixed', inset: 0, zIndex: 100000,
 };
 
 export function TavernLobby({ onEnterGame }: TavernLobbyProps) {
@@ -46,7 +38,6 @@ export function TavernLobby({ onEnterGame }: TavernLobbyProps) {
   const [showPresets, setShowPresets] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
 
-  // 调试：打印弹窗状态变化
   useEffect(() => { if (showChats) console.log('📂 继续游戏弹窗打开'); }, [showChats]);
   useEffect(() => { if (showLorebooks) console.log('📚 世界书弹窗打开'); }, [showLorebooks]);
   useEffect(() => { if (showApiConfig) console.log('🔌 API配置弹窗打开'); }, [showApiConfig]);
@@ -54,18 +45,14 @@ export function TavernLobby({ onEnterGame }: TavernLobbyProps) {
   useEffect(() => { if (showSettings) console.log('🎭 设置弹窗打开'); }, [showSettings]);
 
   const closeAll = () => {
-    setShowChats(false);
-    setShowLorebooks(false);
-    setShowApiConfig(false);
-    setShowPresets(false);
-    setShowSettings(false);
+    setShowChats(false); setShowLorebooks(false); setShowApiConfig(false);
+    setShowPresets(false); setShowSettings(false);
   };
 
   const handleStartGame = async () => {
     await st.createChat();
     onEnterGame();
   };
-
   const handleContinue = () => { console.log('🖱️ 继续游戏 被点击'); closeAll(); setShowChats(true); };
   const handleWorldBooks = () => { console.log('🖱️ 世界书 被点击'); closeAll(); setShowLorebooks(true); };
   const handleApiConfig = () => { console.log('🖱️ API配置 被点击'); closeAll(); setShowApiConfig(true); };
@@ -73,9 +60,7 @@ export function TavernLobby({ onEnterGame }: TavernLobbyProps) {
   const handleSettings = () => { console.log('🖱️ 设置 被点击'); closeAll(); setShowSettings(true); };
 
   const handleSelectChat = (id: string) => {
-    st.loadChat(id);
-    setShowChats(false);
-    onEnterGame();
+    st.loadChat(id); setShowChats(false); onEnterGame();
   };
 
   const menuHoverIn = (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -95,107 +80,62 @@ export function TavernLobby({ onEnterGame }: TavernLobbyProps) {
     <div style={{ width: '100vw', height: '100vh', position: 'relative' }}>
       <VideoBackground />
 
-      {/* 菜单 — 直接内联，无中间组件 */}
-      <nav style={{
-        position: 'fixed',
-        left: 48,
-        bottom: 60,
-        zIndex: 9999,
-        display: 'flex',
-        flexDirection: 'column',
-        gap: 8,
-      }}>
-        <button style={menuItemStyle} onClick={handleStartGame}
-          onMouseEnter={menuHoverIn} onMouseLeave={menuHoverOut}>
-          <Gamepad2 size={20} style={{ opacity: 0.8 }} />
-          <span>开始游戏</span>
+      <nav style={{ position: 'fixed', left: 48, bottom: 60, zIndex: 9999, display: 'flex', flexDirection: 'column', gap: 8 }}>
+        <button style={menuItemStyle} onClick={handleStartGame} onMouseEnter={menuHoverIn} onMouseLeave={menuHoverOut}>
+          <Gamepad2 size={20} style={{ opacity: 0.8 }} /><span>开始游戏</span>
         </button>
-        <button style={menuItemStyle} onClick={handleContinue}
-          onMouseEnter={menuHoverIn} onMouseLeave={menuHoverOut}>
-          <FolderOpen size={20} style={{ opacity: 0.8 }} />
-          <span>继续游戏</span>
+        <button style={menuItemStyle} onClick={handleContinue} onMouseEnter={menuHoverIn} onMouseLeave={menuHoverOut}>
+          <FolderOpen size={20} style={{ opacity: 0.8 }} /><span>继续游戏</span>
         </button>
-        <button style={menuItemStyle} onClick={handleWorldBooks}
-          onMouseEnter={menuHoverIn} onMouseLeave={menuHoverOut}>
-          <BookOpen size={20} style={{ opacity: 0.8 }} />
-          <span>世界书</span>
+        <button style={menuItemStyle} onClick={handleWorldBooks} onMouseEnter={menuHoverIn} onMouseLeave={menuHoverOut}>
+          <BookOpen size={20} style={{ opacity: 0.8 }} /><span>世界书</span>
         </button>
-        <button style={menuItemStyle} onClick={handleApiConfig}
-          onMouseEnter={menuHoverIn} onMouseLeave={menuHoverOut}>
-          <Plug size={20} style={{ opacity: 0.8 }} />
-          <span>API 配置</span>
+        <button style={menuItemStyle} onClick={handleApiConfig} onMouseEnter={menuHoverIn} onMouseLeave={menuHoverOut}>
+          <Plug size={20} style={{ opacity: 0.8 }} /><span>API 配置</span>
         </button>
-        <button style={menuItemStyle} onClick={handlePresets}
-          onMouseEnter={menuHoverIn} onMouseLeave={menuHoverOut}>
-          <Sliders size={20} style={{ opacity: 0.8 }} />
-          <span>预设</span>
+        <button style={menuItemStyle} onClick={handlePresets} onMouseEnter={menuHoverIn} onMouseLeave={menuHoverOut}>
+          <Sliders size={20} style={{ opacity: 0.8 }} /><span>预设</span>
         </button>
-        <button style={menuItemStyle} onClick={handleSettings}
-          onMouseEnter={menuHoverIn} onMouseLeave={menuHoverOut}>
-          <Settings size={20} style={{ opacity: 0.8 }} />
-          <span>设置</span>
+        <button style={menuItemStyle} onClick={handleSettings} onMouseEnter={menuHoverIn} onMouseLeave={menuHoverOut}>
+          <Settings size={20} style={{ opacity: 0.8 }} /><span>设置</span>
         </button>
       </nav>
 
-      {/* 存档列表 */}
+      {/* 所有弹窗包裹在 z-index: 100000 的 fixed 容器中 */}
       {showChats && (
-        <ChatModal
-          chats={st.chats}
-          activeChatId={st.activeChatId}
+        <div style={modalWrap}><ChatModal chats={st.chats} activeChatId={st.activeChatId}
           onCreate={async (name) => { const id = await st.createChat(name); setShowChats(false); onEnterGame(); return id; }}
-          onSelect={handleSelectChat}
-          onDelete={st.removeChat}
-          onClose={() => setShowChats(false)}
-        />
-      )}
+          onSelect={handleSelectChat} onDelete={st.removeChat} onClose={() => setShowChats(false)} /></div>)}
 
-      {/* 世界书 */}
       {showLorebooks && (
-        <LorebookModal
-          lorebooks={st.lorebooks}
-          activeIds={st.activeLorebookIds}
-          onToggle={st.toggleLorebook}
-          onAdd={st.addLorebook}
-          onUpdate={st.updateLorebook}
-          onDelete={st.removeLorebook}
-          onClose={() => setShowLorebooks(false)}
-        />
-      )}
+        <div style={modalWrap}><LorebookModal lorebooks={st.lorebooks} activeIds={st.activeLorebookIds}
+          onToggle={st.toggleLorebook} onAdd={st.addLorebook} onUpdate={st.updateLorebook}
+          onDelete={st.removeLorebook} onClose={() => setShowLorebooks(false)} /></div>)}
 
-      {/* API 配置 */}
       {showApiConfig && st.settings && (
-        <div className="modal-overlay" onClick={() => setShowApiConfig(false)}>
-          <div className="modal modal--settings" onClick={(e) => e.stopPropagation()}>
-            <div className="modal__header">
-              <h2>API 配置</h2>
-              <button onClick={() => setShowApiConfig(false)}><X size={20} /></button>
-            </div>
-            <div className="modal__body">
-              <ApiConfigForm config={st.settings.api} onChange={(api) => st.updateSettings({ api })} label="主 API" />
-              <ApiConfigForm config={st.settings.secondaryApi} onChange={(s: any) => st.updateSettings({ secondaryApi: s })} label="次 API" />
-            </div>
-            <div className="modal__footer">
-              <button onClick={() => setShowApiConfig(false)} className="btn-ghost">取消</button>
-              <button onClick={() => setShowApiConfig(false)} className="btn-primary"><Save size={14} /> 完成</button>
+        <div style={modalWrap} onClick={() => setShowApiConfig(false)}>
+          <div style={{ display:'flex',alignItems:'center',justifyContent:'center',width:'100%',height:'100%',padding:20 }}>
+            <div className="modal modal--settings" onClick={(e) => e.stopPropagation()} style={{ position:'relative',zIndex:1 }}>
+              <div className="modal__header"><h2>API 配置</h2><button onClick={() => setShowApiConfig(false)}><X size={20} /></button></div>
+              <div className="modal__body">
+                <ApiConfigForm config={st.settings.api} onChange={(api) => st.updateSettings({ api })} label="主 API" />
+                <ApiConfigForm config={st.settings.secondaryApi} onChange={(s: any) => st.updateSettings({ secondaryApi: s })} label="次 API" />
+              </div>
+              <div className="modal__footer">
+                <button onClick={() => setShowApiConfig(false)} className="btn-ghost">取消</button>
+                <button onClick={() => setShowApiConfig(false)} className="btn-primary"><Save size={14} /> 完成</button>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        </div>)}
 
-      {/* 预设 */}
       {showPresets && (
-        <PresetModal
-          presets={st.presets} settings={st.settings}
+        <div style={modalWrap}><PresetModal presets={st.presets} settings={st.settings}
           onAdd={st.addPreset} onUpdate={st.updatePreset} onDelete={st.removePreset}
-          onSetActive={(id) => st.updateSettings({ activePresetId: id })}
-          onClose={() => setShowPresets(false)}
-        />
-      )}
+          onSetActive={(id) => st.updateSettings({ activePresetId: id })} onClose={() => setShowPresets(false)} /></div>)}
 
-      {/* 设置 */}
       {showSettings && st.settings && (
-        <SettingsModal settings={st.settings} onSave={st.updateSettings} onClose={() => setShowSettings(false)} />
-      )}
+        <div style={modalWrap}><SettingsModal settings={st.settings} onSave={st.updateSettings} onClose={() => setShowSettings(false)} /></div>)}
     </div>
   );
 }
