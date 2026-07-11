@@ -33,6 +33,9 @@ export function TavernLobby({ onEnterGame }: TavernLobbyProps) {
   }, []);
 
   const handleOrbClick = () => {
+    // 全屏
+    document.documentElement.requestFullscreen?.().catch(() => {});
+    // 解静音 + 启动视频
     window.dispatchEvent(new Event('orb-clicked'));
     setShowOrb(false);
   };

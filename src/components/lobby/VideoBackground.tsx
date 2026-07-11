@@ -47,28 +47,21 @@ export function VideoBackground() {
     })();
   }, []);
 
-  // 外部暴露：光球点击后调用
+  // 光球点击后：启动 + 解除静音（用户手势允许有声播放）
   useEffect(() => {
     const handler = () => {
       setStarted(true);
       const v = getCurrentVideo();
-      if (v) { v.muted = false; setIsMuted(false); setMuteAuto(false); v.play().catch(() => {}); }
+      if (v) {
+        v.muted = false;
+        setIsMuted(false);
+        setMuteAuto(false);
+        v.volume = volume;
+        v.play().catch(() => {}); // 有用户手势，不会失败
+      }
     };
     window.addEventListener('orb-clicked', handler);
     return () => window.removeEventListener('orb-clicked', handler);
-  }, []);
-
-  // 首次用户交互后取消静音
-  useEffect(() => {
-    const unmute = () => {
-      const v = getCurrentVideo();
-      if (v && v.muted) { v.muted = false; setIsMuted(false); setMuteAuto(false); }
-      document.removeEventListener('click', unmute);
-      document.removeEventListener('keydown', unmute);
-    };
-    document.addEventListener('click', unmute);
-    document.addEventListener('keydown', unmute);
-    return () => { document.removeEventListener('click', unmute); document.removeEventListener('keydown', unmute); };
   }, []);
 
   // 预加载下一个视频

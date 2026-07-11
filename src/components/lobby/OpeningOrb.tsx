@@ -32,7 +32,7 @@ export function OpeningOrb({ onClick }: OpeningOrbProps) {
           width: 160,
           height: 160,
           borderRadius: '50%',
-          background: 'radial-gradient(circle, rgba(168,130,255,0.4) 0%, transparent 70%)',
+          background: 'radial-gradient(circle, rgba(255,200,80,0.4) 0%, transparent 70%)',
           filter: 'blur(20px)',
         }}
       />
@@ -45,7 +45,7 @@ export function OpeningOrb({ onClick }: OpeningOrbProps) {
           width: 100,
           height: 100,
           borderRadius: '50%',
-          background: 'radial-gradient(circle, rgba(180,150,255,0.6) 0%, transparent 60%)',
+          background: 'radial-gradient(circle, rgba(255,215,80,0.6) 0%, transparent 60%)',
           filter: 'blur(12px)',
         }}
       />
@@ -57,8 +57,8 @@ export function OpeningOrb({ onClick }: OpeningOrbProps) {
           width: 64,
           height: 64,
           borderRadius: '50%',
-          background: 'radial-gradient(circle at 35% 35%, rgba(255,255,255,0.9) 0%, rgba(160,120,255,0.7) 40%, rgba(80,40,200,0.3) 100%)',
-          boxShadow: '0 0 60px rgba(140,100,255,0.6), 0 0 120px rgba(140,100,255,0.3), 0 0 200px rgba(100,60,220,0.15)',
+          background: 'radial-gradient(circle at 35% 35%, rgba(255,255,255,0.9) 0%, rgba(255,200,60,0.7) 40%, rgba(180,130,30,0.3) 100%)',
+          boxShadow: '0 0 60px rgba(255,180,50,0.6), 0 0 120px rgba(255,180,50,0.3), 0 0 200px rgba(200,140,30,0.15)',
           position: 'relative',
           display: 'flex',
           alignItems: 'center',
