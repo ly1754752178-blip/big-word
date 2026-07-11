@@ -17,7 +17,6 @@ import {
   getChats,
   saveChat as dbSaveChat,
   deleteChat as dbDeleteChat,
-  ensureSettings,
   // 变量
   extractVariables,
   mergeVariables,
@@ -71,9 +70,6 @@ export interface UseSillytavernReturn {
 
   // 消息操作
   sendMessage: (content: string) => Promise<void>;
-  editMessage: (messageId: string, newContent: string) => Promise<void>;
-  deleteMessagesFrom: (messageId: string) => Promise<void>;
-  branchFromMessage: (messageId: string, name?: string) => Promise<string>;
 
   // 变量操作
   updateVariables: (updates: Record<string, string | number>) => Promise<void>;
@@ -311,78 +307,6 @@ export function useSillytavern(): UseSillytavernReturn {
     }
   }, [lorebooks, presets]);
 
-  // ---- 编辑消息 ----
-  const editMessage = useCallback(async (messageId: string, newContent: string) => {
-    const chat = chatsRef.current.find((c) => c.id === activeChatIdRef.current);
-    if (!chat) return;
-    const idx = chat.messages.findIndex((m) => m.id === messageId);
-    if (idx === -1) return;
-    if (chat.messages[idx].role !== USER_ROLE) return;
-
-    const updatedChat = {
-      ...chat,
-      messages: chat.messages.slice(0, idx),
-      variables: chat.messages[idx]?.variables ?? {},
-      updatedAt: Date.now(),
-    };
-    await dbSaveChat(updatedChat);
-    setChats((prev) => prev.map((c) => (c.id === updatedChat.id ? updatedChat : c)));
-
-    // 重新发送
-    await sendMessage(newContent);
-  }, [sendMessage]);
-
-  // ---- 删除后续消息 ----
-  const deleteMessagesFrom = useCallback(async (messageId: string) => {
-    const chat = chatsRef.current.find((c) => c.id === activeChatIdRef.current);
-    if (!chat) return;
-    const idx = chat.messages.findIndex((m) => m.id === messageId);
-    if (idx === -1) return;
-
-    const updatedChat = {
-      ...chat,
-      messages: chat.messages.slice(0, idx),
-      variables: chat.messages[idx - 1]?.variables ?? {},
-      updatedAt: Date.now(),
-    };
-    await dbSaveChat(updatedChat);
-    setChats((prev) => prev.map((c) => (c.id === updatedChat.id ? updatedChat : c)));
-  }, []);
-
-  // ---- 分支对话 ----
-  const branchFromMessage = useCallback(async (messageId: string, name?: string) => {
-    const s = settingsRef.current;
-    const chat = chatsRef.current.find((c) => c.id === activeChatIdRef.current);
-    if (!chat || !s) throw new Error('没有活跃聊天');
-
-    const idx = chat.messages.findIndex((m) => m.id === messageId);
-    if (idx === -1) throw new Error('消息未找到');
-
-    const branchCount = chatsRef.current.filter(
-      (c) => c.characterName === s.characterName,
-    ).length;
-    const branchName = name ?? `${s.characterName} - 分支 ${branchCount + 1}`;
-
-    const truncatedMessages = chat.messages.slice(0, idx + 1);
-    const newChat = {
-      id: crypto.randomUUID(),
-      name: branchName,
-      messages: truncatedMessages,
-      characterName: chat.characterName,
-      userName: chat.userName,
-      presetId: s.activePresetId ?? presets[0]?.id ?? null,
-      lorebookIds: [...s.activeLorebookIds],
-      variables: chat.messages[idx].variables,
-      createdAt: Date.now(),
-      updatedAt: Date.now(),
-    };
-
-    await dbSaveChat(newChat);
-    setChats((prev) => [newChat, ...prev]);
-    setActiveChatId(newChat.id);
-    return newChat.id;
-  }, [presets]);
-
   // ---- 计算属性 ----
   const activeChat = chats.find((c) => c.id === activeChatId) ?? null;
   const activeLorebookIds = settings?.activeLorebookIds ?? [];
@@ -410,9 +334,6 @@ export function useSillytavern(): UseSillytavernReturn {
     loadChat,
     removeChat,
     sendMessage,
-    editMessage,
-    deleteMessagesFrom,
-    branchFromMessage,
     updateVariables,
     loadAll,
   };
