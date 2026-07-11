@@ -1,0 +1,7 @@
+- navigation [ref=e5]:
+  - button "开始游戏" [ref=e6] [cursor=pointer]
+  - button "继续游戏" [ref=e10] [cursor=pointer]
+  - button "世界书" [ref=e14] [cursor=pointer]
+  - button "API 配置" [ref=e19] [cursor=pointer]
+  - button "预设" [ref=e23] [cursor=pointer]
+  - button "设置" [ref=e26] [cursor=pointer]

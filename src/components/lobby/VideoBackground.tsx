@@ -26,6 +26,7 @@ export function VideoBackground() {
   const [isPlaying, setIsPlaying] = useState(true);
   const [volume, setVolume] = useState(0.5);
   const [isMuted, setIsMuted] = useState(false);
+  const [muteAuto, setMuteAuto] = useState(false); // 是否被浏览器强制静音
   const videoRef = useRef<HTMLVideoElement>(null);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -46,7 +47,7 @@ export function VideoBackground() {
     const video = videoRef.current;
     if (!video || videos.length === 0) return;
     video.src = videos[currentIndex];
-    if (isPlaying) video.play().catch(() => { video.muted = true; setIsMuted(true); video.play(); });
+    if (isPlaying) video.play().catch(() => { video.muted = true; setIsMuted(true); setMuteAuto(true); video.play(); });
   }, [currentIndex, videos, isPlaying]);
 
   useEffect(() => {
@@ -174,8 +175,13 @@ export function VideoBackground() {
           </button>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-          <button onClick={toggleMute} style={btn} title={isMuted ? '取消静音' : '静音'}>
-            {isMuted ? <VolumeX size={14} /> : <Volume2 size={14} />}
+          <button onClick={() => { toggleMute(); setMuteAuto(false); }} style={{
+            ...btn,
+            animation: muteAuto ? 'pulse-glow 1.5s ease-in-out infinite' : 'none',
+            borderColor: muteAuto ? 'rgba(251,146,60,0.6)' : btn.borderColor,
+            boxShadow: muteAuto ? '0 0 8px rgba(251,146,60,0.4)' : 'none',
+          }} title={isMuted ? (muteAuto ? '浏览器限制了声音，点击开启' : '取消静音') : '静音'}>
+            {isMuted ? <VolumeX size={14} color={muteAuto ? '#fb923c' : 'white'} /> : <Volume2 size={14} />}
           </button>
           <input
             type="range"

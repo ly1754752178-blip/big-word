@@ -173,6 +173,11 @@
   50% { opacity: 0; }
 }
 
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 4px rgba(251,146,60,0.3); }
+  50% { box-shadow: 0 0 14px rgba(251,146,60,0.6); }
+}
+
 /* ---- 选项列表 ---- */
 .option-list {
   display: flex;
