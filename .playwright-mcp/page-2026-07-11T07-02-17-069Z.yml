@@ -1,0 +1,127 @@
+- generic [ref=f1e4]:
+  - banner [ref=f1e5]:
+    - button "2026 / 07 / 08 水曜日 今天是七夕哦！ 周三 · 黄昏" [ref=f1e7] [cursor=pointer]:
+      - generic [ref=f1e12]:
+        - generic [ref=f1e13]:
+          - generic [ref=f1e14]: 2026 / 07 / 08
+          - generic [ref=f1e15]: 水曜日
+        - generic [ref=f1e16]:
+          - generic [ref=f1e17]: 今天是七夕哦！
+          - generic [ref=f1e20]: 周三 · 黄昏
+    - generic [ref=f1e21]: 18:30
+    - generic [ref=f1e40]:
+      - generic [ref=f1e41]: 封面
+      - generic [ref=f1e46]: 《黄昏的车站》
+      - generic [ref=f1e48]:
+        - button "循环" [ref=f1e49] [cursor=pointer]
+        - button "上一首" [ref=f1e55] [cursor=pointer]
+        - button "暂停" [ref=f1e58] [cursor=pointer]
+        - button "下一首" [ref=f1e62] [cursor=pointer]
+        - button "列表" [ref=f1e65] [cursor=pointer]
+  - generic [ref=f1e68]:
+    - complementary [ref=f1e69]:
+      - complementary [ref=f1e70]:
+        - button "个人状态" [ref=f1e71] [cursor=pointer]
+        - button "天赋才能" [ref=f1e75] [cursor=pointer]
+        - button "社交关系" [ref=f1e78] [cursor=pointer]
+        - button "财富资产" [ref=f1e84] [cursor=pointer]
+        - button "日历事件" [ref=f1e88] [cursor=pointer]
+        - button "系统设置" [ref=f1e91] [cursor=pointer]
+        - button "角色图鉴" [ref=f1e96] [cursor=pointer]
+      - generic [ref=f1e101]:
+        - generic [ref=f1e102]: 个人状态
+        - generic [ref=f1e104]:
+          - generic [ref=f1e105]:
+            - img "叶悠真" [ref=f1e107]
+            - generic [ref=f1e108]:
+              - generic [ref=f1e109]: 叶悠真
+              - generic [ref=f1e110]:
+                - generic [ref=f1e111]: 略显疲惫
+                - generic [ref=f1e112]: 高中生
+          - generic [ref=f1e113]:
+            - generic [ref=f1e115]:
+              - generic [ref=f1e116]: 体力
+              - generic [ref=f1e121]: 78/100
+            - generic [ref=f1e125]:
+              - generic [ref=f1e126]: 精神
+              - generic [ref=f1e139]: 65/100
+            - generic [ref=f1e143]:
+              - generic [ref=f1e144]: 健康
+              - generic [ref=f1e149]: 82/100
+          - generic [ref=f1e152]:
+            - button "身体状态" [ref=f1e153] [cursor=pointer]
+            - generic [ref=f1e157]:
+              - generic [ref=f1e158]: 瘦竹竿一样、颓废、睡眠不足的18岁年轻人
+              - generic [ref=f1e159]:
+                - generic [ref=f1e160]: 营养不良
+                - generic [ref=f1e161]: 颓废
+                - generic [ref=f1e162]: 失眠
+            - button "个人讯息" [ref=f1e163] [cursor=pointer]
+            - generic [ref=f1e167]:
+              - generic [ref=f1e168]:
+                - generic [ref=f1e169]: 年龄
+                - generic [ref=f1e170]: 18岁
+              - generic [ref=f1e171]:
+                - generic [ref=f1e172]: 身份
+                - generic [ref=f1e173]: 高中生
+              - generic [ref=f1e174]:
+                - generic [ref=f1e175]: 住址
+                - generic [ref=f1e176]: 东京都·世田谷区·樱丘一丁目 2-15 阳光公寓 302
+              - generic [ref=f1e177]:
+                - generic [ref=f1e178]: 现金
+                - generic [ref=f1e179]: ¥3,240
+    - main [ref=f1e180]:
+      - generic [ref=f1e181]:
+        - generic [ref=f1e182]:
+          - paragraph [ref=f1e185]: 你醒来时，窗外是四月的黄昏。远处传来电车的声音，风把窗帘吹得轻轻晃动。
+          - generic [ref=f1e187]:
+            - generic [ref=f1e188]: S
+            - generic [ref=f1e190]:
+              - generic [ref=f1e191]: 朝比奈樱
+              - paragraph [ref=f1e193]: 悠真，今天放学后要一起去学生会室吗？
+          - paragraph [ref=f1e196]: 她将书包抱在胸前，夕阳把她的发梢染成温暖的橘色。车站方向的铃声隐约传来。
+        - generic [ref=f1e198]:
+          - button "历史" [ref=f1e199] [cursor=pointer]
+          - textbox "输入你想说的话……" [ref=f1e204]
+          - button "发送" [disabled] [ref=f1e205]
+    - complementary [ref=f1e209]:
+      - generic [ref=f1e210]:
+        - generic [ref=f1e212]:
+          - img "场景印象图" [ref=f1e213]
+          - generic [ref=f1e214]: 学区
+        - generic [ref=f1e219]:
+          - generic [ref=f1e220]:
+            - button "城市地图" [ref=f1e221] [cursor=pointer]
+            - button "全国地图" [ref=f1e224] [cursor=pointer]
+            - button "展开" [ref=f1e227] [cursor=pointer]
+          - generic [ref=f1e231]:
+            - generic [ref=f1e232]: 学区
+            - generic [ref=f1e243]:
+              - button "自家公寓：两室一厅，位于安静的住宅区" [ref=f1e248] [cursor=pointer]:
+                - generic [ref=f1e252]: 自家公寓
+              - button "樱丘高中：你就读的高中，放学后经常热闹到傍晚" [ref=f1e253] [cursor=pointer]:
+                - generic [ref=f1e257]: 樱丘高中
+              - button "车站前书店：藤堂静打工的地方，二楼有咖啡馆" [ref=f1e258] [cursor=pointer]:
+                - generic [ref=f1e262]: 车站前书店
+              - button "公园长椅：傍晚常有街头艺人在这里弹唱" [ref=f1e263] [cursor=pointer]:
+                - generic [ref=f1e267]: 公园长椅
+              - generic [ref=f1e269]: X:3500 Y:-1200
+        - generic [ref=f1e270]:
+          - generic [ref=f1e271]:
+            - button "周边动态" [ref=f1e272] [cursor=pointer]
+            - button "当前通知 1" [ref=f1e276] [cursor=pointer]:
+              - text: 当前通知
+              - generic [ref=f1e280]: "1"
+          - generic [ref=f1e282]:
+            - generic [ref=f1e283]:
+              - generic [ref=f1e284]:
+                - generic [ref=f1e285]: 便利店新品试吃
+                - generic [ref=f1e286]: 2026-07-09
+              - paragraph [ref=f1e287]: 车站前的 Lawson 推出夏日限定甜品
+            - generic [ref=f1e288]:
+              - generic [ref=f1e289]:
+                - generic [ref=f1e290]: 公园街头艺人
+                - generic [ref=f1e291]: 2026-07-08
+              - paragraph [ref=f1e292]: 傍晚有人在公园弹唱，吸引了不少路人
+        - button "打开手机" [ref=f1e293] [cursor=pointer]
+        - button [ref=f1e303] [cursor=pointer]

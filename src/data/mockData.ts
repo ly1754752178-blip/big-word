@@ -789,10 +789,10 @@ export const mockGameState: GameState = {
       },
       {
         id: 'r3',
-        name: '朝比奈樱',
+        name: '佐仓千代',
         group: '同学',
         affinity: 74,
-        avatar: 'sakura',
+        avatar: '/avatars/avatar-chiyo.jpg',
         title: '同班同学',
         description: '活泼开朗的班长，似乎知道很多校园传闻',
       },
@@ -961,7 +961,7 @@ export const mockGameState: GameState = {
     {
       id: 'notif1',
       title: '收到新消息',
-      message: '朝比奈樱发来一条消息',
+      message: '佐仓千代发来一条消息',
       time: '18:25',
       read: false,
       type: 'social',
@@ -1073,8 +1073,8 @@ export const mockGameState: GameState = {
       {
         id: 'msg3',
         type: 'dialogue',
-        speaker: '朝比奈樱',
-        speakerAvatar: 'sakura',
+        speaker: '佐仓千代',
+        speakerAvatar: '/avatars/avatar-chiyo.jpg',
         content: '悠真，今天放学后要一起去学生会室吗？',
         timestamp: '18:31',
       },

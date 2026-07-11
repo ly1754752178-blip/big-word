@@ -1,38 +1,28 @@
 # Subagent-Driven Development Progress Ledger
 
-Project: 人生模拟器 — 技能大界面重做
-Plan: docs/superpowers/plans/2026-07-10-skills-overlay-redesign.md
-Baseline commit: c394b19
+Project: 人生模拟器 — 酒馆融合重制
+Plan: docs/superpowers/plans/2026-07-12-tavern-integration-plan.md
+Baseline commit: 079a165
 
 ## Tasks
 
-- [ ] Task 1: 更新类型定义
-- [ ] Task 2: 创建动画变体定义
-- [ ] Task 3: 创建 CategoryTabs 组件
-- [ ] Task 4: 创建 StatsBanner 组件
-- [ ] Task 5: 创建 SkillCard 组件
-- [ ] Task 6: 创建 SkillCardGrid 组件
-- [ ] Task 7: 创建 SkillNodeDetail 面板
-- [ ] Task 8: 创建 SkillTreeView 星座技能树
-- [ ] Task 9: 创建 SkillsOverlay 主组件
-- [ ] Task 10: 更新 OverlayRenderer 路由
-- [ ] Task 11: 更新 GameContext overlayTitles
-- [ ] Task 12: 更新 TalentsPreview 调用
-- [ ] Task 13: 删除旧组件
-- [ ] Task 14: 验证与测试
+- [x] Task 1: 静态资源目录 + 视频文件复制
+- [x] Task 2: 移除分支对话功能（核心层）
+- [x] Task 3: 移除分支对话功能（Hook + UI）
+- [x] Task 4: 视频背景组件 VideoBackground
+- [x] Task 5: 角色标签解析器 + 头像匹配
+- [x] Task 6: 大厅菜单组件 LobbyMenu
+- [x] Task 7: 酒馆大厅页面 TavernLobby
+- [x] Task 8: 游戏布局组件 GameLayout
+- [x] Task 9: 修改 TopBar — 返回大厅按钮
+- [x] Task 10: 修改 page.tsx — 双页面入口
+- [x] Task 11: ThinkingPanel 思考面板
+- [x] Task 12: 修改 SkyOrb — thinking toggle
+- [ ] Task 13: 修改 NarrativePanel — 融合酒馆
+- [ ] Task 14: 修改 GameContext — 保留兼容
+- [ ] Task 15: 清理无用文件
+- [ ] Task 16: 最终集成验证
 
 ## Review Findings
 
 *None yet.*
-Task 1: complete (commits c394b19..968d55f, review clean)
-Task 2: complete (commits 968d55f..9544444, review clean)
-Task 3: complete (commit 5d6495c, review clean)
-Task 4: complete (commit deac950, review clean)
-Task 5: complete (commit 97c1109, review clean)
-Task 7: complete (commit ba163bf, review clean)
-Task 6: complete (commit 8188e1d, review clean)
-Task 8: complete (commit f4a3730, review clean)
-Task 9: complete (commit 6aa813c, review clean)
-Task 12: complete (commit 9bc8fca, review clean)
-Task 11: complete (verified existing, no changes needed)
-Task 10: complete (commit 46cb623, review clean)

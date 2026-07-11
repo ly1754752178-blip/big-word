@@ -48,7 +48,7 @@ export function RightPanel() {
     <div className="h-full flex flex-col relative">
       {/* 场景印象图 */}
       <div className="relative aspect-video w-full shrink-0">
-        <SceneImpression imageUrl="/images/scene-anime.png" />
+        <SceneImpression imageUrl="/images/scene-school-sunset.png" />
       </div>
 
       {/* GPS 地图 —— 城市 / 全国双Tab */}

@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Sparkles } from 'lucide-react';
 import type { SkillTree, SkillNode } from '@/types';
@@ -411,6 +411,19 @@ export function SkillTreeView({ skill, color, onBack, backgroundImage }: SkillTr
     setDragging(false);
   }, []);
 
+  // 全局 mouseup 监听：确保即使鼠标在组件外释放，拖拽状态也能正确重置
+  useEffect(() => {
+    const handleGlobalMouseUp = () => {
+      setDragging(false);
+    };
+    window.addEventListener('mouseup', handleGlobalMouseUp);
+    return () => {
+      window.removeEventListener('mouseup', handleGlobalMouseUp);
+      // 卸载时确保拖拽状态重置，防止光标样式残留
+      setDragging(false);
+    };
+  }, []);
+
   // 计算可见节点
   const visibleIds = new Set<string>();
   for (const node of skill.nodes) {
@@ -421,7 +434,6 @@ export function SkillTreeView({ skill, color, onBack, backgroundImage }: SkillTr
 
   return (
     <motion.div
-      layoutId={`skill-card-${skill.id}`}
       className="flex flex-col h-full rounded-2xl overflow-hidden border border-slate-200/80 bg-white/90 shadow-lg"
     >
       {/* 顶部返回栏 */}
