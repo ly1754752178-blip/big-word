@@ -31,6 +31,7 @@ export function VideoBackground() {
   const videoBRef = useRef<HTMLVideoElement>(null);
   const [activeVideo, setActiveVideo] = useState<'A' | 'B'>('A');
   const [fading, setFading] = useState(false);
+  const skipReload = useRef(false); // 交叉渐变后跳过 useEffect 重载
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const preloadedRef = useRef<Set<number>>(new Set());
 
@@ -79,6 +80,7 @@ export function VideoBackground() {
 
   // 加载当前视频到活跃元素
   useEffect(() => {
+    if (skipReload.current) { skipReload.current = false; return; }
     const currVid = getCurrentVideo();
     if (!currVid || videos.length === 0 || !started) return;
     currVid.src = videos[currentIndex];
@@ -134,6 +136,7 @@ export function VideoBackground() {
       currVid.pause();
       currVid.style.transition = 'none';
       nextVid.style.transition = 'none';
+      skipReload.current = true; // 跳过 useEffect 重载
       setActiveVideo(activeVideo === 'A' ? 'B' : 'A');
       setCurrentIndex(nextIdx);
       setFading(false);
