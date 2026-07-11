@@ -17,6 +17,7 @@ interface GameContextValue {
   setPreviewTab: (tab: SidebarTab) => void;
   setNarrativeInput: (text: string) => void;
   sendNarrativeMessage: (content: string) => void;
+  appendNarrativeMessage: (msg: NarrativeMessage) => void;
   selectNarrativeOption: (optionId: string) => void;
   regenerateLastMessage: () => void;
   branchNarrativeTo: (messageId: string) => void;
@@ -79,6 +80,7 @@ const overlayTitles: Record<OverlayViewType, string> = {
   shop: '商店与衣柜',
   memories: '回忆相册',
   achievements: '成就',
+  sillyTavern: 'SillyTavern 酒馆',
 };
 
 function gameReducer(state: GameState, action: Action): GameState {
@@ -285,6 +287,13 @@ export function GameProvider({ children }: GameProviderProps) {
     [state, llm, timestamp]
   );
 
+  const appendNarrativeMessage = useCallback(
+    (msg: NarrativeMessage) => {
+      dispatch({ type: 'ADD_NARRATIVE_MESSAGE', payload: msg });
+    },
+    []
+  );
+
   const sendNarrativeMessage = useCallback(
     async (content: string) => {
       const userMsg: NarrativeMessage = {
@@ -334,6 +343,7 @@ export function GameProvider({ children }: GameProviderProps) {
     setPreviewTab: (tab) => dispatch({ type: 'SET_PREVIEW_TAB', payload: tab }),
     setNarrativeInput: (text) => dispatch({ type: 'SET_NARRATIVE_INPUT', payload: text }),
     sendNarrativeMessage,
+    appendNarrativeMessage,
     selectNarrativeOption,
     regenerateLastMessage,
     branchNarrativeTo,
