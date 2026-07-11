@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Gamepad2, FolderOpen, BookOpen, Plug, Sliders, Settings, X, Save } from 'lucide-react';
+import { OpeningOrb } from '@/components/lobby/OpeningOrb';
 import { VideoBackground } from '@/components/lobby/VideoBackground';
 import { ChatModal } from '@/components/SillyTavern/ChatModal';
 import { LorebookModal } from '@/components/SillyTavern/LorebookModal';
@@ -22,12 +24,18 @@ const menuItemStyle: React.CSSProperties = {
 
 export function TavernLobby({ onEnterGame }: TavernLobbyProps) {
   const st = useSillytavern();
+  const [showOrb, setShowOrb] = useState(true);
 
   useEffect(() => {
     const orig = document.body.style.overflow;
     document.body.style.overflow = 'visible';
     return () => { document.body.style.overflow = orig; };
   }, []);
+
+  const handleOrbClick = () => {
+    window.dispatchEvent(new Event('orb-clicked'));
+    setShowOrb(false);
+  };
 
   const [showChats, setShowChats] = useState(false);
   const [showLorebooks, setShowLorebooks] = useState(false);
@@ -74,10 +82,32 @@ export function TavernLobby({ onEnterGame }: TavernLobbyProps) {
   };
 
   return (
-    <div style={{ width: '100vw', height: '100vh', position: 'relative' }}>
+    <div style={{ width: '100vw', height: '100vh', position: 'relative', background: '#000' }}>
       <VideoBackground />
 
-      <nav style={{ position: 'fixed', left: 48, bottom: 60, zIndex: 9999, display: 'flex', flexDirection: 'column', gap: 8 }}>
+      {/* 开场光球 */}
+      <AnimatePresence>
+        {showOrb && (
+          <motion.div
+            initial={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 1.2, ease: 'easeOut' }}
+            style={{ position: 'fixed', inset: 0, zIndex: 100000 }}
+          >
+            <OpeningOrb onClick={handleOrbClick} />
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+
+      {/* 菜单 — 光球点击后渐显 */}
+      <AnimatePresence>
+        {!showOrb && (
+          <motion.nav
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 1.2, delay: 0.8 }}
+            style={{ position: 'fixed', left: 48, bottom: 60, zIndex: 9999, display: 'flex', flexDirection: 'column', gap: 8 }}>
         <button style={menuItemStyle} onClick={handleStartGame} onMouseEnter={menuHoverIn} onMouseLeave={menuHoverOut}>
           <Gamepad2 size={20} style={{ opacity: 0.8 }} /><span>开始游戏</span>
         </button>
@@ -96,7 +126,7 @@ export function TavernLobby({ onEnterGame }: TavernLobbyProps) {
         <button style={menuItemStyle} onClick={handleSettings} onMouseEnter={menuHoverIn} onMouseLeave={menuHoverOut}>
           <Settings size={20} style={{ opacity: 0.8 }} /><span>设置</span>
         </button>
-      </nav>
+      </motion.nav>)}</AnimatePresence>
 
       {/* 所有弹窗通过 Portal 渲染到 body，彻底跳出层叠上下文 */}
       {showChats && createPortal(
