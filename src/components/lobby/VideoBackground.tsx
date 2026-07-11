@@ -130,6 +130,7 @@ export function VideoBackground() {
           height: '100%',
           objectFit: 'cover',
           zIndex: 0,
+          pointerEvents: 'none',
         }}
       />
       {/* 半透明遮罩 */}

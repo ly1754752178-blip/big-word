@@ -1,0 +1,17 @@
+- generic [ref=f7e357]:
+  - generic [ref=f7e359]:
+    - paragraph [ref=f7e360]: 《孤独摇滚1》
+    - generic [ref=f7e361]:
+      - button "上一曲" [ref=f7e362] [cursor=pointer]
+      - button "暂停" [ref=f7e365] [cursor=pointer]
+      - button "下一曲" [ref=f7e369] [cursor=pointer]
+    - generic [ref=f7e372]:
+      - button "取消静音" [ref=f7e373] [cursor=pointer]
+      - slider [ref=f7e378]: "0"
+  - navigation [ref=f7e379]:
+    - button "开始游戏" [ref=f7e380] [cursor=pointer]
+    - button "继续游戏" [ref=f7e384] [cursor=pointer]
+    - button "世界书" [ref=f7e388] [cursor=pointer]
+    - button "API 配置" [ref=f7e393] [cursor=pointer]
+    - button "预设" [ref=f7e397] [cursor=pointer]
+    - button "设置" [ref=f7e400] [cursor=pointer]
