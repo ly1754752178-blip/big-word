@@ -156,11 +156,11 @@ export function VideoBackground() {
       <div style={ctrlBar}>
         <p style={ctrlTitle}>《{fileName}》</p>
         <div style={ctrlRow}>
-          <button onClick={prevVideo} style={btn} title="上一曲"><SkipBack size={16} /></button>
+          <button onClick={prevVideo} style={{...btn, opacity: videos.length <= 1 ? 0.3 : 1, cursor: videos.length <= 1 ? 'default' : 'pointer'}} title="上一曲" disabled={videos.length <= 1}><SkipBack size={16} /></button>
           <button onClick={togglePlay} style={btn} title={isPlaying ? '暂停' : '播放'}>
             {isPlaying ? <Pause size={16} /> : <Play size={16} />}
           </button>
-          <button onClick={nextVideo} style={btn} title="下一曲"><SkipForward size={16} /></button>
+          <button onClick={nextVideo} style={{...btn, opacity: videos.length <= 1 ? 0.3 : 1, cursor: videos.length <= 1 ? 'default' : 'pointer'}} title="下一曲" disabled={videos.length <= 1}><SkipForward size={16} /></button>
         </div>
         <div style={ctrlRow}>
           <button onClick={toggleMute} style={btn} title={isMuted ? '取消静音' : '静音'}>
