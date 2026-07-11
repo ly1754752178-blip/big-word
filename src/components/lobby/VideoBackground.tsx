@@ -151,7 +151,7 @@ export function VideoBackground() {
     v.volume = val; v.muted = false;
   };
 
-  const fileName = videos[currentIndex]?.split('/').pop()?.replace(/\.[^/.]+$/, '') ?? '';
+  const fileName = decodeURIComponent(videos[currentIndex]?.split('/').pop()?.replace(/\.[^/.]+$/, '') ?? '');
 
   return (
     <>
