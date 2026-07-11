@@ -66,6 +66,7 @@ export function VideoBackground() {
         setIsMuted(false);
         setMuteAuto(false);
         v.volume = volumeRef.current;
+        skipReload.current = true; // 避免 useEffect 重复加载
         v.play().catch(() => {});
       }
       setStarted(true);
