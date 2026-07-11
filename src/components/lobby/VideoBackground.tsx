@@ -1,11 +1,12 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { Play, Pause, SkipBack, SkipForward, Volume2, VolumeX } from 'lucide-react';
 
-// ---------- 已知视频文件映射（不做 HEAD 探测，避免网络不可靠） ----------
-const FOLDER_VIDEOS: Record<string, string[]> = {
-  'videos/shipinbeijing60': ['孤独摇滚1.mp4', '孤独摇滚2.mp4'],
-  'videos/shipinbeijing00': ['孤独摇滚3.mp4'],
-};
+// ---------- 全部视频池 ----------
+const ALL_VIDEOS = [
+  'videos/shipinbeijing60/孤独摇滚1.mp4',
+  'videos/shipinbeijing60/孤独摇滚2.mp4',
+  'videos/shipinbeijing00/孤独摇滚3.mp4',
+];
 
 // ---------- 组件 ----------
 export function VideoBackground() {
@@ -32,14 +33,12 @@ export function VideoBackground() {
   useEffect(() => { mutedRef.current = isMuted; }, [isMuted]);
   useEffect(() => { volRef.current = volume; }, [volume]);
 
-  // ---- 初始化：随机选文件夹 ----
+  // ---- 初始化：随机选切换模式，全部视频统一播放列表 ----
   useEffect(() => {
-    const pick60 = Math.random() < 0.5;
-    const folder = pick60 ? 'videos/shipinbeijing60' : 'videos/shipinbeijing00';
-    const names = FOLDER_VIDEOS[folder];
-    const urls = names.map(n => `/${folder}/${n}`);
-    console.log(`🎲 ${pick60 ? 'shipinbeijing60 (120s)' : 'shipinbeijing00 (自然)'} — ${urls.length} 个视频`);
-    setMode(pick60 ? 'timer' : 'natural');
+    const isTimer = Math.random() < 0.5;
+    setMode(isTimer ? 'timer' : 'natural');
+    const urls = ALL_VIDEOS.map(p => `/${p}`);
+    console.log(`🎲 模式: ${isTimer ? '120s定时' : '播完切换'}，播放列表: ${ALL_VIDEOS.map(v => v.split('/').pop()).join(', ')}`);
     setVideos(urls);
   }, []);
 
