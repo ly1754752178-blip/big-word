@@ -22,7 +22,7 @@ const menuItems = [
 const menuStyle: React.CSSProperties = {
   position: 'fixed',
   left: 48,
-  bottom: 120,
+  bottom: 60,
   zIndex: 9999,
   display: 'flex',
   flexDirection: 'column',
@@ -34,9 +34,11 @@ const itemStyle: React.CSSProperties = {
   alignItems: 'center',
   gap: 14,
   padding: '14px 24px',
-  border: '1px solid rgba(255,255,255,0.3)',
+  border: '1px solid rgba(255,255,255,0.15)',
   borderRadius: 10,
-  background: 'rgba(0,0,0,0.75)',
+  background: 'rgba(255,255,255,0.07)',
+  backdropFilter: 'blur(16px)',
+  WebkitBackdropFilter: 'blur(16px)',
   color: 'white',
   fontSize: '1.05rem',
   fontWeight: 500,
@@ -55,14 +57,16 @@ export function LobbyMenu(props: LobbyMenuProps) {
             style={itemStyle}
             onClick={handler}
             onMouseEnter={(e) => {
-              e.currentTarget.style.background = 'rgba(124,58,237,0.85)';
-              e.currentTarget.style.borderColor = 'rgba(255,255,255,0.5)';
+              e.currentTarget.style.background = 'rgba(124,58,237,0.25)';
+              e.currentTarget.style.borderColor = 'rgba(255,255,255,0.4)';
               e.currentTarget.style.transform = 'translateX(6px)';
+              e.currentTarget.style.boxShadow = '0 0 24px rgba(124,58,237,0.2)';
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.background = 'rgba(0,0,0,0.75)';
-              e.currentTarget.style.borderColor = 'rgba(255,255,255,0.3)';
+              e.currentTarget.style.background = 'rgba(255,255,255,0.07)';
+              e.currentTarget.style.borderColor = 'rgba(255,255,255,0.15)';
               e.currentTarget.style.transform = 'translateX(0)';
+              e.currentTarget.style.boxShadow = 'none';
             }}
           >
             <item.icon size={20} style={{ opacity: 0.8 }} />

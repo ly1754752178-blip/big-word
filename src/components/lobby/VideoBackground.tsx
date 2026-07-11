@@ -94,19 +94,23 @@ export function VideoBackground() {
     gap: 8,
     padding: '12px 16px',
     borderRadius: 12,
-    background: 'rgba(0,0,0,0.8)',
-    border: '1px solid rgba(255,255,255,0.25)',
+    background: 'rgba(255,255,255,0.08)',
+    backdropFilter: 'blur(16px)',
+    WebkitBackdropFilter: 'blur(16px)',
+    border: '1px solid rgba(255,255,255,0.15)',
   };
 
   const btn: React.CSSProperties = {
     padding: 6,
-    border: '1px solid rgba(255,255,255,0.3)',
-    background: 'rgba(255,255,255,0.15)',
+    border: '1px solid rgba(255,255,255,0.2)',
+    background: 'rgba(255,255,255,0.1)',
     color: 'white',
     borderRadius: 6,
     cursor: 'pointer',
     display: 'flex',
     alignItems: 'center',
+    backdropFilter: 'blur(8px)',
+    WebkitBackdropFilter: 'blur(8px)',
   };
 
   return (
@@ -133,7 +137,7 @@ export function VideoBackground() {
         position: 'fixed',
         inset: 0,
         zIndex: 1,
-        background: 'rgba(0,0,0,0.55)',
+        background: 'rgba(0,0,0,0.4)',
         pointerEvents: 'none',
       }} />
 
