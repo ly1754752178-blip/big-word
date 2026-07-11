@@ -1,17 +1,14 @@
 import { useGame } from '@/hooks/useGameState';
 import { Heart, Network } from 'lucide-react';
 import { GlassCard } from '@/components/ui/GlassCard';
+import { AvatarImg } from '@/components/ui/AvatarImg';
 import type { Relation } from '@/types';
 
 function RelationRow({ relation }: { relation: Relation }) {
   return (
     <GlassCard variant="default" className="flex items-center gap-2 p-2">
       <div className="w-14 h-14 rounded-full bg-gradient-to-br from-sky-200 to-sky-300 border-2 border-white shadow-soft flex items-center justify-center font-bold text-slate-700 text-lg">
-        {relation.avatar ? (
-          <img src={relation.avatar} alt={relation.name} className="w-full h-full object-cover rounded-full" />
-        ) : (
-          relation.name.slice(0, 1)
-        )}
+        <AvatarImg name={relation.name} src={relation.avatar || undefined} className="w-full h-full object-cover rounded-full" size={56} />
       </div>
       <div className="flex-1 min-w-0">
         <div className="text-xs font-bold text-slate-700 truncate">{relation.name}</div>

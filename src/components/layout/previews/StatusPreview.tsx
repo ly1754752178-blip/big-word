@@ -1,6 +1,7 @@
 import { useGame } from '@/hooks/useGameState';
-import { User, Heart, Brain, Activity, ChevronRight } from 'lucide-react';
+import { Heart, Brain, Activity, ChevronRight } from 'lucide-react';
 import { GlassCard } from '@/components/ui/GlassCard';
+import { AvatarImg } from '@/components/ui/AvatarImg';
 import { StatBar } from '@/components/ui/StatBar';
 import type { PlayerBodyState } from '@/types';
 
@@ -33,11 +34,7 @@ export function StatusPreview() {
         {/* ID 卡头部 —— 头像放大25% */}
         <div className="flex items-center gap-3">
           <div className="w-[70px] h-[70px] rounded-xl bg-gradient-to-br from-coral-300/30 to-coral-500/20 border-2 border-white shadow-soft flex items-center justify-center overflow-hidden shrink-0">
-            {player.avatar ? (
-              <img src={player.avatar} alt={player.name} className="w-full h-full object-cover" />
-            ) : (
-              <User className="w-9 h-9 text-coral-500" />
-            )}
+            <AvatarImg name={player.name} src={player.avatar || undefined} className="w-full h-full object-cover" size={70} />
           </div>
           <div className="flex-1 min-w-0">
             <div className="font-display text-lg font-bold text-slate-800 truncate">{player.name}</div>

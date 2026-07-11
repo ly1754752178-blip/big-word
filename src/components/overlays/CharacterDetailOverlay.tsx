@@ -1,6 +1,7 @@
 import { useGame } from '@/hooks/useGameState';
 import { GlassCard } from '@/components/ui/GlassCard';
 import { Heart, MessageCircle, Gift, MapPin } from 'lucide-react';
+import { AvatarImg } from '@/components/ui/AvatarImg';
 
 const stageLabels: Record<string, string> = {
   stranger: '陌生人',
@@ -26,11 +27,7 @@ export function CharacterDetailOverlay() {
         <div className="flex items-start gap-5">
           <div className="w-24 h-24 rounded-3xl bg-gradient-to-br from-sky-100 to-coral-100 overflow-hidden shrink-0 flex items-center justify-center"
           >
-            {character.avatar ? (
-              <img src={character.avatar} alt={character.name} className="w-full h-full object-cover" />
-            ) : (
-              <span className="text-2xl font-bold text-slate-700">{character.name.slice(0, 1)}</span>
-            )}
+            <AvatarImg name={character.name} src={character.avatar || undefined} className="w-full h-full object-cover" size={96} />
           </div>
           <div className="flex-1">
             <h2 className="text-2xl font-bold text-slate-800">{character.name}</h2>

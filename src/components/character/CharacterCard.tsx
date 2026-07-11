@@ -1,6 +1,7 @@
 import { GlassCard } from '@/components/ui/GlassCard';
 import { Heart } from 'lucide-react';
 import type { Character } from '@/types';
+import { AvatarImg } from '@/components/ui/AvatarImg';
 
 interface CharacterCardProps {
   character: Character;
@@ -17,11 +18,7 @@ export function CharacterCard({ character, onClick }: CharacterCardProps) {
       <div className="flex items-center gap-4">
         <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-sky-100 to-coral-100 overflow-hidden shrink-0 flex items-center justify-center"
         >
-          {character.avatar ? (
-            <img src={character.avatar} alt={character.name} className="w-full h-full object-cover" />
-          ) : (
-            <span className="text-xl font-bold text-slate-700">{character.name.slice(0, 1)}</span>
-          )}
+          <AvatarImg name={character.name} src={character.avatar || undefined} className="w-full h-full object-cover" size={64} />
         </div>
         <div className="flex-1 min-w-0">
           <h4 className="font-bold text-slate-800 truncate">{character.name}</h4>
