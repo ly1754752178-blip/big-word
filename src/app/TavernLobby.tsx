@@ -1,22 +1,39 @@
 import { useState, useEffect } from 'react';
+import { Gamepad2, FolderOpen, BookOpen, Plug, Sliders, Settings, X, Save } from 'lucide-react';
 import { VideoBackground } from '@/components/lobby/VideoBackground';
-import { LobbyMenu } from '@/components/lobby/LobbyMenu';
 import { ChatModal } from '@/components/SillyTavern/ChatModal';
 import { LorebookModal } from '@/components/SillyTavern/LorebookModal';
 import { PresetModal } from '@/components/SillyTavern/PresetModal';
 import { SettingsModal } from '@/components/SillyTavern/SettingsModal';
 import { ApiConfigForm } from '@/components/SillyTavern/ApiConfigForm';
-import { X, Save } from 'lucide-react';
 import { useSillytavern } from '@/hooks/useSillytavern';
 
 interface TavernLobbyProps {
   onEnterGame: () => void;
 }
 
+// 菜单按钮的内联样式
+const menuItemStyle: React.CSSProperties = {
+  display: 'flex',
+  alignItems: 'center',
+  gap: 14,
+  padding: '14px 24px',
+  border: '1px solid rgba(255,255,255,0.15)',
+  borderRadius: 10,
+  background: 'rgba(255,255,255,0.07)',
+  backdropFilter: 'blur(16px)',
+  WebkitBackdropFilter: 'blur(16px)',
+  color: 'white',
+  fontSize: '1.05rem',
+  fontWeight: 500,
+  cursor: 'pointer',
+  minWidth: 200,
+  width: '100%',
+};
+
 export function TavernLobby({ onEnterGame }: TavernLobbyProps) {
   const st = useSillytavern();
 
-  // 大厅模式下移除 body overflow:hidden，确保 fixed 元素在所有浏览器中可见
   useEffect(() => {
     const orig = document.body.style.overflow;
     document.body.style.overflow = 'visible';
@@ -29,11 +46,6 @@ export function TavernLobby({ onEnterGame }: TavernLobbyProps) {
   const [showPresets, setShowPresets] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
 
-  const handleStartGame = async () => {
-    await st.createChat();
-    onEnterGame();
-  };
-
   const closeAll = () => {
     setShowChats(false);
     setShowLorebooks(false);
@@ -42,7 +54,16 @@ export function TavernLobby({ onEnterGame }: TavernLobbyProps) {
     setShowSettings(false);
   };
 
+  const handleStartGame = async () => {
+    await st.createChat();
+    onEnterGame();
+  };
+
   const handleContinue = () => { closeAll(); setShowChats(true); };
+  const handleWorldBooks = () => { closeAll(); setShowLorebooks(true); };
+  const handleApiConfig = () => { closeAll(); setShowApiConfig(true); };
+  const handlePresets = () => { closeAll(); setShowPresets(true); };
+  const handleSettings = () => { closeAll(); setShowSettings(true); };
 
   const handleSelectChat = (id: string) => {
     st.loadChat(id);
@@ -50,19 +71,66 @@ export function TavernLobby({ onEnterGame }: TavernLobbyProps) {
     onEnterGame();
   };
 
+  const menuHoverIn = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.currentTarget.style.background = 'rgba(124,58,237,0.25)';
+    e.currentTarget.style.borderColor = 'rgba(255,255,255,0.4)';
+    e.currentTarget.style.transform = 'translateX(6px)';
+    e.currentTarget.style.boxShadow = '0 0 24px rgba(124,58,237,0.2)';
+  };
+  const menuHoverOut = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.currentTarget.style.background = 'rgba(255,255,255,0.07)';
+    e.currentTarget.style.borderColor = 'rgba(255,255,255,0.15)';
+    e.currentTarget.style.transform = 'translateX(0)';
+    e.currentTarget.style.boxShadow = 'none';
+  };
+
   return (
     <div style={{ width: '100vw', height: '100vh', position: 'relative' }}>
       <VideoBackground />
-      <LobbyMenu
-        onStartGame={handleStartGame}
-        onContinue={handleContinue}
-        onWorldBooks={() => { closeAll(); setShowLorebooks(true); }}
-        onApiConfig={() => { closeAll(); setShowApiConfig(true); }}
-        onPresets={() => { closeAll(); setShowPresets(true); }}
-        onSettings={() => { closeAll(); setShowSettings(true); }}
-      />
 
-      {/* 存档列表（继续游戏） */}
+      {/* 菜单 — 直接内联，无中间组件 */}
+      <nav style={{
+        position: 'fixed',
+        left: 48,
+        bottom: 60,
+        zIndex: 9999,
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 8,
+      }}>
+        <button style={menuItemStyle} onClick={handleStartGame}
+          onMouseEnter={menuHoverIn} onMouseLeave={menuHoverOut}>
+          <Gamepad2 size={20} style={{ opacity: 0.8 }} />
+          <span>开始游戏</span>
+        </button>
+        <button style={menuItemStyle} onClick={handleContinue}
+          onMouseEnter={menuHoverIn} onMouseLeave={menuHoverOut}>
+          <FolderOpen size={20} style={{ opacity: 0.8 }} />
+          <span>继续游戏</span>
+        </button>
+        <button style={menuItemStyle} onClick={handleWorldBooks}
+          onMouseEnter={menuHoverIn} onMouseLeave={menuHoverOut}>
+          <BookOpen size={20} style={{ opacity: 0.8 }} />
+          <span>世界书</span>
+        </button>
+        <button style={menuItemStyle} onClick={handleApiConfig}
+          onMouseEnter={menuHoverIn} onMouseLeave={menuHoverOut}>
+          <Plug size={20} style={{ opacity: 0.8 }} />
+          <span>API 配置</span>
+        </button>
+        <button style={menuItemStyle} onClick={handlePresets}
+          onMouseEnter={menuHoverIn} onMouseLeave={menuHoverOut}>
+          <Sliders size={20} style={{ opacity: 0.8 }} />
+          <span>预设</span>
+        </button>
+        <button style={menuItemStyle} onClick={handleSettings}
+          onMouseEnter={menuHoverIn} onMouseLeave={menuHoverOut}>
+          <Settings size={20} style={{ opacity: 0.8 }} />
+          <span>设置</span>
+        </button>
+      </nav>
+
+      {/* 存档列表 */}
       {showChats && (
         <ChatModal
           chats={st.chats}
@@ -87,7 +155,7 @@ export function TavernLobby({ onEnterGame }: TavernLobbyProps) {
         />
       )}
 
-      {/* API 配置面板 */}
+      {/* API 配置 */}
       {showApiConfig && st.settings && (
         <div className="modal-overlay" onClick={() => setShowApiConfig(false)}>
           <div className="modal modal--settings" onClick={(e) => e.stopPropagation()}>
@@ -96,22 +164,12 @@ export function TavernLobby({ onEnterGame }: TavernLobbyProps) {
               <button onClick={() => setShowApiConfig(false)}><X size={20} /></button>
             </div>
             <div className="modal__body">
-              <ApiConfigForm
-                config={st.settings.api}
-                onChange={(api) => st.updateSettings({ api })}
-                label="主 API"
-              />
-              <ApiConfigForm
-                config={st.settings.secondaryApi}
-                onChange={(secondaryApi) => st.updateSettings({ secondaryApi: secondaryApi as any })}
-                label="次 API"
-              />
+              <ApiConfigForm config={st.settings.api} onChange={(api) => st.updateSettings({ api })} label="主 API" />
+              <ApiConfigForm config={st.settings.secondaryApi} onChange={(s: any) => st.updateSettings({ secondaryApi: s })} label="次 API" />
             </div>
             <div className="modal__footer">
               <button onClick={() => setShowApiConfig(false)} className="btn-ghost">取消</button>
-              <button onClick={() => setShowApiConfig(false)} className="btn-primary">
-                <Save size={14} /> 完成
-              </button>
+              <button onClick={() => setShowApiConfig(false)} className="btn-primary"><Save size={14} /> 完成</button>
             </div>
           </div>
         </div>
@@ -120,11 +178,8 @@ export function TavernLobby({ onEnterGame }: TavernLobbyProps) {
       {/* 预设 */}
       {showPresets && (
         <PresetModal
-          presets={st.presets}
-          settings={st.settings}
-          onAdd={st.addPreset}
-          onUpdate={st.updatePreset}
-          onDelete={st.removePreset}
+          presets={st.presets} settings={st.settings}
+          onAdd={st.addPreset} onUpdate={st.updatePreset} onDelete={st.removePreset}
           onSetActive={(id) => st.updateSettings({ activePresetId: id })}
           onClose={() => setShowPresets(false)}
         />
@@ -132,11 +187,7 @@ export function TavernLobby({ onEnterGame }: TavernLobbyProps) {
 
       {/* 设置 */}
       {showSettings && st.settings && (
-        <SettingsModal
-          settings={st.settings}
-          onSave={st.updateSettings}
-          onClose={() => setShowSettings(false)}
-        />
+        <SettingsModal settings={st.settings} onSave={st.updateSettings} onClose={() => setShowSettings(false)} />
       )}
     </div>
   );
