@@ -14,30 +14,27 @@ export function VideoBackground() {
 
   const [videos, setVideos] = useState<string[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [mode, setMode] = useState<'timer' | 'natural'>('timer');
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(true);
   const [volume, setVolume] = useState(0.5);
-  const [opacity, setOpacity] = useState(1); // 渐出渐入
+  const [opacity, setOpacity] = useState(1);
 
-  const modeRef = useRef<'timer' | 'natural'>('timer');
   const videosRef = useRef<string[]>([]);
   const idxRef = useRef(0);
   const mutedRef = useRef(true);
   const volRef = useRef(0.5);
 
-  useEffect(() => { modeRef.current = mode; }, [mode]);
   useEffect(() => { videosRef.current = videos; }, [videos]);
   useEffect(() => { idxRef.current = currentIndex; }, [currentIndex]);
   useEffect(() => { mutedRef.current = isMuted; }, [isMuted]);
   useEffect(() => { volRef.current = volume; }, [volume]);
 
-  // ---- 初始化 ----
+  // 判断当前视频是否为 120s 定时模式
+  const isTimerVideo = (url: string) => url.includes('shipinbeijing60');
+
+  // ---- 初始化：加载全部视频 ----
   useEffect(() => {
-    const isTimer = Math.random() < 0.5;
-    setMode(isTimer ? 'timer' : 'natural');
     setVideos(ALL_VIDEOS.map(p => `/${p}`));
-    console.log(`🎲 模式: ${isTimer ? '120s定时' : '播完切换'}`);
   }, []);
 
   // ---- 切换视频：渐出 → 换源 → 渐入 ----
@@ -90,24 +87,26 @@ export function VideoBackground() {
     }
   }, [currentIndex]);
 
-  // ---- 定时模式 120 秒（渐出渐入） ----
+  // ---- 定时模式：120 秒强切（仅 shipinbeijing60 视频） ----
   useEffect(() => {
-    if (mode !== 'timer' || videos.length <= 1) return;
+    const url = videos[currentIndex];
+    if (!url || !isTimerVideo(url)) return; // 非 60 视频不设定时器
     if (timerRef.current) clearTimeout(timerRef.current);
     timerRef.current = setTimeout(() => {
       switchVideo((currentIndex + 1) % videos.length);
     }, 120_000);
     return () => { if (timerRef.current) clearTimeout(timerRef.current); };
-  }, [mode, currentIndex, videos.length, switchVideo]);
+  }, [currentIndex, videos, switchVideo]);
 
-  // ---- 自然模式：播完渐出渐入切下一个 ----
+  // ---- 播完处理 ----
   const handleEnded = useCallback(() => {
-    console.log('🏁 视频播完, mode:', modeRef.current);
-    if (modeRef.current === 'timer') {
-      videoRef.current?.play(); // 循环当前
+    const url = videosRef.current[idxRef.current];
+    if (isTimerVideo(url)) {
+      // shipinbeijing60：不足 120 秒播完 → 循环重复
+      videoRef.current?.play();
     } else {
+      // shipinbeijing00：播完即切下一个
       const next = (idxRef.current + 1) % videosRef.current.length;
-      console.log('→ 切换到:', next);
       switchVideo(next);
     }
   }, [switchVideo]);
@@ -188,7 +187,7 @@ const ctrlBar: React.CSSProperties = {
   position:'fixed',top:20,right:20,zIndex:9999,
   display:'flex',flexDirection:'column',alignItems:'center',gap:8,
   padding:'12px 16px',borderRadius:12,
-  background:'rgba(255,255,255,0.14)',backdropFilter:'blur(16px)',
+  background:'rgba(0,0,0,0.35)',backdropFilter:'blur(16px)',
   WebkitBackdropFilter:'blur(16px)',border:'1px solid rgba(255,255,255,0.2)',
 };
 const ctrlTitle: React.CSSProperties = { color:'rgba(255,255,255,0.9)',fontSize:'0.8rem',margin:0 };
