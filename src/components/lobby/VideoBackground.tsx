@@ -1,11 +1,16 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { Play, Pause, SkipBack, SkipForward, Volume2, VolumeX } from 'lucide-react';
 
-const ALL_VIDEOS = [
-  'videos/shipinbeijing60/孤独摇滚1.mp4',
-  'videos/shipinbeijing60/孤独摇滚2.mp4',
-  'videos/shipinbeijing00/孤独摇滚3.mp4',
-];
+// 动态扫描 public/videos 下所有 .mp4 文件，新增/删除即生效
+const videoGlob = import.meta.glob('/public/videos/shipinbeijing*/*.mp4', { eager: true, query: '?url', import: 'default' }) as Record<string, string>;
+
+// 提取 URL 并按文件夹分类
+function buildVideoList(): string[] {
+  return Object.values(videoGlob).map(url => {
+    // Vite 返回的 URL 格式：/videos/shipinbeijing60/xxx.mp4
+    return url;
+  });
+}
 
 export function VideoBackground() {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -32,9 +37,11 @@ export function VideoBackground() {
   // 判断当前视频是否为 120s 定时模式
   const isTimerVideo = (url: string) => url.includes('shipinbeijing60');
 
-  // ---- 初始化：加载全部视频 ----
+  // ---- 初始化：动态加载扫描到的全部视频 ----
   useEffect(() => {
-    setVideos(ALL_VIDEOS.map(p => `/${p}`));
+    const urls = buildVideoList();
+    console.log(`📂 动态扫描到 ${urls.length} 个视频:`, urls.map(u => u.split('/').pop()));
+    setVideos(urls);
   }, []);
 
   // ---- 切换视频：渐出 → 换源 → 渐入 ----
