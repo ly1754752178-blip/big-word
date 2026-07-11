@@ -26,7 +26,6 @@ export function VideoBackground() {
   const [isPlaying, setIsPlaying] = useState(true);
   const [volume, setVolume] = useState(0.5);
   const [isMuted, setIsMuted] = useState(true); // 默认静音以允许自动播放
-  const [showControls, setShowControls] = useState(true);
   const videoRef = useRef<HTMLVideoElement>(null);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -113,9 +112,7 @@ export function VideoBackground() {
 
       {/* 播放器控件 */}
       <div
-        className={`video-bg__controls ${showControls ? 'video-bg__controls--visible' : ''}`}
-        onMouseEnter={() => setShowControls(true)}
-        onMouseLeave={() => setShowControls(false)}
+        className="video-bg__controls"
       >
         <p className="video-bg__title">《{currentFileName}》</p>
         <div className="video-bg__buttons">
