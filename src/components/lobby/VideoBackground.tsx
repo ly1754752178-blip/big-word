@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Play, Pause, SkipBack, SkipForward, Volume2, VolumeX } from 'lucide-react';
 
 async function detectVideos(folder: string): Promise<string[]> {
@@ -13,35 +13,19 @@ async function detectVideos(folder: string): Promise<string[]> {
   return results;
 }
 
-type PlayMode = 'timer' | 'natural';
-
 export function VideoBackground() {
-  const [mode, setMode] = useState<PlayMode>('timer');
   const [videos, setVideos] = useState<string[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [isPlaying, setIsPlaying] = useState(true);
-  const [volume, setVolume] = useState(0.5);
+  const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const [muteAuto, setMuteAuto] = useState(false);
   const [started, setStarted] = useState(false);
-  const userWantsSound = useRef(false); // 用户是否主动要求有声
+  const [mode, setMode] = useState<'timer' | 'natural'>('timer');
+  const [volume, setVolumeState] = useState(0.5);
 
-  // 双 video 元素用于交叉渐变
-  const videoARef = useRef<HTMLVideoElement>(null);
-  const videoBRef = useRef<HTMLVideoElement>(null);
-  const [activeVideo, setActiveVideo] = useState<'A' | 'B'>('A');
-  const [fading, setFading] = useState(false);
-  const skipReload = useRef(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const preloadedRef = useRef<Set<number>>(new Set());
-  const videosRef = useRef<string[]>([]);
-  const volumeRef = useRef(0.5);
-  useEffect(() => { videosRef.current = videos; }, [videos]);
-  useEffect(() => { volumeRef.current = volume; }, [volume]);
-
-  // 获取当前和备用的 video ref
-  const getCurrentVideo = () => activeVideo === 'A' ? videoARef.current : videoBRef.current;
-  const getNextVideo = () => activeVideo === 'A' ? videoBRef.current : videoARef.current;
+  const userWantsSound = useRef(false);
 
   // 初始化
   useEffect(() => {
@@ -53,164 +37,73 @@ export function VideoBackground() {
     })();
   }, []);
 
-  // 光球点击后：启动 + 解除静音（用户手势允许有声播放）
+  // 光球点击 → 加载并播放
   useEffect(() => {
     const handler = () => {
       userWantsSound.current = true;
-      const v = getCurrentVideo();
-      const urls = videosRef.current;
-      if (v && urls.length > 0) {
-        v.src = urls[0];
-        v.muted = false;
-        v.volume = volumeRef.current;
-        skipReload.current = true;
-        setIsMuted(false);
-        setMuteAuto(false);
-        // play() 必须在用户手势回调中，等 loadeddata 后再 play
-        if (v.readyState >= 2) {
-          v.play().catch(() => {});
-        } else {
-          let played = false;
-          const doPlay = () => { if (!played) { played = true; v.play().catch(() => {}); } };
-          v.addEventListener('loadeddata', doPlay, { once: true });
-          setTimeout(doPlay, 3000); // 3秒兜底
-        }
-      }
+      setIsMuted(false);
+      setMuteAuto(false);
       setStarted(true);
     };
     window.addEventListener('orb-clicked', handler);
     return () => window.removeEventListener('orb-clicked', handler);
   }, []);
 
-  // 预加载下一个视频
-  const preloadNext = useCallback((nextIdx: number) => {
-    if (preloadedRef.current.has(nextIdx) || nextIdx >= videos.length) return;
-    const nextVid = getNextVideo();
-    if (nextVid && videos[nextIdx]) {
-      nextVid.src = videos[nextIdx];
-      nextVid.load();
-      preloadedRef.current.add(nextIdx);
-    }
-  }, [videos]);
-
-  // 加载当前视频到活跃元素
+  // 当 started 变为 true 且有视频时，加载播放
   useEffect(() => {
-    if (skipReload.current) { skipReload.current = false; return; }
-    const currVid = getCurrentVideo();
-    if (!currVid || videos.length === 0 || !started) return;
-    currVid.src = videos[currentIndex];
-    currVid.volume = isMuted ? 0 : volume;
-    currVid.muted = isMuted;
-    currVid.style.opacity = '1';
-    if (isPlaying) currVid.play().catch(() => {
-      if (!userWantsSound.current) { currVid.muted = true; setIsMuted(true); setMuteAuto(true); currVid.play(); }
-      else { currVid.play().catch(() => {}); }
-    });
-    // 预加载下一个
-    preloadNext((currentIndex + 1) % videos.length);
-    preloadedRef.current.add(currentIndex);
-  }, [currentIndex, videos, started]);
+    const v = videoRef.current;
+    if (!v || videos.length === 0 || !started) return;
+    v.src = videos[currentIndex];
+    v.muted = false;
+    v.volume = volume;
+    v.play().catch((e) => { console.warn('播放失败:', e); v.muted = true; setIsMuted(true); setMuteAuto(true); v.play(); });
+    setIsPlaying(true);
+  }, [started, currentIndex, videos]);
 
-  // 交叉渐变切换视频
-  const crossfadeTo = useCallback((nextIdx: number) => {
-    if (fading || videos.length === 0) return;
-    setFading(true);
-
-    const currVid = getCurrentVideo();
-    const nextVid = getNextVideo();
-    if (!currVid || !nextVid) { setFading(false); return; }
-
-    // 备用的已经预加载好了
-    nextVid.src = videos[nextIdx];
-    nextVid.volume = 0;
-    nextVid.muted = isMuted;
-    nextVid.style.opacity = '0';
-    nextVid.style.transition = 'opacity 1.5s ease-in-out';
-    nextVid.currentTime = 0;
-    nextVid.play().catch(() => {});
-
-    // 音频渐变
-    const audioFadeSteps = 30;
-    const audioFadeMs = 50;
-    let step = 0;
-    const origVol = isMuted ? 0 : volume;
-    const fadeAudio = setInterval(() => {
-      step++;
-      const ratio = step / audioFadeSteps;
-      if (currVid) currVid.volume = origVol * (1 - ratio);
-      if (nextVid) nextVid.volume = origVol * ratio;
-      if (step >= audioFadeSteps) clearInterval(fadeAudio);
-    }, audioFadeMs);
-
-    // 视频渐变
-    currVid.style.transition = 'opacity 1.5s ease-in-out';
-    currVid.style.opacity = '0';
-    nextVid.style.opacity = '1';
-
-    setTimeout(() => {
-      currVid.pause();
-      currVid.style.transition = 'none';
-      nextVid.style.transition = 'none';
-      skipReload.current = true; // 跳过 useEffect 重载
-      setActiveVideo(activeVideo === 'A' ? 'B' : 'A');
-      setCurrentIndex(nextIdx);
-      setFading(false);
-      clearInterval(fadeAudio);
-      preloadNext((nextIdx + 1) % videos.length);
-    }, 1600);
-  }, [fading, videos, activeVideo, isMuted, volume, preloadNext]);
-
-  // 定时模式：120 秒交叉渐变
+  // 定时模式：120 秒切换（渐变过渡）
   useEffect(() => {
-    if (mode !== 'timer' || videos.length === 0 || !started) return;
-    if (timerRef.current) clearTimeout(timerRef.current);
+    if (mode !== 'timer' || videos.length <= 1 || !started) return;
     timerRef.current = setTimeout(() => {
-      crossfadeTo((currentIndex + 1) % videos.length);
+      setCurrentIndex(i => (i + 1) % videos.length);
     }, 120_000);
     return () => { if (timerRef.current) clearTimeout(timerRef.current); };
-  }, [currentIndex, mode, videos.length, started, crossfadeTo]);
+  }, [currentIndex, mode, videos.length, started]);
 
-  // 自然模式：播完渐变到下一个
-  const handleEnded = useCallback(() => {
+  const handleEnded = () => {
     if (mode === 'timer') {
-      getCurrentVideo()?.play(); // 循环当前
-    } else {
-      crossfadeTo((currentIndex + 1) % videos.length);
+      videoRef.current?.play(); // 循环
+    } else if (videos.length > 1) {
+      setCurrentIndex(i => (i + 1) % videos.length); // 自然播完切下一个
     }
-  }, [mode, videos.length, crossfadeTo, currentIndex]);
+    // 自然模式单视频：不做任何事
+  };
 
   // 控件
   const togglePlay = () => {
-    const v = getCurrentVideo();
-    if (!v) return;
+    const v = videoRef.current; if (!v) return;
     if (v.paused) { v.play(); setIsPlaying(true); } else { v.pause(); setIsPlaying(false); }
   };
   const prevVideo = () => {
     if (videos.length <= 1) return;
     if (timerRef.current) clearTimeout(timerRef.current);
-    crossfadeTo(currentIndex === 0 ? videos.length - 1 : currentIndex - 1);
+    setCurrentIndex(i => (i === 0 ? videos.length - 1 : i - 1));
   };
   const nextVideo = () => {
     if (videos.length <= 1) return;
     if (timerRef.current) clearTimeout(timerRef.current);
-    crossfadeTo((currentIndex + 1) % videos.length);
+    setCurrentIndex(i => (i + 1) % videos.length);
   };
   const toggleMute = () => {
-    const v = getCurrentVideo();
-    if (!v) return;
-    v.muted = !v.muted;
-    setIsMuted(!isMuted);
-    setMuteAuto(false);
+    const v = videoRef.current; if (!v) return;
+    v.muted = !v.muted; setIsMuted(!isMuted); setMuteAuto(false);
     if (!v.muted) userWantsSound.current = true;
   };
   const handleVolume = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const v = getCurrentVideo();
+    const v = videoRef.current; if (!v) return;
     const val = Number(e.target.value);
-    setVolume(val);
-    setIsMuted(false);
-    setMuteAuto(false);
+    setVolumeState(val); setIsMuted(false); setMuteAuto(false);
+    v.volume = val; v.muted = false;
     userWantsSound.current = true;
-    if (v) { v.volume = val; v.muted = false; }
   };
 
   const currentFileName = videos[currentIndex]?.split('/').pop()?.replace(/\.[^/.]+$/, '') ?? '';
@@ -219,65 +112,55 @@ export function VideoBackground() {
     return <div style={{ position:'fixed',inset:0,zIndex:0,background:'#000' }} />;
   }
 
-  const ctrlBar: React.CSSProperties = {
-    position: 'fixed', top: 20, right: 20, zIndex: 9999,
-    display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8,
-    padding: '12px 16px', borderRadius: 12,
-    background: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)',
-    border: '1px solid rgba(255,255,255,0.15)',
-  };
-  const btn: React.CSSProperties = {
-    padding: 6, border: '1px solid rgba(255,255,255,0.2)',
-    background: 'rgba(255,255,255,0.1)', color: 'white', borderRadius: 6,
-    cursor: 'pointer', display: 'flex', alignItems: 'center',
-  };
-
   return (
     <>
-      {/* 视频 A */}
-      <video ref={videoARef} playsInline preload="auto"
+      <video
+        ref={videoRef}
+        playsInline
+        preload="auto"
         onEnded={handleEnded}
-        onError={() => { if (videos.length > 1) crossfadeTo((currentIndex + 1) % videos.length); }}
         style={{
           position: 'fixed', inset: 0, width: '100%', height: '100%',
-          objectFit: 'cover', zIndex: 0, pointerEvents: 'none', opacity: activeVideo === 'A' ? 1 : 0,
+          objectFit: 'cover', zIndex: 0, pointerEvents: 'none',
+          transition: started ? 'opacity 0.5s' : 'none',
         }}
       />
-      {/* 视频 B */}
-      <video ref={videoBRef} playsInline preload="auto"
-        onEnded={handleEnded}
-        onError={() => { if (videos.length > 1) crossfadeTo((currentIndex + 1) % videos.length); }}
-        style={{
-          position: 'fixed', inset: 0, width: '100%', height: '100%',
-          objectFit: 'cover', zIndex: 0, pointerEvents: 'none', opacity: activeVideo === 'B' ? 1 : 0,
-        }}
-      />
-
-      {/* 遮罩 */}
       <div style={{ position: 'fixed', inset: 0, zIndex: 1, background: 'rgba(0,0,0,0.4)', pointerEvents: 'none' }} />
 
-      {/* 播放器控件 */}
-      <div style={ctrlBar}>
-        <p style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.8rem', margin: 0 }}>《{currentFileName}》</p>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+      {/* 控件 */}
+      <div style={{
+        position: 'fixed', top: 20, right: 20, zIndex: 9999,
+        display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8,
+        padding: '12px 16px', borderRadius: 12,
+        background: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)',
+        border: '1px solid rgba(255,255,255,0.15)',
+      }}>
+        <p style={{ color:'rgba(255,255,255,0.9)',fontSize:'0.8rem',margin:0 }}>《{currentFileName}》</p>
+        <div style={{ display:'flex',alignItems:'center',gap:6 }}>
           <button onClick={prevVideo} style={btn} title="上一曲"><SkipBack size={16} /></button>
-          <button onClick={togglePlay} style={btn} title={isPlaying ? '暂停' : '播放'}>
+          <button onClick={togglePlay} style={btn} title={isPlaying?'暂停':'播放'}>
             {isPlaying ? <Pause size={16} /> : <Play size={16} />}
           </button>
           <button onClick={nextVideo} style={btn} title="下一曲"><SkipForward size={16} /></button>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+        <div style={{ display:'flex',alignItems:'center',gap:6 }}>
           <button onClick={toggleMute} style={{
             ...btn,
             animation: muteAuto ? 'pulse-glow 1.5s ease-in-out infinite' : 'none',
             borderColor: muteAuto ? 'rgba(251,146,60,0.6)' : btn.borderColor,
-          }} title={isMuted ? (muteAuto ? '浏览器限制了声音，点击开启' : '取消静音') : '静音'}>
-            {isMuted ? <VolumeX size={14} color={muteAuto ? '#fb923c' : 'white'} /> : <Volume2 size={14} />}
+          }} title={isMuted?(muteAuto?'浏览器限制了声音，点击开启':'取消静音'):'静音'}>
+            {isMuted ? <VolumeX size={14} color={muteAuto?'#fb923c':'white'} /> : <Volume2 size={14} />}
           </button>
-          <input type="range" min="0" max="1" step="0.05" value={isMuted ? 0 : volume}
-            onChange={handleVolume} style={{ width: 60, accentColor: 'white' }} />
+          <input type="range" min="0" max="1" step="0.05" value={isMuted?0:volume}
+            onChange={handleVolume} style={{ width:60,accentColor:'white' }} />
         </div>
       </div>
     </>
   );
 }
+
+const btn: React.CSSProperties = {
+  padding: 6, border: '1px solid rgba(255,255,255,0.2)',
+  background: 'rgba(255,255,255,0.1)', color: 'white', borderRadius: 6,
+  cursor: 'pointer', display: 'flex', alignItems: 'center',
+};
