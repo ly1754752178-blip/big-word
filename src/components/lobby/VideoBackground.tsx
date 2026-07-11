@@ -25,7 +25,7 @@ export function VideoBackground() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(true);
   const [volume, setVolume] = useState(0.5);
-  const [isMuted, setIsMuted] = useState(true);
+  const [isMuted, setIsMuted] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -46,7 +46,7 @@ export function VideoBackground() {
     const video = videoRef.current;
     if (!video || videos.length === 0) return;
     video.src = videos[currentIndex];
-    if (isPlaying) video.play().catch(() => {});
+    if (isPlaying) video.play().catch(() => { video.muted = true; setIsMuted(true); video.play(); });
   }, [currentIndex, videos, isPlaying]);
 
   useEffect(() => {
