@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { Gamepad2, FolderOpen, BookOpen, Plug, Sliders, Settings, X, Save } from 'lucide-react';
 import { VideoBackground } from '@/components/lobby/VideoBackground';
 import { ChatModal } from '@/components/SillyTavern/ChatModal';
@@ -96,22 +97,22 @@ export function TavernLobby({ onEnterGame }: TavernLobbyProps) {
         </button>
       </nav>
 
-      {/* 存档列表 */}
-      {showChats && (
+      {/* 所有弹窗通过 Portal 渲染到 body，彻底跳出层叠上下文 */}
+      {showChats && createPortal(
         <ChatModal chats={st.chats} activeChatId={st.activeChatId}
           onCreate={async (name) => { const id = await st.createChat(name); setShowChats(false); onEnterGame(); return id; }}
-          onSelect={handleSelectChat} onDelete={st.removeChat} onClose={() => setShowChats(false)} />
+          onSelect={handleSelectChat} onDelete={st.removeChat} onClose={() => setShowChats(false)} />,
+        document.body
       )}
 
-      {/* 世界书 */}
-      {showLorebooks && (
+      {showLorebooks && createPortal(
         <LorebookModal lorebooks={st.lorebooks} activeIds={st.activeLorebookIds}
           onToggle={st.toggleLorebook} onAdd={st.addLorebook} onUpdate={st.updateLorebook}
-          onDelete={st.removeLorebook} onClose={() => setShowLorebooks(false)} />
+          onDelete={st.removeLorebook} onClose={() => setShowLorebooks(false)} />,
+        document.body
       )}
 
-      {/* API 配置 */}
-      {showApiConfig && st.settings && (
+      {showApiConfig && st.settings && createPortal(
         <div className="modal-overlay" onClick={() => setShowApiConfig(false)}>
           <div className="modal modal--settings" onClick={(e) => e.stopPropagation()}>
             <div className="modal__header"><h2>API 配置</h2><button onClick={() => setShowApiConfig(false)}><X size={20} /></button></div>
@@ -124,19 +125,20 @@ export function TavernLobby({ onEnterGame }: TavernLobbyProps) {
               <button onClick={() => setShowApiConfig(false)} className="btn-primary"><Save size={14} /> 完成</button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
-      {/* 预设 */}
-      {showPresets && (
+      {showPresets && createPortal(
         <PresetModal presets={st.presets} settings={st.settings}
           onAdd={st.addPreset} onUpdate={st.updatePreset} onDelete={st.removePreset}
-          onSetActive={(id) => st.updateSettings({ activePresetId: id })} onClose={() => setShowPresets(false)} />
+          onSetActive={(id) => st.updateSettings({ activePresetId: id })} onClose={() => setShowPresets(false)} />,
+        document.body
       )}
 
-      {/* 设置 */}
-      {showSettings && st.settings && (
-        <SettingsModal settings={st.settings} onSave={st.updateSettings} onClose={() => setShowSettings(false)} />
+      {showSettings && st.settings && createPortal(
+        <SettingsModal settings={st.settings} onSave={st.updateSettings} onClose={() => setShowSettings(false)} />,
+        document.body
       )}
     </div>
   );
