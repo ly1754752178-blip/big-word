@@ -1507,3 +1507,11 @@
   font-weight: 500;
   letter-spacing: 0.05em;
 }
+
+/* ---- 酒馆大厅 ---- */
+.tavern-lobby {
+  width: 100vw;
+  height: 100vh;
+  position: relative;
+  overflow: hidden;
+}
