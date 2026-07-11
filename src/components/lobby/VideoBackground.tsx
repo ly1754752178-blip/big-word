@@ -27,12 +27,15 @@ export function VideoBackground() {
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const userWantsSound = useRef(false);
 
-  // 初始化
+  // 初始化：随机选文件夹
   useEffect(() => {
     (async () => {
-      const folder = Math.random() < 0.5 ? 'videos/shipinbeijing60' : 'videos/shipinbeijing00';
-      setMode(folder.includes('60') ? 'timer' : 'natural');
+      const pick60 = Math.random() < 0.5;
+      const folder = pick60 ? 'videos/shipinbeijing60' : 'videos/shipinbeijing00';
+      console.log(`🎲 随机到: ${pick60 ? 'shipinbeijing60 (120s定时)' : 'shipinbeijing00 (自然播完)'}`);
+      setMode(pick60 ? 'timer' : 'natural');
       const urls = await detectVideos(folder);
+      console.log(`📂 检测到 ${urls.length} 个视频:`, urls.map(u => u.split('/').pop()));
       setVideos(urls);
     })();
   }, []);
