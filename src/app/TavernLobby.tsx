@@ -8,6 +8,7 @@ import { PresetModal } from '@/components/SillyTavern/PresetModal';
 import { SettingsModal } from '@/components/SillyTavern/SettingsModal';
 import { ApiConfigForm } from '@/components/SillyTavern/ApiConfigForm';
 import { useSillytavern } from '@/hooks/useSillytavern';
+import '@/components/SillyTavern/sillytavern.css';
 
 interface TavernLobbyProps { onEnterGame: () => void; }
 
