@@ -1,19 +1,11 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { Play, Pause, SkipBack, SkipForward, Volume2, VolumeX } from 'lucide-react';
 
-// ---------- 工具：探测文件夹内实际存在的视频 ----------
-const CANDIDATES = ['孤独摇滚1.mp4', '孤独摇滚2.mp4', '孤独摇滚3.mp4'];
-
-async function detectVideos(folder: string): Promise<string[]> {
-  const results: string[] = [];
-  for (const name of CANDIDATES) {
-    try {
-      const res = await fetch(`/${folder}/${name}`, { method: 'HEAD' });
-      if (res.ok) results.push(`/${folder}/${name}`);
-    } catch { /* skip */ }
-  }
-  return results;
-}
+// ---------- 已知视频文件映射（不做 HEAD 探测，避免网络不可靠） ----------
+const FOLDER_VIDEOS: Record<string, string[]> = {
+  'videos/shipinbeijing60': ['孤独摇滚1.mp4', '孤独摇滚2.mp4'],
+  'videos/shipinbeijing00': ['孤独摇滚3.mp4'],
+};
 
 // ---------- 组件 ----------
 export function VideoBackground() {
@@ -42,25 +34,13 @@ export function VideoBackground() {
 
   // ---- 初始化：随机选文件夹 ----
   useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      const pick60 = Math.random() < 0.5;
-      const folder = pick60 ? 'videos/shipinbeijing60' : 'videos/shipinbeijing00';
-      console.log(`🎲 选中: ${pick60 ? 'shipinbeijing60 (120s)' : 'shipinbeijing00 (自然)'}`);
-      const urls = await detectVideos(folder);
-      if (cancelled) return;
-      console.log(`📂 ${urls.length} 个视频:`, urls.map(u => u.split('/').pop()));
-      if (urls.length === 0) {
-        // 探测失败兜底：用已知文件名
-        const fallback = CANDIDATES.map(n => `/${folder}/${n}`);
-        console.warn('⚠️ 探测失败，使用兜底列表');
-        setVideos(fallback);
-      } else {
-        setVideos(urls);
-      }
-      setMode(pick60 ? 'timer' : 'natural');
-    })();
-    return () => { cancelled = true; };
+    const pick60 = Math.random() < 0.5;
+    const folder = pick60 ? 'videos/shipinbeijing60' : 'videos/shipinbeijing00';
+    const names = FOLDER_VIDEOS[folder];
+    const urls = names.map(n => `/${folder}/${n}`);
+    console.log(`🎲 ${pick60 ? 'shipinbeijing60 (120s)' : 'shipinbeijing00 (自然)'} — ${urls.length} 个视频`);
+    setMode(pick60 ? 'timer' : 'natural');
+    setVideos(urls);
   }, []);
 
   // ---- 加载并播放当前视频 ----
