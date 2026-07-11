@@ -18,11 +18,6 @@ const menuItemStyle: React.CSSProperties = {
   fontWeight: 500, cursor: 'pointer', minWidth: 200, width: '100%',
 };
 
-// 弹窗容器 — z-index 极高，强制在所有元素之上
-const modalWrap: React.CSSProperties = {
-  position: 'fixed', inset: 0, zIndex: 100000,
-};
-
 export function TavernLobby({ onEnterGame }: TavernLobbyProps) {
   const st = useSillytavern();
 
