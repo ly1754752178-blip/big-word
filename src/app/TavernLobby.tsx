@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { VideoBackground } from '@/components/lobby/VideoBackground';
 import { LobbyMenu } from '@/components/lobby/LobbyMenu';
 import { ChatModal } from '@/components/SillyTavern/ChatModal';
@@ -15,6 +15,13 @@ interface TavernLobbyProps {
 
 export function TavernLobby({ onEnterGame }: TavernLobbyProps) {
   const st = useSillytavern();
+
+  // 大厅模式下移除 body overflow:hidden，确保 fixed 元素在所有浏览器中可见
+  useEffect(() => {
+    const orig = document.body.style.overflow;
+    document.body.style.overflow = 'visible';
+    return () => { document.body.style.overflow = orig; };
+  }, []);
 
   const [showChats, setShowChats] = useState(false);
   const [showLorebooks, setShowLorebooks] = useState(false);
@@ -38,7 +45,7 @@ export function TavernLobby({ onEnterGame }: TavernLobbyProps) {
   };
 
   return (
-    <div style={{ width: '100vw', height: '100vh', position: 'relative', overflow: 'hidden' }}>
+    <div style={{ width: '100vw', height: '100vh', position: 'relative' }}>
       <VideoBackground />
       <LobbyMenu
         onStartGame={handleStartGame}
