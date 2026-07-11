@@ -46,6 +46,13 @@ export function TavernLobby({ onEnterGame }: TavernLobbyProps) {
   const [showPresets, setShowPresets] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
 
+  // 调试：打印弹窗状态变化
+  useEffect(() => { if (showChats) console.log('📂 继续游戏弹窗打开'); }, [showChats]);
+  useEffect(() => { if (showLorebooks) console.log('📚 世界书弹窗打开'); }, [showLorebooks]);
+  useEffect(() => { if (showApiConfig) console.log('🔌 API配置弹窗打开'); }, [showApiConfig]);
+  useEffect(() => { if (showPresets) console.log('⚙️ 预设弹窗打开'); }, [showPresets]);
+  useEffect(() => { if (showSettings) console.log('🎭 设置弹窗打开'); }, [showSettings]);
+
   const closeAll = () => {
     setShowChats(false);
     setShowLorebooks(false);
@@ -59,11 +66,11 @@ export function TavernLobby({ onEnterGame }: TavernLobbyProps) {
     onEnterGame();
   };
 
-  const handleContinue = () => { closeAll(); setShowChats(true); };
-  const handleWorldBooks = () => { closeAll(); setShowLorebooks(true); };
-  const handleApiConfig = () => { closeAll(); setShowApiConfig(true); };
-  const handlePresets = () => { closeAll(); setShowPresets(true); };
-  const handleSettings = () => { closeAll(); setShowSettings(true); };
+  const handleContinue = () => { console.log('🖱️ 继续游戏 被点击'); closeAll(); setShowChats(true); };
+  const handleWorldBooks = () => { console.log('🖱️ 世界书 被点击'); closeAll(); setShowLorebooks(true); };
+  const handleApiConfig = () => { console.log('🖱️ API配置 被点击'); closeAll(); setShowApiConfig(true); };
+  const handlePresets = () => { console.log('🖱️ 预设 被点击'); closeAll(); setShowPresets(true); };
+  const handleSettings = () => { console.log('🖱️ 设置 被点击'); closeAll(); setShowSettings(true); };
 
   const handleSelectChat = (id: string) => {
     st.loadChat(id);
