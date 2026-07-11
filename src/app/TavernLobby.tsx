@@ -38,9 +38,8 @@ export function TavernLobby({ onEnterGame }: TavernLobbyProps) {
   };
 
   return (
-    <div className="tavern-lobby">
+    <div style={{ width: '100vw', height: '100vh', position: 'relative', overflow: 'hidden' }}>
       <VideoBackground />
-
       <LobbyMenu
         onStartGame={handleStartGame}
         onContinue={handleContinue}

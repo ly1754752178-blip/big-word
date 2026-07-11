@@ -1,4 +1,3 @@
-// src/components/lobby/LobbyMenu.tsx
 import { Gamepad2, FolderOpen, BookOpen, Plug, Sliders, Settings } from 'lucide-react';
 
 interface LobbyMenuProps {
@@ -19,19 +18,55 @@ const menuItems = [
   { key: 'settings', label: '设置', icon: Settings, onClick: 'onSettings' },
 ] as const;
 
+// 内联样式，z-index: 9999 强制置于最前
+const menuStyle: React.CSSProperties = {
+  position: 'fixed',
+  left: 48,
+  bottom: 120,
+  zIndex: 9999,
+  display: 'flex',
+  flexDirection: 'column',
+  gap: 8,
+};
+
+const itemStyle: React.CSSProperties = {
+  display: 'flex',
+  alignItems: 'center',
+  gap: 14,
+  padding: '14px 24px',
+  border: '1px solid rgba(255,255,255,0.3)',
+  borderRadius: 10,
+  background: 'rgba(0,0,0,0.75)',
+  color: 'white',
+  fontSize: '1.05rem',
+  fontWeight: 500,
+  cursor: 'pointer',
+  minWidth: 200,
+};
+
 export function LobbyMenu(props: LobbyMenuProps) {
   return (
-    <nav className="lobby-menu">
+    <nav style={menuStyle}>
       {menuItems.map((item) => {
         const handler = props[item.onClick as keyof LobbyMenuProps];
         return (
           <button
             key={item.key}
-            className="lobby-menu__item"
+            style={itemStyle}
             onClick={handler}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = 'rgba(124,58,237,0.85)';
+              e.currentTarget.style.borderColor = 'rgba(255,255,255,0.5)';
+              e.currentTarget.style.transform = 'translateX(6px)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'rgba(0,0,0,0.75)';
+              e.currentTarget.style.borderColor = 'rgba(255,255,255,0.3)';
+              e.currentTarget.style.transform = 'translateX(0)';
+            }}
           >
-            <item.icon className="lobby-menu__icon" size={20} />
-            <span className="lobby-menu__label">{item.label}</span>
+            <item.icon size={20} style={{ opacity: 0.8 }} />
+            <span>{item.label}</span>
           </button>
         );
       })}
