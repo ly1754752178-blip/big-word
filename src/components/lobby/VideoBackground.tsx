@@ -23,7 +23,8 @@ export function VideoBackground() {
   const [volume, setVolume] = useState(0.5);
   const [isMuted, setIsMuted] = useState(false);
   const [muteAuto, setMuteAuto] = useState(false);
-  const [started, setStarted] = useState(false); // 光球点击后才启动
+  const [started, setStarted] = useState(false);
+  const userWantsSound = useRef(false); // 用户是否主动要求有声
 
   // 双 video 元素用于交叉渐变
   const videoARef = useRef<HTMLVideoElement>(null);
@@ -53,11 +54,12 @@ export function VideoBackground() {
       setStarted(true);
       const v = getCurrentVideo();
       if (v) {
+        userWantsSound.current = true;
         v.muted = false;
         setIsMuted(false);
         setMuteAuto(false);
         v.volume = volume;
-        v.play().catch(() => {}); // 有用户手势，不会失败
+        v.play().catch(() => {});
       }
     };
     window.addEventListener('orb-clicked', handler);
@@ -83,7 +85,10 @@ export function VideoBackground() {
     currVid.volume = isMuted ? 0 : volume;
     currVid.muted = isMuted;
     currVid.style.opacity = '1';
-    if (isPlaying) currVid.play().catch(() => { currVid.muted = true; setIsMuted(true); setMuteAuto(true); currVid.play(); });
+    if (isPlaying) currVid.play().catch(() => {
+      if (!userWantsSound.current) { currVid.muted = true; setIsMuted(true); setMuteAuto(true); currVid.play(); }
+      else { currVid.play().catch(() => {}); }
+    });
     // 预加载下一个
     preloadNext((currentIndex + 1) % videos.length);
     preloadedRef.current.add(currentIndex);
@@ -176,6 +181,7 @@ export function VideoBackground() {
     v.muted = !v.muted;
     setIsMuted(!isMuted);
     setMuteAuto(false);
+    if (!v.muted) userWantsSound.current = true;
   };
   const handleVolume = (e: React.ChangeEvent<HTMLInputElement>) => {
     const v = getCurrentVideo();
@@ -183,6 +189,7 @@ export function VideoBackground() {
     setVolume(val);
     setIsMuted(false);
     setMuteAuto(false);
+    userWantsSound.current = true;
     if (v) { v.volume = val; v.muted = false; }
   };
 
