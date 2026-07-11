@@ -30,15 +30,19 @@ const skyPalettes: Record<SkyType, { bands: string[]; sun: string; icon: typeof 
   },
 };
 
-export function SkyOrb() {
+interface SkyOrbProps {
+  onClick?: () => void;
+}
+
+export function SkyOrb({ onClick }: SkyOrbProps) {
   const { state } = useGame();
   const { time } = state;
   const palette = skyPalettes[time.sky] ?? skyPalettes.sunny;
   const Icon = palette.icon;
 
   return (
-    <div className="anime-orb-frame">
-      <div className="relative w-16 h-16 anime-orb">
+    <div className="anime-orb-frame" onClick={onClick} style={onClick ? { cursor: 'pointer' } : undefined}>
+      <div className="relative w-[86px] h-[86px] anime-orb">
         {/* 赛璐璐硬切渐变天空 */}
         <div
           className="absolute inset-0"
@@ -49,10 +53,10 @@ export function SkyOrb() {
 
         {/* 太阳 / 月亮 */}
         <div
-          className="absolute top-2 right-3 w-5 h-5 rounded-full"
+          className="absolute top-2.5 right-4 w-[27px] h-[27px] rounded-full"
           style={{
             background: palette.sun,
-            boxShadow: `0 0 10px ${palette.sun}`,
+            boxShadow: `0 0 14px ${palette.sun}`,
           }}
         />
 
@@ -72,14 +76,14 @@ export function SkyOrb() {
 
         {/* 时间文字 */}
         <div className="absolute inset-0 z-[3] flex flex-col items-center justify-center">
-          <Icon className="w-3.5 h-3.5 text-white drop-shadow-md mb-0.5" />
-          <span className="font-number text-xs font-bold text-white drop-shadow-md">
+          <Icon className="w-[19px] h-[19px] text-white drop-shadow-md mb-0.5" />
+          <span className="font-number text-base font-bold text-white drop-shadow-md">
             {String(time.hour).padStart(2, '0')}:{String(time.minute).padStart(2, '0')}
           </span>
         </div>
 
         {/* 高光 */}
-        <div className="absolute top-1.5 left-2.5 w-3 h-2 bg-white/30 rounded-full blur-[2px] z-[4] rotate-[-20deg]" />
+        <div className="absolute top-2 left-3 w-4 h-[11px] bg-white/30 rounded-full blur-[2px] z-[4] rotate-[-20deg]" />
       </div>
     </div>
   );
