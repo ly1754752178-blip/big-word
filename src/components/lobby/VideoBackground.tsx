@@ -85,16 +85,18 @@ export function VideoBackground() {
     }
   }, []);
 
-  // ---- 光球点击：解除静音 ----
+  // ---- 光球点击：解除静音（useRef 存回调，同步注册） ----
+  const unmuteRef = useRef(() => {
+    const v = videoRef.current;
+    if (v) { v.muted = false; v.volume = volRef.current; setIsMuted(false); }
+  });
+  // 每次渲染更新 ref 确保拿到最新 videoRef + volRef
+  unmuteRef.current = () => {
+    const v = videoRef.current;
+    if (v) { v.muted = false; v.volume = volRef.current; setIsMuted(false); }
+  };
   useEffect(() => {
-    const handler = () => {
-      const v = videoRef.current;
-      if (v) {
-        v.muted = false;
-        v.volume = volRef.current;
-        setIsMuted(false);
-      }
-    };
+    const handler = () => unmuteRef.current();
     window.addEventListener('orb-clicked', handler);
     return () => window.removeEventListener('orb-clicked', handler);
   }, []);
