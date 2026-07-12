@@ -94,16 +94,19 @@ export function VideoBackground() {
     }
   }, [currentIndex]);
 
-  // ---- 定时模式：120 秒强切（仅 shipinbeijing60 视频） ----
+  // ---- 定时模式：120 秒强切（仅 shipinbeijing60 视频，播放中才计时） ----
   useEffect(() => {
     const url = videos[currentIndex];
-    if (!url || !isTimerVideo(url)) return; // 非 60 视频不设定时器
+    if (!url || !isTimerVideo(url) || !isPlaying) {
+      if (timerRef.current) { clearTimeout(timerRef.current); timerRef.current = null; }
+      return;
+    }
     if (timerRef.current) clearTimeout(timerRef.current);
     timerRef.current = setTimeout(() => {
       switchVideo((currentIndex + 1) % videos.length);
     }, 120_000);
     return () => { if (timerRef.current) clearTimeout(timerRef.current); };
-  }, [currentIndex, videos, switchVideo]);
+  }, [currentIndex, videos, switchVideo, isPlaying]);
 
   // ---- 播完处理 ----
   const handleEnded = useCallback(() => {
