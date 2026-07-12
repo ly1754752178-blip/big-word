@@ -46,6 +46,7 @@ export function OverlayRenderer() {
       isOpen={isOpen}
       onClose={closeOverlayView}
       accent={type ? accentMap[type] : 'default'}
+      seamless={type === 'skills'}
     >
       {type === 'status' && <PersonalStatusOverlay />}
       {type === 'skills' && <SkillsOverlay />}

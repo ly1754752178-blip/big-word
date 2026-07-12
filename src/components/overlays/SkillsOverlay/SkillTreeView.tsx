@@ -70,68 +70,46 @@ function isNodeVisible(node: SkillNode, allNodes: SkillNode[], expandedId: strin
   return false;
 }
 
-// ── 大技能节点形状 ──
-const MAJOR_SHAPES: Record<number, (r: number, color: string, unlocked: boolean) => JSX.Element> = {
-  0: (r, color, unlocked) => (
-    // 食材处理 —— 六边形
-    <polygon
-      points={Array.from({ length: 6 }, (_, i) => {
-        const a = (Math.PI * 2 * i) / 6 - Math.PI / 2;
-        return `${(r + 2) * Math.cos(a)},${(r + 2) * Math.sin(a)}`;
-      }).join(' ')}
-      fill="none" stroke={unlocked ? color : '#94A3B8'} strokeWidth="0.35" opacity={0.5}
-    />
-  ),
-  1: (r, color, unlocked) => (
-    // 刀工 —— 菱形
-    <polygon
-      points={`0,${-(r + 2.5)} ${r + 2},0 0,${r + 2.5} ${-(r + 2)},0`}
-      fill="none" stroke={unlocked ? color : '#94A3B8'} strokeWidth="0.35" opacity={0.5}
-    />
-  ),
-  2: (r, color, unlocked) => (
-    // 火候 —— 火焰/三角
-    <polygon
-      points={`0,${-(r + 2.5)} ${r + 2},${r + 1.5} ${-(r + 2)},${r + 1.5}`}
-      fill="none" stroke={unlocked ? color : '#94A3B8'} strokeWidth="0.35" opacity={0.5}
-    />
-  ),
-  3: (r, color, unlocked) => (
-    // 调味 —— 重叠圆
-    <>
-      <circle cx={-r * 0.5} cy={0} r={r + 1.2} fill="none" stroke={unlocked ? color : '#94A3B8'} strokeWidth="0.3" opacity={0.4} />
-      <circle cx={r * 0.5} cy={0} r={r + 1.2} fill="none" stroke={unlocked ? color : '#94A3B8'} strokeWidth="0.3" opacity={0.4} />
-    </>
-  ),
-  4: (r, color, unlocked) => (
-    // 烹饪工艺 —— 八边形齿轮
-    <polygon
-      points={Array.from({ length: 8 }, (_, i) => {
-        const a = (Math.PI * 2 * i) / 8;
-        const rad = i % 2 === 0 ? r + 2.2 : r + 1.2;
-        return `${rad * Math.cos(a)},${rad * Math.sin(a)}`;
-      }).join(' ')}
-      fill="none" stroke={unlocked ? color : '#94A3B8'} strokeWidth="0.35" opacity={0.5}
-    />
-  ),
-  5: (r, color, unlocked) => (
-    // 口感与成品 —— 五角星
-    <polygon
-      points={Array.from({ length: 10 }, (_, i) => {
+// ── 大技能节点：统一六边形 + 内部图案 ──
+function hexPoints(r: number): string {
+  return Array.from({ length: 6 }, (_, i) => {
+    const a = (Math.PI * 2 * i) / 6 - Math.PI / 2;
+    return `${(r + 2.2) * Math.cos(a)},${(r + 2.2) * Math.sin(a)}`;
+  }).join(' ');
+}
+
+/** 大技能节点内部图标（7种简单 SVG 图案） */
+function MajorIcon({ idx, r, color }: { idx: number; r: number; color: string }) {
+  const s = r * 0.9; // 图标缩放
+  switch (idx) {
+    case 0: // 食材处理 —— 叶子
+      return <path d={`M0,${-s} Q${s},${-s * 0.3} 0,${s} Q${-s},${-s * 0.3} 0,${-s}Z`} fill={color} opacity={0.35} />;
+    case 1: // 刀工 —— 斜刀
+      return <path d={`M${-s * 0.4},${-s} L${s * 0.6},${s} M${s * 0.4},${-s} L${s},${s * 0.2}`} stroke={color} strokeWidth="0.45" opacity={0.45} />;
+    case 2: // 火候 —— 火焰
+      return <path d={`M0,${-s} Q${s * 0.6},${-s * 0.2} ${s * 0.4},${s * 0.3} Q${s * 0.2},${-s * 0.1} 0,${s} Q${-s * 0.2},${-s * 0.1} ${-s * 0.4},${s * 0.3} Q${-s * 0.6},${-s * 0.2} 0,${-s}Z`} fill={color} opacity={0.3} />;
+    case 3: // 调味 —— 圆点阵
+      return <>{[0, 1, 2].map(i => <circle key={i} cx={(i - 1) * s * 0.6} cy={0} r={s * 0.25} fill={color} opacity={0.4} />)}</>;
+    case 4: // 烹饪工艺 —— 锅形
+      return <>
+        <path d={`M${-s * 0.7},${-s * 0.5} Q0,${-s * 1.1} ${s * 0.7},${-s * 0.5}`} fill="none" stroke={color} strokeWidth="0.4" opacity={0.5} />
+        <line x1={-s * 0.7} y1={-s * 0.5} x2={-s * 0.9} y2={-s} stroke={color} strokeWidth="0.3" opacity={0.35} />
+        <line x1={s * 0.7} y1={-s * 0.5} x2={s * 0.9} y2={-s} stroke={color} strokeWidth="0.3" opacity={0.35} />
+      </>;
+    case 5: // 口感 —— 星形
+      return <polygon points={Array.from({ length: 10 }, (_, i) => {
         const a = (Math.PI * 2 * i) / 10 - Math.PI / 2;
-        const rad = i % 2 === 0 ? r + 2.5 : r + 1;
+        const rad = i % 2 === 0 ? s : s * 0.45;
         return `${rad * Math.cos(a)},${rad * Math.sin(a)}`;
-      }).join(' ')}
-      fill="none" stroke={unlocked ? color : '#94A3B8'} strokeWidth="0.35" opacity={0.5}
-    />
-  ),
-  6: (r, color, unlocked) => (
-    // 面点与主食 —— 圆角方形
-    <rect x={-(r + 1.8)} y={-(r + 1.8)} width={(r + 1.8) * 2} height={(r + 1.8) * 2} rx={r * 0.8}
-      fill="none" stroke={unlocked ? color : '#94A3B8'} strokeWidth="0.35" opacity={0.5}
-    />
-  ),
-};
+      }).join(' ')} fill={color} opacity={0.3} />;
+    case 6: // 面点 —— 麦穗/圆形
+      return <>
+        <circle cx={0} cy={0} r={s * 0.55} fill="none" stroke={color} strokeWidth="0.4" opacity={0.45} />
+        <circle cx={0} cy={0} r={s * 0.2} fill={color} opacity={0.3} />
+      </>;
+    default: return null;
+  }
+}
 
 // ── 连线 ──
 function TreeLines({ skill, visibleIds, color }: { skill: SkillTree; visibleIds: Set<string>; color: string }) {
@@ -286,8 +264,14 @@ function TreeCircles({
               className="cursor-pointer"
               filter={node.unlocked ? `url(#glow-${node.id})` : undefined}
             >
-              {/* 大技能装饰形状 */}
-              {shapeIdx >= 0 && MAJOR_SHAPES[shapeIdx]?.(r, color, node.unlocked)}
+              {/* 大技能六边形 + 内部图标 */}
+              {isMajor && (
+                <>
+                  <polygon points={hexPoints(r)} fill="none"
+                    stroke={node.unlocked ? color : '#94A3B8'} strokeWidth="0.45" opacity={0.55} />
+                  <MajorIcon idx={shapeIdx} r={r} color={node.unlocked ? color : '#94A3B8'} />
+                </>
+              )}
 
               {/* 选中脉冲 */}
               {isSelected && (

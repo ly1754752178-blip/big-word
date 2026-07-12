@@ -11,6 +11,8 @@ interface FullscreenOverlayProps {
   onClose: () => void;
   className?: string;
   accent?: 'status' | 'talent' | 'social' | 'wealth' | 'calendar' | 'map' | 'default';
+  /** 无缝模式——去掉卡片容器，内容直接铺满 */
+  seamless?: boolean;
 }
 
 const accentBarClass: Record<NonNullable<FullscreenOverlayProps['accent']>, string> = {
@@ -33,6 +35,7 @@ export function FullscreenOverlay({
   onClose,
   className,
   accent = 'default',
+  seamless = false,
 }: FullscreenOverlayProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const wrapperRef = useRef<HTMLDivElement>(null);
@@ -117,43 +120,52 @@ export function FullscreenOverlay({
         transition={{ duration: 0.2 }}
         className="absolute inset-0 flex items-center justify-center p-4 md:p-6 pointer-events-none"
       >
-        {/* 内容卡片 */}
-        <motion.div
-          initial={{ y: 40, opacity: 0, scale: 0.96 }}
-          animate={exiting ? { y: 40, opacity: 0, scale: 0.96 } : { y: 0, opacity: 1, scale: 1 }}
-          transition={{ type: 'spring', stiffness: 320, damping: 30 }}
-          className={cn(
-            'pointer-events-auto relative max-h-[calc(100vh-2rem)] md:max-h-[calc(100vh-3rem)] w-full max-w-6xl flex flex-col rounded-3xl overflow-hidden bg-cream-50 shadow-soft-lg border border-white/80',
-            className
-          )}
-        >
-          {/* 顶部强调条 */}
-          <div className={cn('h-1.5 w-full', accentBarClass[accent])} />
-
-          {/* 标题栏 */}
-          <div className="relative flex items-center px-6 py-4 border-b border-slate-100 bg-white/60 shrink-0">
-            <div className="w-10 h-10" />
-            <h2 className="flex-1 text-center font-heading text-xl md:text-2xl font-bold text-slate-800">
-              {title}
-            </h2>
-            <button
-              type="button"
-              onClick={onClose}
-              className="w-10 h-10 rounded-full bg-cream-50 hover:bg-white border border-slate-100 flex items-center justify-center transition-colors shrink-0"
-              aria-label="关闭"
-            >
-              <X className="w-5 h-5 text-slate-500" />
-            </button>
-          </div>
-
-          {/* 内容区 */}
-          <div
-            ref={scrollRef}
-            className="flex-1 min-h-0 overflow-y-scroll p-5 md:p-8 grain-overlay"
+        {/* 无缝模式：内容直接铺满，无边卡 */}
+        {seamless ? (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: exiting ? 0 : 1 }}
+            transition={{ duration: 0.3 }}
+            className="pointer-events-auto absolute inset-0 flex flex-col"
           >
-            <div className="relative z-10">{children}</div>
-          </div>
-        </motion.div>
+            <div className="relative flex items-center justify-between px-6 py-4 shrink-0">
+              <div className="w-10 h-10" />
+              <h2 className="flex-1 text-center font-heading text-xl font-bold text-white/80">{title}</h2>
+              <button
+                type="button" onClick={onClose}
+                className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors shrink-0"
+                aria-label="关闭"
+              >
+                <X className="w-5 h-5 text-white/70" />
+              </button>
+            </div>
+            <div ref={scrollRef} className="flex-1 min-h-0 overflow-hidden">
+              <div className="relative z-10 h-full">{children}</div>
+            </div>
+          </motion.div>
+        ) : (
+          <motion.div
+            initial={{ y: 40, opacity: 0, scale: 0.96 }}
+            animate={exiting ? { y: 40, opacity: 0, scale: 0.96 } : { y: 0, opacity: 1, scale: 1 }}
+            transition={{ type: 'spring', stiffness: 320, damping: 30 }}
+            className={cn(
+              'pointer-events-auto relative max-h-[calc(100vh-2rem)] md:max-h-[calc(100vh-3rem)] w-full max-w-6xl flex flex-col rounded-3xl overflow-hidden bg-cream-50 shadow-soft-lg border border-white/80',
+              className
+            )}
+          >
+            <div className={cn('h-1.5 w-full', accentBarClass[accent])} />
+            <div className="relative flex items-center px-6 py-4 border-b border-slate-100 bg-white/60 shrink-0">
+              <div className="w-10 h-10" />
+              <h2 className="flex-1 text-center font-heading text-xl md:text-2xl font-bold text-slate-800">{title}</h2>
+              <button type="button" onClick={onClose} className="w-10 h-10 rounded-full bg-cream-50 hover:bg-white border border-slate-100 flex items-center justify-center transition-colors shrink-0" aria-label="关闭">
+                <X className="w-5 h-5 text-slate-500" />
+              </button>
+            </div>
+            <div ref={scrollRef} className="flex-1 min-h-0 overflow-y-scroll p-5 md:p-8 grain-overlay">
+              <div className="relative z-10">{children}</div>
+            </div>
+          </motion.div>
+        )}
       </motion.div>
     </div>
   );
