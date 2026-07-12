@@ -39,27 +39,17 @@ export function SkillsOverlay() {
   }, []);
 
   return (
-    <div className="max-w-5xl mx-auto space-y-4">
-      {/* 模式切换：grid 显示标签栏；tree 隐藏 */}
+    <div className={selectedSkill ? 'h-full' : 'max-w-5xl mx-auto space-y-4'}>
       {!selectedSkill && (
         <CategoryTabs active={activeCategory} onChange={handleCategoryChange} />
       )}
 
-      {/* 内容区：简单条件渲染，不嵌套 AnimatePresence，由父级 FullscreenOverlay 的 AnimatePresence 统一管理退出 */}
       {selectedSkill ? (
-        <motion.div
-          key={`tree-${selectedSkill.id}`}
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0, scale: 0.95 }}
-          className="min-h-[480px]"
-        >
-          <SkillTreeView
-            skill={selectedSkill}
-            color={categoryColors[selectedSkill.category]}
-            onBack={handleBackToGrid}
-          />
-        </motion.div>
+        <SkillTreeView
+          skill={selectedSkill}
+          color={categoryColors[selectedSkill.category]}
+          onBack={handleBackToGrid}
+        />
       ) : (
         <div className="space-y-4">
           <StatsBanner skills={skills} color={color} />

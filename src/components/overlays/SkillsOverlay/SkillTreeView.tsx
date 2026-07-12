@@ -15,12 +15,12 @@ interface SkillTreeViewProps {
 // ── 画布与布局常量 ──
 const VIEW_SIZE = 160;
 const CENTER = { x: VIEW_SIZE / 2, y: VIEW_SIZE / 2 };
-const CHILD_RADIUS = 16;
+const CHILD_RADIUS = 20;
 
 // ── 节点尺寸 ──
 const ROOT_R = 3.5;
 const MAJOR_R = 2.8;
-const CHILD_R = 1.8;
+const CHILD_R = 2.2;
 
 // ── 根据父节点自动计算子节点位置 ──
 function computeChildPosition(
@@ -37,10 +37,10 @@ function computeChildPosition(
   // 垂直方向
   const perpX = -dirY;
   const perpY = dirX;
-  // 扇形展开角度
-  const spread = Math.min(total - 1, 1) * 0.5;
+  // 扇形展开角度——更宽更舒展
+  const spread = Math.max(total - 1, 1) * 0.7;
   const t = index / Math.max(total - 1, 1);
-  const offset = (t - 0.5) * spread * 25;
+  const offset = (t - 0.5) * spread * 30;
   return {
     x: +(parentPos.x + dirX * CHILD_RADIUS + perpX * offset).toFixed(1),
     y: +(parentPos.y + dirY * CHILD_RADIUS + perpY * offset).toFixed(1),
@@ -235,8 +235,8 @@ function TreeCircles({
         const isExpanded = isMajor && expandedId === node.id;
         const r = isRoot ? ROOT_R : isMajor ? MAJOR_R : CHILD_R;
         const isSelected = node.id === selectedId;
-        const fontSize = isRoot ? 2.6 : isMajor ? 2.2 : 1.8;
-        const lvFontSize = isRoot ? 1.7 : isMajor ? 1.5 : 1.3;
+        const fontSize = isRoot ? 2.6 : isMajor ? 2.2 : 2.0;
+        const lvFontSize = isRoot ? 1.7 : isMajor ? 1.5 : 1.4;
 
         // 大技能形状索引
         const shapeIdx = isMajor ? (majorOrder.get(node.id) ?? 0) : -1;

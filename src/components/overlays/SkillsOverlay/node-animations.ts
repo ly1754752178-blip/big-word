@@ -9,15 +9,15 @@ export const cardVariants: Variants = {
   tap: { scale: 0.97, transition: { type: 'spring', stiffness: 600, damping: 30 } },
 };
 
-/** 技能树节点弹出动画 */
+/** 技能树节点弹出动画——快速弹出 */
 export const nodeVariants: Variants = {
   hidden: { scale: 0, opacity: 0 },
   visible: (i: number) => ({
     scale: 1,
     opacity: 1,
-    transition: { type: 'spring', stiffness: 260, damping: 20, delay: i * 0.06 },
+    transition: { type: 'spring', stiffness: 500, damping: 24, delay: i * 0.025 },
   }),
-  exit: { scale: 0, opacity: 0, transition: { duration: 0.2 } },
+  exit: { scale: 0, opacity: 0, transition: { duration: 0.12 } },
 };
 
 /** 卡牌网格容器动画 */
