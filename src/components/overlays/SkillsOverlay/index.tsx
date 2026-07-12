@@ -33,10 +33,6 @@ export function SkillsOverlay() {
     setSelectedSkill(skill);
   }, []);
 
-  const handleBackToGrid = useCallback(() => {
-    setSelectedSkill(null);
-  }, []);
-
   return (
     <div className={selectedSkill ? 'h-full' : 'max-w-5xl mx-auto space-y-4'}>
       {!selectedSkill && (
@@ -47,7 +43,6 @@ export function SkillsOverlay() {
         <SkillTreeView
           skill={selectedSkill}
           color={categoryColors[selectedSkill.category]}
-          onBack={handleBackToGrid}
         />
       ) : (
         <div className="space-y-4">

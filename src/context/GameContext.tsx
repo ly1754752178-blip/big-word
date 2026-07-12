@@ -70,7 +70,7 @@ const overlayTitles: Record<OverlayViewType, string> = {
   wealth: '财富资产',
   calendar: '日历事件',
   settings: '系统设置',
-  skills: '技能',
+  skills: '日常领域·厨艺',
   network: '关系网络',
   history: '叙事历史',
   calendarFull: '完整日历',

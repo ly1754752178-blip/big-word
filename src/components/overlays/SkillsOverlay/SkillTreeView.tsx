@@ -1,6 +1,5 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Sparkles } from 'lucide-react';
 import type { SkillTree, SkillNode } from '@/types';
 import { nodeVariants } from './node-animations';
 import { SkillNodeDetail } from './SkillNodeDetail';
@@ -8,8 +7,6 @@ import { SkillNodeDetail } from './SkillNodeDetail';
 interface SkillTreeViewProps {
   skill: SkillTree;
   color: string;
-  onBack: () => void;
-  backgroundImage?: string;
 }
 
 // ── 画布与布局常量 ──
@@ -22,28 +19,31 @@ const ROOT_R = 3.5;
 const MAJOR_R = 2.8;
 const CHILD_R = 2.2;
 
-// ── 根据父节点自动计算子节点位置 ──
+// ── 子节点弧形扇开布局 ──
 function computeChildPosition(
   parentPos: { x: number; y: number },
   index: number,
   total: number,
 ): { x: number; y: number } {
-  // 子节点在父节点远离中心的方向上扇形展开
   const dx = parentPos.x - CENTER.x;
   const dy = parentPos.y - CENTER.y;
   const dist = Math.sqrt(dx * dx + dy * dy);
   const dirX = dist > 0 ? dx / dist : 0;
   const dirY = dist > 0 ? dy / dist : -1;
-  // 垂直方向
   const perpX = -dirY;
   const perpY = dirX;
-  // 扇形展开角度——更宽更舒展
-  const spread = Math.max(total - 1, 1) * 0.7;
-  const t = index / Math.max(total - 1, 1);
-  const offset = (t - 0.5) * spread * 30;
+
+  // 扇形角度：根据子节点数量自适应
+  const arcAngle = Math.min(1.6, total * 0.25);
+  const t = total <= 1 ? 0.5 : index / (total - 1);
+  const angle = (t - 0.5) * arcAngle;
+
+  // 径向距离：错落式——奇偶行交替
+  const rowDist = index % 2 === 0 ? CHILD_RADIUS : CHILD_RADIUS * 1.25;
+
   return {
-    x: +(parentPos.x + dirX * CHILD_RADIUS + perpX * offset).toFixed(1),
-    y: +(parentPos.y + dirY * CHILD_RADIUS + perpY * offset).toFixed(1),
+    x: +(parentPos.x + dirX * rowDist + perpX * Math.sin(angle) * 22).toFixed(1),
+    y: +(parentPos.y + dirY * rowDist + perpY * Math.sin(angle) * 22).toFixed(1),
   };
 }
 
@@ -264,11 +264,12 @@ function TreeCircles({
               className="cursor-pointer"
               filter={node.unlocked ? `url(#glow-${node.id})` : undefined}
             >
-              {/* 大技能六边形 + 内部图标 */}
+              {/* 大技能六边形（实心主体） */}
               {isMajor && (
                 <>
-                  <polygon points={hexPoints(r)} fill="none"
-                    stroke={node.unlocked ? color : '#94A3B8'} strokeWidth="0.45" opacity={0.55} />
+                  <polygon points={hexPoints(r)}
+                    fill={node.unlocked ? `${color}22` : '#F1F5F9'}
+                    stroke={node.unlocked ? color : '#94A3B8'} strokeWidth="0.5" />
                   <MajorIcon idx={shapeIdx} r={r} color={node.unlocked ? color : '#94A3B8'} />
                 </>
               )}
@@ -299,17 +300,14 @@ function TreeCircles({
                 </>
               )}
 
-              {/* 大技能内环 */}
-              {isMajor && !isExpanded && (
-                <circle r={r + 1.3} fill="none" stroke={color} strokeWidth="0.3" opacity={0.3}
-                  strokeDasharray="0.8 0.5" />
-              )}
 
-              {/* 主体球 */}
-              <circle r={r} fill={`url(#nodeGradient-${node.id})`}
-                stroke={node.unlocked ? color : '#94A3B8'}
-                strokeWidth={isSelected ? 1.2 : isMajor ? 0.8 : 0.5}
-              />
+              {/* 主体球（大技能六边形不渲染圆形） */}
+              {!isMajor && (
+                <circle r={r} fill={`url(#nodeGradient-${node.id})`}
+                  stroke={node.unlocked ? color : '#94A3B8'}
+                  strokeWidth={isSelected ? 1.2 : 0.5}
+                />
+              )}
               {/* 高光 */}
               {node.unlocked && (
                 <circle cx={-r * 0.3} cy={-r * 0.3} r={r * 0.35} fill="white" opacity={0.45} />
@@ -339,7 +337,7 @@ function TreeCircles({
 }
 
 // ── 主组件 ──
-export function SkillTreeView({ skill, color, onBack, backgroundImage }: SkillTreeViewProps) {
+export function SkillTreeView({ skill, color }: SkillTreeViewProps) {
   const [selectedNode, setSelectedNode] = useState<SkillNode | null>(null);
   const [expandedMajorId, setExpandedMajorId] = useState<string | null>(null);
   // 缩放与平移
@@ -349,8 +347,6 @@ export function SkillTreeView({ skill, color, onBack, backgroundImage }: SkillTr
   const dragStart = useRef({ x: 0, y: 0 });
   const panStart = useRef({ x: 0, y: 0 });
   const svgContainerRef = useRef<HTMLDivElement>(null);
-
-  const expPercent = skill.maxExp > 0 ? (skill.exp / skill.maxExp) * 100 : 0;
 
   // 构建大技能顺序映射
   const majorOrder = new Map<string, number>();
@@ -417,43 +413,13 @@ export function SkillTreeView({ skill, color, onBack, backgroundImage }: SkillTr
   }
 
   return (
-    <motion.div
-      className="flex flex-col h-full rounded-2xl overflow-hidden border border-slate-200/80 bg-white/90 shadow-lg"
-    >
-      {/* 顶部返回栏 */}
-      <div className="flex items-center gap-4 px-5 py-3 border-b border-slate-100 bg-white/70 shrink-0">
-        <button type="button" onClick={onBack}
-          className="w-9 h-9 rounded-xl bg-slate-100 hover:bg-slate-200 flex items-center justify-center transition-colors"
-        >
-          <ArrowLeft className="w-4 h-4 text-slate-600" />
-        </button>
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2">
-            <Sparkles className="w-4 h-4" style={{ color }} />
-            <h4 className="font-heading font-bold text-slate-800 text-sm">{skill.name}</h4>
-            <span className="text-[10px] text-slate-500">Lv.{skill.level}/{skill.maxLevel}</span>
-          </div>
-          <div className="flex items-center gap-2 mt-1">
-            <div className="flex-1 max-w-[200px] h-1.5 bg-slate-100 rounded-full overflow-hidden">
-              <div className="h-full rounded-full"
-                style={{ width: `${expPercent}%`, background: `linear-gradient(90deg, ${color}, ${color}AA)` }}
-              />
-            </div>
-            <span className="text-[10px] text-slate-400 font-number">{skill.exp}/{skill.maxExp}</span>
-          </div>
-        </div>
-        {/* 缩放提示 */}
-        <span className="text-[10px] text-slate-400 select-none">
-          🖱️滚轮缩放 · 拖拽平移 · {Math.round(zoom * 100)}%
-        </span>
-      </div>
-
-      {/* SVG 画布区（可缩放/拖拽） */}
+    <div className="flex flex-col h-full">
+      {/* SVG 画布区——填满整个空间 */}
       <div
         ref={svgContainerRef}
         className="flex-1 relative min-h-0 overflow-hidden select-none"
         style={{
-          background: `radial-gradient(ellipse at 50% 50%, ${color}06 0%, transparent 70%)`,
+          background: `radial-gradient(ellipse at 50% 50%, ${color}11 0%, transparent 70%)`,
           cursor: dragging ? 'grabbing' : 'grab',
         }}
         onWheel={handleWheel}
@@ -466,8 +432,6 @@ export function SkillTreeView({ skill, color, onBack, backgroundImage }: SkillTr
           viewBox={`0 0 ${VIEW_SIZE} ${VIEW_SIZE}`}
           className="w-full h-full"
           style={{
-            backgroundImage: backgroundImage ? `url(${backgroundImage})` : undefined,
-            backgroundSize: 'cover',
             transform: `scale(${zoom}) translate(${pan.x / zoom}px, ${pan.y / zoom}px)`,
             transformOrigin: 'center center',
             transition: dragging ? 'none' : 'transform 0.15s ease-out',
@@ -511,6 +475,6 @@ export function SkillTreeView({ skill, color, onBack, backgroundImage }: SkillTr
 
         <SkillNodeDetail node={selectedNode} color={color} />
       </div>
-    </motion.div>
+    </div>
   );
 }
