@@ -1,6 +1,5 @@
 // src/components/overlays/SkillsOverlay/index.tsx
 import { useState, useCallback } from 'react';
-import { motion } from 'framer-motion';
 import { useGame } from '@/hooks/useGameState';
 import type { SkillCategory, SkillTree } from '@/types';
 import { CategoryTabs } from './CategoryTabs';
