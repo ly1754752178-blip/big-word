@@ -1,37 +1,37 @@
-// src/components/overlays/SkillsOverlay/StatsBanner.tsx
-import { Sparkles } from 'lucide-react';
+/**
+ * StatsBanner — 技能统计横幅
+ */
 import type { SkillTree } from '@/types';
 
-interface StatsBannerProps {
-  skills: SkillTree[];
-  color: string;
-}
+interface Props { skills: SkillTree[]; color: string; }
 
-export function StatsBanner({ skills, color }: StatsBannerProps) {
-  const unlocked = skills.filter((s) => s.level > 0).length;
-  const totalSkillPoints = skills.reduce((sum, s) => sum + s.skillPoints, 0);
+export function StatsBanner({ skills, color }: Props) {
+  const learned = skills.reduce((s, sk) => s + sk.nodes.filter(n => n.unlocked).length, 0);
+  const total = skills.reduce((s, sk) => s + sk.nodes.length, 0);
+  const pts = skills.reduce((s, sk) => s + sk.skillPoints, 0);
 
   return (
-    <div
-      className="flex items-center justify-between px-5 py-3 rounded-2xl mx-4 border"
-      style={{
-        background: `linear-gradient(135deg, ${color}14, ${color}08)`,
-        borderColor: `${color}25`,
-      }}
-    >
-      <div className="flex items-center gap-2">
-        <Sparkles className="w-4 h-4" style={{ color }} />
-        <span className="text-sm font-semibold text-slate-700">
-          已习得 <span className="font-number text-base" style={{ color }}>{unlocked}</span>
-          <span className="text-slate-400">/{skills.length}</span> 项
-        </span>
+    <section id="skill-stats-banner" aria-label="技能统计"
+      className="flex items-center gap-6 px-5 py-3 rounded-2xl border border-white/10"
+      style={{ background: 'rgba(255,255,255,0.04)', backdropFilter: 'blur(12px)' }}>
+      <StatBlock label="已习得" value={`${learned}/${total}`} />
+      <div className="w-px h-8 bg-white/10" />
+      <StatBlock label="可用技能点" value={`${pts}`} accent={color} />
+      <div className="w-px h-8 bg-white/10" />
+      <div className="flex-1 h-2 rounded-full bg-white/5 overflow-hidden">
+        <div className="h-full rounded-full transition-all duration-700"
+          style={{ width: `${total > 0 ? (learned / total) * 100 : 0}%`, background: `linear-gradient(90deg, ${color}, ${color}88)` }} />
       </div>
-      <div className="flex items-center gap-1.5">
-        <span className="w-2 h-2 rounded-full" style={{ backgroundColor: color }} />
-        <span className="text-sm text-slate-600">
-          可用技能点 <span className="font-number font-bold text-slate-800">{totalSkillPoints}</span>
-        </span>
-      </div>
+    </section>
+  );
+}
+
+function StatBlock({ label, value, accent }: { label: string; value: string; accent?: string }) {
+  return (
+    <div className="flex flex-col items-center min-w-[60px]">
+      <span className="text-[10px] text-white/40 uppercase tracking-wider"
+        style={{ fontFamily: '"Inter","PingFang SC","Microsoft YaHei",sans-serif' }}>{label}</span>
+      <span className="text-lg font-bold" style={{ color: accent ?? '#fff', fontFamily: '"Inter","PingFang SC","Microsoft YaHei",sans-serif' }}>{value}</span>
     </div>
   );
 }

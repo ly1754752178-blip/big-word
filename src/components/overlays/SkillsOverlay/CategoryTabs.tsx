@@ -1,54 +1,37 @@
+/**
+ * CategoryTabs — 领域标签导航
+ * 毛玻璃底 + 滑动下划线 + hover 微交互
+ */
 import { motion } from 'framer-motion';
-import { UtensilsCrossed, Code, Wand2 } from 'lucide-react';
 import type { SkillCategory } from '@/types';
 
-interface TabConfig {
-  key: SkillCategory;
-  label: string;
-  icon: typeof UtensilsCrossed;
-  color: string;
-}
-
-const tabs: TabConfig[] = [
-  { key: 'daily', label: '通用领域', icon: UtensilsCrossed, color: '#8B5CF6' },
-  { key: 'work', label: '专业领域', icon: Code, color: '#0EA5E9' },
-  { key: 'special', label: '特殊领域', icon: Wand2, color: '#F43F5E' },
+const tabs: { key: SkillCategory; label: string; emoji: string }[] = [
+  { key: 'daily', label: '通用领域', emoji: '🌸' },
+  { key: 'work', label: '专业领域', emoji: '⚡' },
+  { key: 'special', label: '特殊领域', emoji: '💎' },
 ];
 
-interface CategoryTabsProps {
-  active: SkillCategory;
-  onChange: (category: SkillCategory) => void;
-}
+interface Props { active: SkillCategory; onChange: (cat: SkillCategory) => void; }
 
-export function CategoryTabs({ active, onChange }: CategoryTabsProps) {
+export function CategoryTabs({ active, onChange }: Props) {
   return (
-    <div className="flex items-center justify-center gap-1 px-4 pt-2 pb-0" role="tablist">
-      {tabs.map((tab) => {
-        const isActive = active === tab.key;
-        const Icon = tab.icon;
-        return (
-          <button
-            key={tab.key}
-            type="button"
-            role="tab"
-            aria-selected={isActive}
-            onClick={() => onChange(tab.key)}
-            className={`relative flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold transition-colors whitespace-nowrap
-              ${isActive ? 'text-white' : 'text-slate-600 hover:text-slate-800 hover:bg-white/50'}`}
-            style={isActive ? { backgroundColor: tab.color } : {}}
-          >
-            <Icon className="w-4 h-4" />
-            <span>{tab.label}</span>
-            {isActive && (
-              <motion.div
-                layoutId="active-tab-underline"
-                className="absolute bottom-0 left-2 right-2 h-0.5 rounded-full bg-white/60"
-                transition={{ type: 'spring', stiffness: 400, damping: 30 }}
-              />
-            )}
-          </button>
-        );
-      })}
-    </div>
+    <nav id="skill-category-tabs" aria-label="技能领域"
+      className="flex gap-2 p-1 rounded-2xl border border-white/10"
+      style={{ background: 'rgba(255,255,255,0.04)', backdropFilter: 'blur(12px)' }}>
+      {tabs.map(tab => (
+        <button key={tab.key} id={`tab-${tab.key}`} onClick={() => onChange(tab.key)}
+          aria-selected={active === tab.key}
+          className="relative flex-1 px-4 py-2.5 rounded-xl text-sm font-medium transition-colors"
+          style={{ color: active === tab.key ? '#fff' : 'rgba(255,255,255,0.5)',
+            fontFamily: '"Inter","PingFang SC","Microsoft YaHei",sans-serif' }}>
+          <span className="mr-1.5">{tab.emoji}</span>{tab.label}
+          {active === tab.key && (
+            <motion.div layoutId="tab-underline" className="absolute inset-0 rounded-xl border border-white/20"
+              style={{ background: 'rgba(255,255,255,0.08)' }}
+              transition={{ type: 'spring', stiffness: 400, damping: 30 }} />
+          )}
+        </button>
+      ))}
+    </nav>
   );
 }

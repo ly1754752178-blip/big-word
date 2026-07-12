@@ -1,80 +1,77 @@
-// src/components/overlays/SkillsOverlay/SkillNodeDetail.tsx
-import { motion, AnimatePresence } from 'framer-motion';
-import { Lock, Sparkles } from 'lucide-react';
+/**
+ * SkillNodeDetail — 浮动详情卡片
+ * 毛玻璃 + 弹簧动画 + 星级指示器
+ */
+import { motion } from 'framer-motion';
+import { Lock, Star, X } from 'lucide-react';
 import type { SkillNode } from '@/types';
-import { panelVariants } from './node-animations';
 
-interface SkillNodeDetailProps {
-  node: SkillNode | null;
-  color: string;
-}
+interface Props { node: SkillNode; color: string; position: { x: number; y: number }; onClose: () => void; }
 
-export function SkillNodeDetail({ node, color }: SkillNodeDetailProps) {
+export function SkillNodeDetail({ node, color, position, onClose }: Props) {
   return (
-    <AnimatePresence mode="wait">
-      {node ? (
-        <motion.div
-          key={node.id}
-          variants={panelVariants}
-          initial="hidden"
-          animate="visible"
-          exit="exit"
-          className="absolute right-4 top-16 bottom-4 w-56 rounded-2xl bg-white/95 border border-slate-200/80 shadow-lg p-4 flex flex-col gap-3 overflow-y-auto z-10"
-        >
-          {/* 节点图标与名称 */}
-          <div className="flex items-center gap-3">
-            <div
-              className="w-10 h-10 rounded-xl flex items-center justify-center"
-              style={{
-                background: node.unlocked
-                  ? `linear-gradient(135deg, ${color}, ${color}CC)`
-                  : 'linear-gradient(135deg, #CBD5E1, #94A3B8)',
-              }}
-            >
-              <Sparkles className="w-5 h-5 text-white" />
-            </div>
-            <div>
-              <h4 className="font-bold text-sm text-slate-800">{node.name}</h4>
-              <span className="text-[10px] text-slate-500">
-                Lv.{node.level}/{node.maxLevel}
-              </span>
-            </div>
+    <motion.aside
+      id={`node-detail-${node.id}`}
+      aria-label={`${node.name} 详情`}
+      initial={{ opacity: 0, scale: 0.85, y: 10 }}
+      animate={{ opacity: 1, scale: 1, y: 0 }}
+      exit={{ opacity: 0, scale: 0.85, y: 10 }}
+      transition={{ type: 'spring', stiffness: 420, damping: 26 }}
+      className="absolute z-50 w-56 pointer-events-auto"
+      style={{ left: `${position.x}%`, top: `${position.y}%`, transform: 'translate(-50%, -120%)' }}>
+      {/* 三角指示器 */}
+      <div className="flex justify-center">
+        <div className="w-3 h-3 rotate-45 -mb-[6px]" style={{ background: `linear-gradient(135deg, ${color}20, ${color}08)` }} />
+      </div>
+
+      {/* 卡片 */}
+      <div className="rounded-2xl overflow-hidden border shadow-2xl backdrop-blur-2xl"
+        style={{ background: `linear-gradient(135deg, ${color}14, rgba(15,15,25,0.94))`, borderColor: `${color}30`,
+          boxShadow: `0 12px 40px rgba(0,0,0,0.3), 0 0 0 1px ${color}15 inset, 0 0 80px ${color}08` }}>
+        <div className="h-1" style={{ background: `linear-gradient(90deg, ${color}, ${color}88)` }} />
+        <div className="p-4">
+          <button onClick={e => { e.stopPropagation(); onClose(); }}
+            className="absolute top-2.5 right-2.5 w-6 h-6 rounded-full flex items-center justify-center hover:bg-white/10 transition-colors">
+            <X size={12} className="text-white/40" />
+          </button>
+
+          <h4 className="font-bold text-sm text-white mb-1 pr-5"
+            style={{ fontFamily: '"Inter","PingFang SC","Microsoft YaHei",sans-serif' }}>{node.name}</h4>
+
+          {/* 星级 */}
+          <div className="flex items-center gap-1 mb-2">
+            {Array.from({ length: node.maxLevel }).map((_, i) => (
+              <Star key={i} size={11} className={i < node.level ? 'text-amber-400' : 'text-white/10'}
+                fill={i < node.level ? 'currentColor' : 'none'} />
+            ))}
+            <span className="text-[10px] text-white/30 ml-1"
+              style={{ fontFamily: '"Inter","PingFang SC","Microsoft YaHei",sans-serif' }}>Lv.{node.level}/{node.maxLevel}</span>
           </div>
 
-          {/* 解锁状态 */}
-          {!node.unlocked && (
-            <div className="flex items-center gap-1.5 text-[11px] text-slate-500 bg-slate-50 rounded-lg px-2 py-1.5">
-              <Lock className="w-3 h-3" />
-              <span>未解锁</span>
+          {!node.unlocked ? (
+            <div className="flex items-center gap-1.5 text-[11px] text-white/30 mb-2">
+              <Lock size={10} /><span>未解锁</span>
             </div>
+          ) : (
+            <div className="text-[11px] font-medium mb-2" style={{ color }}>✦ 已习得</div>
           )}
 
-          {/* 描述 */}
-          <p className="text-xs text-slate-600 leading-relaxed">{node.description}</p>
+          {node.description && (
+            <p className="text-[11px] leading-relaxed text-white/50 border-t pt-2 mb-2"
+              style={{ borderColor: `${color}15`, fontFamily: '"Inter","PingFang SC","Microsoft YaHei",sans-serif' }}>
+              {node.description}
+            </p>
+          )}
 
-          {/* 升级按钮 */}
           {node.unlocked && node.level < node.maxLevel && (
-            <button
-              type="button"
-              className="mt-auto w-full py-2 rounded-xl text-white text-xs font-bold transition-transform hover:scale-[1.02] active:scale-[0.98]"
-              style={{ background: `linear-gradient(135deg, ${color}, ${color}CC)` }}
-            >
+            <button id={`upgrade-${node.id}`}
+              className="w-full py-1.5 rounded-lg text-[11px] font-bold text-white transition-all hover:scale-[1.02] active:scale-95"
+              style={{ background: `linear-gradient(135deg, ${color}, ${color}CC)`, fontFamily: '"Inter","PingFang SC","Microsoft YaHei",sans-serif' }}>
               升级（消耗 1 技能点）
             </button>
           )}
-        </motion.div>
-      ) : (
-        <motion.div
-          key="empty"
-          variants={panelVariants}
-          initial="hidden"
-          animate="visible"
-          exit="exit"
-          className="absolute right-4 top-16 bottom-4 w-56 rounded-2xl bg-white/60 border border-dashed border-slate-200 flex items-center justify-center"
-        >
-          <p className="text-xs text-slate-400 text-center px-4">点击节点<br />查看详情</p>
-        </motion.div>
-      )}
-    </AnimatePresence>
+        </div>
+      </div>
+    </motion.aside>
   );
 }
