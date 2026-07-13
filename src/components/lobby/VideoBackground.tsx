@@ -119,21 +119,22 @@ export function VideoBackground() {
     setOpacity(0);
     setTimeout(() => {
       if (!v || !a) { switching.current = false; return; }
-      // 暂停当前音频
+      // 暂停当前音频，换源
       a.pause();
-      // 换源
       const track = tracksRef.current[nextIdx];
       v.src = track.videoUrl;
       a.src = track.audioUrl;
-      // 同时播放（视频永远静音，唯一声源为 MP3）
+      a.load();
+      // 视频永远静音
       v.muted = true;
       v.volume = 0;
+      v.play().catch((e) => console.warn('switchTrack 视频播放失败:', e));
+      // 音频仅在用户已交互后才播放
       if (!persistentMuted) {
         a.muted = false;
         a.volume = volRef.current;
+        a.play().catch((e) => console.warn('switchTrack 音频播放失败:', e));
       }
-      v.play().catch((e) => console.warn('switchTrack 视频播放失败:', e));
-      a.play().catch((e) => console.warn('switchTrack 音频播放失败:', e));
       setCurrentIndex(nextIdx);
       setIsPlaying(true);
       // 渐入
@@ -187,19 +188,19 @@ export function VideoBackground() {
     if (!v || !a) return;
     const track = tracks[currentIndex];
     if (!track) return;
-    console.log(`▶️ 播放: ${track.name}`);
+    console.log(`▶️ 播放: ${track.name}${persistentMuted ? '（等待光球点击后播放音频）' : ''}`);
     v.src = track.videoUrl;
-    a.src = track.audioUrl;
-    // 视频永远静音；音频由 HTML muted 属性保证自动播放，不在此处用 JS 触碰
     v.muted = true;
     v.volume = 0;
-    // 若用户已点击光球解锁，则取消静音并恢复音量
+    v.play().catch((e) => console.warn('视频播放失败:', e));
+    // 设置音频 src 并预加载，但仅在用户交互后才 play
+    a.src = track.audioUrl;
+    a.load();
     if (!persistentMuted) {
       a.muted = false;
       a.volume = volRef.current;
+      a.play().catch((e) => console.warn('音频播放失败:', e));
     }
-    v.play().catch((e) => console.warn('视频播放失败:', e));
-    a.play().catch((e) => console.warn('音频播放失败:', e));
     setIsPlaying(true);
   }, [tracks, currentIndex]);
 
@@ -213,15 +214,24 @@ export function VideoBackground() {
     goNextRef.current();
   }, []);
 
-  // ---- 光球点击：解除静音（仅音频，视频永远静音） ----
+  // ---- 光球点击：首次启动音频 + 解除静音 ----
   const unmuteRef = useRef(() => {
     const a = audioRef.current;
-    if (a) { a.muted = false; a.volume = volRef.current; }
+    if (a) {
+      a.muted = false;
+      a.volume = volRef.current;
+      // 首次用户交互：此时才允许播放音频
+      a.play().catch((e) => console.warn('光球点击后音频播放失败:', e));
+    }
     setIsMuted(false);
   });
   unmuteRef.current = () => {
     const a = audioRef.current;
-    if (a) { a.muted = false; a.volume = volRef.current; }
+    if (a) {
+      a.muted = false;
+      a.volume = volRef.current;
+      a.play().catch((e) => console.warn('光球点击后音频播放失败:', e));
+    }
     setIsMuted(false);
   };
   useEffect(() => {
@@ -277,10 +287,9 @@ export function VideoBackground() {
           opacity, transition: 'opacity 0.8s ease-in-out',
         }}
       />
-      {/* 音频层（隐藏） */}
+      {/* 音频层 */}
       <audio
         ref={audioRef}
-        muted
         preload="auto"
         onEnded={handleAudioEnded}
       />
