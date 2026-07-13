@@ -910,7 +910,7 @@ export const mockGameState: GameState = {
     assets: [
       // 💵 流动资金
       { id: 'a1', name: '银行账户', value: 128500, icon: 'credit-card', description: '主要用于生活费与储蓄', category: 'liquid' as const },
-      { id: 'a2', name: '支付宝余额', value: 2500, icon: 'smartphone', description: '日常扫码支付用', category: 'liquid' as const },
+      { id: 'a2', name: '電子マネー', value: 2500, icon: 'smartphone', description: 'Suica・PayPay 日常の支払い用', category: 'liquid' as const },
       // 🚗 动产资产
       { id: 'a3', name: '笔记本电脑', value: 85000, icon: 'laptop', description: '用于学习与兼职编程', category: 'movable' as const },
       { id: 'a4', name: '二手自行车', value: 8000, icon: 'bike', description: '上下学代步工具', category: 'movable' as const },
