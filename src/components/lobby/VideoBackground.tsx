@@ -176,43 +176,27 @@ export function VideoBackground() {
     }
   };
 
-  // ---- 初始加载：播放第一首 ----
+  // ---- 播放当前曲目（初始加载 + 手动切换均走此路径） ----
+  // switchTrack 在切换期间设置 switching=true，防止此 effect 重复触发
   useEffect(() => {
+    if (tracks.length === 0 || currentIndex < 0 || switching.current) return;
     const v = videoRef.current;
     const a = audioRef.current;
-    if (!v || !a || tracks.length === 0 || switching.current) return;
+    if (!v || !a) return;
     const track = tracks[currentIndex];
+    if (!track) return;
+    console.log(`▶️ 播放: ${track.name}`);
     v.src = track.videoUrl;
     a.src = track.audioUrl;
+    // 视频永远静音，唯一声源为 MP3
     v.muted = true;
     v.volume = 0;
-    a.muted = true;
-    a.volume = 0;
+    a.muted = mutedRef.current;
+    a.volume = mutedRef.current ? 0 : volRef.current;
     v.play().catch(() => {});
-    a.play().catch(() => {});
+    a.play().catch(() => { a.muted = true; a.play().catch(() => {}); });
     setIsPlaying(true);
-  }, [tracks]);
-
-  // currentIndex 变化时切换
-  useEffect(() => {
-    const v = videoRef.current;
-    const a = audioRef.current;
-    if (!v || !a || tracks.length === 0 || switching.current) return;
-    if (v.src) {
-      a.pause();
-      const track = tracks[currentIndex];
-      v.src = track.videoUrl;
-      a.src = track.audioUrl;
-      // 视频永远静音，唯一声源为 MP3
-      v.muted = true;
-      v.volume = 0;
-      a.muted = mutedRef.current;
-      a.volume = mutedRef.current ? 0 : volRef.current;
-      v.play().catch(() => {});
-      a.play().catch(() => { a.muted = true; a.play().catch(() => {}); });
-      setIsPlaying(true);
-    }
-  }, [currentIndex]);
+  }, [tracks, currentIndex]);
 
   // ---- 视频播完 → 循环（视频始终循环，直到 MP3 结束驱动切换） ----
   const handleVideoEnded = useCallback(() => {
