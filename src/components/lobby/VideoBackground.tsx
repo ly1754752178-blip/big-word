@@ -130,8 +130,13 @@ export function VideoBackground() {
       v.volume = 0;
       a.muted = mutedRef.current;
       a.volume = mutedRef.current ? 0 : volRef.current;
-      v.play().catch(() => {});
-      a.play().catch(() => { a.muted = true; a.play().catch(() => {}); });
+      a.load();
+      v.play().catch((e) => console.warn('switchTrack 视频播放失败:', e));
+      a.play().catch((e) => {
+        console.warn('switchTrack 音频播放失败，尝试静音重试:', e);
+        a.muted = true;
+        a.play().catch((e2) => console.error('switchTrack 音频静音重试仍失败:', e2));
+      });
       setCurrentIndex(nextIdx);
       setIsPlaying(true);
       // 渐入
@@ -185,7 +190,7 @@ export function VideoBackground() {
     if (!v || !a) return;
     const track = tracks[currentIndex];
     if (!track) return;
-    console.log(`▶️ 播放: ${track.name}`);
+    console.log(`▶️ 播放: ${track.name} (音频: ${track.audioUrl})`);
     v.src = track.videoUrl;
     a.src = track.audioUrl;
     // 视频永远静音，唯一声源为 MP3
@@ -193,8 +198,14 @@ export function VideoBackground() {
     v.volume = 0;
     a.muted = mutedRef.current;
     a.volume = mutedRef.current ? 0 : volRef.current;
-    v.play().catch(() => {});
-    a.play().catch(() => { a.muted = true; a.play().catch(() => {}); });
+    // 强制加载音频再播放，避免浏览器因未就绪而拒绝
+    a.load();
+    v.play().catch((e) => console.warn('视频播放失败:', e));
+    a.play().catch((e) => {
+      console.warn('音频播放失败，尝试静音重试:', e);
+      a.muted = true;
+      a.play().catch((e2) => console.error('音频静音重试仍失败:', e2));
+    });
     setIsPlaying(true);
   }, [tracks, currentIndex]);
 
@@ -275,6 +286,7 @@ export function VideoBackground() {
       {/* 音频层（隐藏） */}
       <audio
         ref={audioRef}
+        muted
         preload="auto"
         onEnded={handleAudioEnded}
       />
