@@ -82,6 +82,7 @@ const overlayTitles: Record<OverlayViewType, string> = {
   shop: '商店与衣柜',
   memories: '回忆相册',
   achievements: '成就',
+  propertyDetail: '财产详情',
 };
 
 function gameReducer(state: GameState, action: Action): GameState {

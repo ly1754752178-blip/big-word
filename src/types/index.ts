@@ -21,6 +21,7 @@ export type OverlayViewType =
   | 'social'
   | 'wealth'
   | 'calendar'
+  | 'propertyDetail'
   | 'settings'
   | 'network'
   | 'history'
@@ -166,12 +167,15 @@ export interface Transaction {
   category: string;
 }
 
+export type AssetCategory = 'liquid' | 'realEstate' | 'movable' | 'financial' | 'business';
+
 export interface Asset {
   id: string;
   name: string;
   value: number;
   icon: string;
   description: string;
+  category?: AssetCategory;
 }
 
 export interface CalendarEvent {
@@ -378,6 +382,8 @@ export interface GameState {
     expenses: Transaction[];
     virtualAssets: Asset[];
     fixedAssets: Asset[];
+    /** 五类统合资产（流动资金/固定/动产/金融/经营） */
+    assets: Asset[];
   };
   calendar: {
     calendarEvents: CalendarEvent[];
