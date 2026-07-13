@@ -1,18 +1,52 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { Play, Pause, SkipBack, SkipForward, Volume2, VolumeX } from 'lucide-react';
 
-// 动态扫描 public/videos 下所有 .mp4 文件，新增/删除即生效
-const videoGlob = import.meta.glob('/public/videos/shipinbeijing*/*.mp4', { eager: true, query: '?url', import: 'default' }) as Record<string, string>;
+// 动态扫描 public/videos/shipinbeijing 下所有 .mp4 和 .mp3 文件
+const videoGlob = import.meta.glob('/public/videos/shipinbeijing/*.mp4', {
+  eager: true, query: '?url', import: 'default',
+}) as Record<string, string>;
 
-// 提取 URL 并按文件夹分类
-function buildVideoList(): string[] {
-  return Object.values(videoGlob).map(url => {
-    // Vite 返回的 URL 格式：/videos/shipinbeijing60/xxx.mp4
-    return url;
-  });
+const audioGlob = import.meta.glob('/public/videos/shipinbeijing/*.mp3', {
+  eager: true, query: '?url', import: 'default',
+}) as Record<string, string>;
+
+// 视频-音频配对
+interface TrackPair {
+  videoUrl: string;
+  audioUrl: string;
+  name: string; // 文件名（不含扩展名），用于显示和配对
 }
 
-// Fisher-Yates 洗牌算法 — 随机打乱数组
+// 构建视频-音频配对列表：文件名相同的 .mp4 和 .mp3 组成一对
+function buildTrackPairs(): TrackPair[] {
+  // 从 glob key 提取纯文件名（不含路径和扩展名）
+  const extractName = (path: string): string => {
+    const fileName = path.split('/').pop() ?? '';
+    return fileName.replace(/\.[^/.]+$/, '');
+  };
+
+  // 建立 "文件名 → 音频URL" 映射
+  const audioMap = new Map<string, string>();
+  for (const [path, url] of Object.entries(audioGlob)) {
+    audioMap.set(extractName(path), url);
+  }
+
+  // 为每个视频查找同名音频
+  const pairs: TrackPair[] = [];
+  for (const [path, videoUrl] of Object.entries(videoGlob)) {
+    const name = extractName(path);
+    const audioUrl = audioMap.get(name);
+    if (audioUrl) {
+      pairs.push({ videoUrl, audioUrl, name });
+    } else {
+      console.warn(`⚠️ 视频 "${name}" 缺少同名 MP3，跳过`);
+    }
+  }
+
+  return pairs;
+}
+
+// Fisher-Yates 洗牌算法
 function shuffle<T>(arr: T[]): T[] {
   const a = [...arr];
   for (let i = a.length - 1; i > 0; i--) {
@@ -26,7 +60,6 @@ function shuffle<T>(arr: T[]): T[] {
 function reshuffleAvoidRepeat<T>(arr: T[], lastItem: T): T[] {
   let result = shuffle(arr);
   if (result.length > 1 && result[0] === lastItem) {
-    // 将首项移到随机位置（非首位）
     const insertPos = 1 + Math.floor(Math.random() * (result.length - 1));
     const [first] = result;
     result = [...result.slice(1, insertPos), first, ...result.slice(insertPos)];
@@ -34,60 +67,71 @@ function reshuffleAvoidRepeat<T>(arr: T[], lastItem: T): T[] {
   return result;
 }
 
-// 跨页面保持静音状态：首次 true（需点光球解锁），解锁后 false（返回时保持开启）
+// 跨页面保持静音状态
 let persistentMuted = true;
 
 export function VideoBackground() {
   const videoRef = useRef<HTMLVideoElement>(null);
-  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const audioRef = useRef<HTMLAudioElement>(null);
   const switching = useRef(false);
 
-  const [videos, setVideos] = useState<string[]>([]);
+  const [tracks, setTracks] = useState<TrackPair[]>([]);
   const [currentIndex, setCurrentIndex] = useState(-1);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(persistentMuted);
   const [volume, setVolume] = useState(0.5);
   const [opacity, setOpacity] = useState(1);
 
-  const videosRef = useRef<string[]>([]);
+  const tracksRef = useRef<TrackPair[]>([]);
   const idxRef = useRef(0);
   const mutedRef = useRef(true);
   const volRef = useRef(0.5);
-  const lastPlayedRef = useRef<string>(''); // 追踪上一轮播放的最后一首，用于避免跨轮重复
+  const lastItemRef = useRef<TrackPair | null>(null); // 上一轮最后一首，用于避重
 
-  useEffect(() => { videosRef.current = videos; }, [videos]);
+  useEffect(() => { tracksRef.current = tracks; }, [tracks]);
   useEffect(() => { idxRef.current = currentIndex; }, [currentIndex]);
   useEffect(() => { mutedRef.current = isMuted; persistentMuted = isMuted; }, [isMuted]);
   useEffect(() => { volRef.current = volume; }, [volume]);
 
-  // 判断当前视频是否为 120s 定时模式
-  const isTimerVideo = (url: string) => url.includes('shipinbeijing60');
-
-  // ---- 初始化：动态加载扫描到的全部视频，洗牌后从 0 开始 ----
+  // ---- 初始化：动态扫描视频+音频，配对后洗牌 ----
   useEffect(() => {
-    const urls = buildVideoList();
-    console.log(`📂 动态扫描到 ${urls.length} 个视频:`, urls.map(u => u.split('/').pop()));
-    const shuffled = shuffle(urls);
+    const pairs = buildTrackPairs();
+    if (pairs.length === 0) {
+      console.warn('⚠️ 未找到任何可用的视频-音频配对');
+      return;
+    }
+    console.log(`📂 扫描到 ${Object.keys(videoGlob).length} 个视频, ${Object.keys(audioGlob).length} 个音频`);
+    console.log(`🎵 配对成功 ${pairs.length} 组:`, pairs.map(p => p.name));
+    const shuffled = shuffle(pairs);
     console.log(`🔀 洗牌完成，共 ${shuffled.length} 首，从索引 0 开始`);
-    setVideos(shuffled);
+    setTracks(shuffled);
     setCurrentIndex(0);
   }, []);
 
-  // ---- 切换视频：渐出 → 换源 → 渐入 ----
-  const switchVideo = useCallback((nextIdx: number) => {
+  // ---- 切换视频+音频：渐出 → 换源 → 渐入 ----
+  const switchTrack = useCallback((nextIdx: number) => {
     const v = videoRef.current;
-    if (!v || switching.current) return;
+    const a = audioRef.current;
+    if (!v || !a || switching.current) return;
     switching.current = true;
 
     // 渐出
     setOpacity(0);
     setTimeout(() => {
-      if (!v) { switching.current = false; return; }
+      if (!v || !a) { switching.current = false; return; }
+      // 暂停当前音频
+      a.pause();
       // 换源
-      v.src = videosRef.current[nextIdx];
-      v.muted = mutedRef.current;
-      v.volume = mutedRef.current ? 0 : volRef.current;
-      v.play().catch(() => { v.muted = true; v.play().catch(() => {}); });
+      const track = tracksRef.current[nextIdx];
+      v.src = track.videoUrl;
+      a.src = track.audioUrl;
+      // 同时播放（视频永远静音，唯一声源为 MP3）
+      v.muted = true;
+      v.volume = 0;
+      a.muted = mutedRef.current;
+      a.volume = mutedRef.current ? 0 : volRef.current;
+      v.play().catch(() => {});
+      a.play().catch(() => { a.muted = true; a.play().catch(() => {}); });
       setCurrentIndex(nextIdx);
       setIsPlaying(true);
       // 渐入
@@ -95,104 +139,101 @@ export function VideoBackground() {
         setOpacity(1);
         switching.current = false;
       }, 200);
-    }, 800); // 渐出持续 800ms
+    }, 800);
   }, []);
 
-  // ---- 下一首（伪随机队列）：顺序遍历洗牌列表，播完一轮后重新洗牌 ----
+  // ---- 下一首：遍历洗牌列表，播完一轮后重新洗牌 ----
   const goNextRef = useRef(() => {});
   goNextRef.current = () => {
-    if (timerRef.current) { clearTimeout(timerRef.current); timerRef.current = null; }
-    const total = videosRef.current.length;
+    const total = tracksRef.current.length;
     if (total === 0) return;
     const cur = idxRef.current;
 
     if (cur >= total - 1) {
       // 本轮最后一首 → 重新洗牌，确保新首项 ≠ 旧末项
-      const lastUrl = videosRef.current[cur];
-      lastPlayedRef.current = lastUrl;
-      const reshuffled = reshuffleAvoidRepeat(videosRef.current, lastUrl);
-      console.log(`🔄 一轮播完，重新洗牌。旧末项: ${lastUrl.split('/').pop()}, 新首项: ${reshuffled[0].split('/').pop()}`);
-      videosRef.current = reshuffled;
-      setVideos(reshuffled);
-      switchVideo(0);
+      const lastItem = tracksRef.current[cur];
+      lastItemRef.current = lastItem;
+      const reshuffled = reshuffleAvoidRepeat(tracksRef.current, lastItem);
+      console.log(`🔄 一轮播完，重新洗牌。旧末项: ${lastItem.name}, 新首项: ${reshuffled[0].name}`);
+      tracksRef.current = reshuffled;
+      setTracks(reshuffled);
+      switchTrack(0);
     } else {
-      switchVideo(cur + 1);
+      switchTrack(cur + 1);
     }
   };
 
-  // ---- 上一首：沿洗牌队列回退 ----
+  // ---- 上一首 ----
   const goPrevRef = useRef(() => {});
   goPrevRef.current = () => {
-    if (timerRef.current) { clearTimeout(timerRef.current); timerRef.current = null; }
-    const total = videosRef.current.length;
+    const total = tracksRef.current.length;
     if (total === 0) return;
     const cur = idxRef.current;
     if (cur <= 0) {
-      switchVideo(total - 1);
+      switchTrack(total - 1);
     } else {
-      switchVideo(cur - 1);
+      switchTrack(cur - 1);
     }
   };
 
-  // 初始加载
+  // ---- 初始加载：播放第一首 ----
   useEffect(() => {
     const v = videoRef.current;
-    if (!v || videos.length === 0 || switching.current) return;
-    v.src = videos[currentIndex];
+    const a = audioRef.current;
+    if (!v || !a || tracks.length === 0 || switching.current) return;
+    const track = tracks[currentIndex];
+    v.src = track.videoUrl;
+    a.src = track.audioUrl;
     v.muted = true;
     v.volume = 0;
+    a.muted = true;
+    a.volume = 0;
     v.play().catch(() => {});
+    a.play().catch(() => {});
     setIsPlaying(true);
-  }, [videos]);
+  }, [tracks]);
 
-  // currentIndex 变化时切换（由定时器或手动操作触发）
+  // currentIndex 变化时切换
   useEffect(() => {
     const v = videoRef.current;
-    if (!v || videos.length === 0 || switching.current) return;
-    // 有 src 且不是初始加载 → 正常切换
+    const a = audioRef.current;
+    if (!v || !a || tracks.length === 0 || switching.current) return;
     if (v.src) {
-      v.src = videos[currentIndex];
-      v.muted = mutedRef.current;
-      v.volume = mutedRef.current ? 0 : volRef.current;
-      v.play().catch(() => { v.muted = true; v.play().catch(() => {}); });
+      a.pause();
+      const track = tracks[currentIndex];
+      v.src = track.videoUrl;
+      a.src = track.audioUrl;
+      // 视频永远静音，唯一声源为 MP3
+      v.muted = true;
+      v.volume = 0;
+      a.muted = mutedRef.current;
+      a.volume = mutedRef.current ? 0 : volRef.current;
+      v.play().catch(() => {});
+      a.play().catch(() => { a.muted = true; a.play().catch(() => {}); });
       setIsPlaying(true);
     }
   }, [currentIndex]);
 
-  // ---- 定时模式：120 秒强切（仅 shipinbeijing60 视频，播放中才计时） ----
-  useEffect(() => {
-    const url = videos[currentIndex];
-    if (!url || !isTimerVideo(url) || !isPlaying) {
-      if (timerRef.current) { clearTimeout(timerRef.current); timerRef.current = null; }
-      return;
-    }
-    if (timerRef.current) clearTimeout(timerRef.current);
-    timerRef.current = setTimeout(() => {
-      goNextRef.current();
-    }, 120_000);
-    return () => { if (timerRef.current) clearTimeout(timerRef.current); };
-  }, [currentIndex, videos, switchVideo, isPlaying]);
-
-  // ---- 播完处理 ----
-  const handleEnded = useCallback(() => {
-    const url = videosRef.current[idxRef.current];
-    if (isTimerVideo(url)) {
-      // shipinbeijing60：不足 120 秒播完 → 循环重复
-      videoRef.current?.play();
-    } else {
-      // shipinbeijing00：播完即切下一首（伪随机队列）
-      goNextRef.current();
-    }
+  // ---- 视频播完 → 循环（视频始终循环，直到 MP3 结束驱动切换） ----
+  const handleVideoEnded = useCallback(() => {
+    videoRef.current?.play();
   }, []);
 
-  // ---- 光球点击：解除静音 ----
+  // ---- MP3 播完 → 立刻切下一首（核心切换触发器） ----
+  const handleAudioEnded = useCallback(() => {
+    goNextRef.current();
+  }, []);
+
+  // ---- 光球点击：解除静音（仅音频，视频永远静音） ----
   const unmuteRef = useRef(() => {
-    const v = videoRef.current;
-    if (v) { v.muted = false; v.volume = volRef.current; setIsMuted(false); }
+    const a = audioRef.current;
+    if (a) { a.muted = false; a.volume = volRef.current; }
+    setIsMuted(false);
   });
   unmuteRef.current = () => {
-    const v = videoRef.current;
-    if (v) { v.muted = false; v.volume = volRef.current; setIsMuted(false); }
+    const a = audioRef.current;
+    if (a) { a.muted = false; a.volume = volRef.current; }
+    setIsMuted(false);
   };
   useEffect(() => {
     const handler = () => unmuteRef.current();
@@ -202,30 +243,44 @@ export function VideoBackground() {
 
   // ---- 控件 ----
   const togglePlay = () => {
-    const v = videoRef.current; if (!v) return;
-    if (v.paused) { v.play(); setIsPlaying(true); } else { v.pause(); setIsPlaying(false); }
+    const v = videoRef.current;
+    const a = audioRef.current;
+    if (!v || !a) return;
+    if (v.paused) {
+      v.play(); a.play();
+      setIsPlaying(true);
+    } else {
+      v.pause(); a.pause();
+      setIsPlaying(false);
+    }
   };
-  const prevVideo = () => { goPrevRef.current(); };
-  const nextVideo = () => { goNextRef.current(); };
+  const prevTrack = () => { goPrevRef.current(); };
+  const nextTrack = () => { goNextRef.current(); };
   const toggleMute = () => {
-    const v = videoRef.current; if (!v) return;
-    v.muted = !v.muted; setIsMuted(!isMuted);
+    const a = audioRef.current;
+    if (!a) return;
+    a.muted = !a.muted;
+    setIsMuted(!isMuted);
   };
   const handleVolume = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const v = videoRef.current; if (!v) return;
+    const a = audioRef.current;
+    if (!a) return;
     const val = Number(e.target.value);
     setVolume(val); setIsMuted(false);
-    v.volume = val; v.muted = false;
+    a.volume = val; a.muted = false;
   };
 
-  const fileName = decodeURIComponent(videos[currentIndex]?.split('/').pop()?.replace(/\.[^/.]+$/, '') ?? '');
+  const currentTrack = tracks[currentIndex];
+  const displayName = currentTrack ? decodeURIComponent(currentTrack.name) : '';
 
   return (
     <>
+      {/* 视频层 */}
       <video
         ref={videoRef}
+        muted
         playsInline preload="auto"
-        onEnded={handleEnded}
+        onEnded={handleVideoEnded}
         style={{
           position: 'fixed', inset: 0, width: '100%', height: '100%',
           objectFit: 'cover', zIndex: 0, pointerEvents: 'none',
@@ -233,24 +288,34 @@ export function VideoBackground() {
           opacity, transition: 'opacity 0.8s ease-in-out',
         }}
       />
-      <div style={{ position:'fixed',inset:0,zIndex:1,
+      {/* 音频层（隐藏） */}
+      <audio
+        ref={audioRef}
+        preload="auto"
+        onEnded={handleAudioEnded}
+      />
+      {/* 渐变遮罩 */}
+      <div style={{
+        position: 'fixed', inset: 0, zIndex: 1,
         background: 'linear-gradient(to top, rgba(0,0,0,0.45) 0%, rgba(0,0,0,0.1) 50%, rgba(0,0,0,0) 100%)',
-        pointerEvents:'none' }} />
+        pointerEvents: 'none',
+      }} />
+      {/* 控件栏 */}
       <div style={ctrlBar}>
-        <p style={ctrlTitle}>《{fileName}》</p>
+        <p style={ctrlTitle}>《{displayName}》</p>
         <div style={ctrlRow}>
-          <button onClick={prevVideo} style={btn} title="上一曲"><SkipBack size={16} /></button>
-          <button onClick={togglePlay} style={btn} title={isPlaying?'暂停':'播放'}>
-            {isPlaying?<Pause size={16}/>:<Play size={16}/>}
+          <button onClick={prevTrack} style={btn} title="上一曲"><SkipBack size={16} /></button>
+          <button onClick={togglePlay} style={btn} title={isPlaying ? '暂停' : '播放'}>
+            {isPlaying ? <Pause size={16} /> : <Play size={16} />}
           </button>
-          <button onClick={nextVideo} style={btn} title="下一曲"><SkipForward size={16} /></button>
+          <button onClick={nextTrack} style={btn} title="下一曲"><SkipForward size={16} /></button>
         </div>
         <div style={ctrlRow}>
-          <button onClick={toggleMute} style={btn} title={isMuted?'取消静音':'静音'}>
-            {isMuted?<VolumeX size={14}/>:<Volume2 size={14}/>}
+          <button onClick={toggleMute} style={btn} title={isMuted ? '取消静音' : '静音'}>
+            {isMuted ? <VolumeX size={14} /> : <Volume2 size={14} />}
           </button>
-          <input type="range" min="0" max="1" step="0.05" value={isMuted?0:volume}
-            onChange={handleVolume} style={{width:60,accentColor:'white'}}/>
+          <input type="range" min="0" max="1" step="0.05" value={isMuted ? 0 : volume}
+            onChange={handleVolume} style={{ width: 60, accentColor: 'white' }} />
         </div>
       </div>
     </>
@@ -258,16 +323,16 @@ export function VideoBackground() {
 }
 
 const ctrlBar: React.CSSProperties = {
-  position:'fixed',top:20,right:20,zIndex:9999,
-  display:'flex',flexDirection:'column',alignItems:'center',gap:8,
-  padding:'12px 16px',borderRadius:12,
-  background:'rgba(0,0,0,0.35)',backdropFilter:'blur(16px)',
-  WebkitBackdropFilter:'blur(16px)',border:'1px solid rgba(255,255,255,0.2)',
+  position: 'fixed', top: 20, right: 20, zIndex: 9999,
+  display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8,
+  padding: '12px 16px', borderRadius: 12,
+  background: 'rgba(0,0,0,0.35)', backdropFilter: 'blur(16px)',
+  WebkitBackdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.2)',
 };
-const ctrlTitle: React.CSSProperties = { color:'rgba(255,255,255,0.9)',fontSize:'0.8rem',margin:0 };
-const ctrlRow: React.CSSProperties = { display:'flex',alignItems:'center',gap:6 };
+const ctrlTitle: React.CSSProperties = { color: 'rgba(255,255,255,0.9)', fontSize: '0.8rem', margin: 0 };
+const ctrlRow: React.CSSProperties = { display: 'flex', alignItems: 'center', gap: 6 };
 const btn: React.CSSProperties = {
-  padding:6,border:'1px solid rgba(255,255,255,0.2)',
-  background:'rgba(255,255,255,0.1)',color:'white',borderRadius:6,
-  cursor:'pointer',display:'flex',alignItems:'center',
+  padding: 6, border: '1px solid rgba(255,255,255,0.2)',
+  background: 'rgba(255,255,255,0.1)', color: 'white', borderRadius: 6,
+  cursor: 'pointer', display: 'flex', alignItems: 'center',
 };

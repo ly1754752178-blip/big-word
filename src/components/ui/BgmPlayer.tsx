@@ -31,7 +31,6 @@ export function BgmPlayer({ playlist = DEFAULT_PLAYLIST }: BgmPlayerProps) {
   const [repeatMode, setRepeatMode] = useState<'off' | 'all' | 'one'>('all');
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
-  // coverLoaded 仅用于错误处理(setCoverLoaded)，值本身暂未消费
   const [, setCoverLoaded] = useState(true);
   const [volume, setVolume] = useState(0.5);
 
