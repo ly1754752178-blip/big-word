@@ -14,6 +14,7 @@ import { CreativeWorkshopOverlay } from './CreativeWorkshopOverlay';
 import { ShopOverlay } from './ShopOverlay';
 import { MemoriesOverlay } from './MemoriesOverlay';
 import { AchievementsOverlay } from './AchievementsOverlay';
+import { PropertyDetailOverlay } from './PropertyDetailOverlay';
 
 const accentMap: Record<import('@/types').OverlayViewType, NonNullable<React.ComponentProps<typeof FullscreenOverlay>['accent']>> = {
   status: 'status',
@@ -31,6 +32,7 @@ const accentMap: Record<import('@/types').OverlayViewType, NonNullable<React.Com
   shop: 'wealth',
   memories: 'calendar',
   achievements: 'wealth',
+  propertyDetail: 'wealth',
 };
 
 export function OverlayRenderer() {
@@ -64,6 +66,7 @@ export function OverlayRenderer() {
       {type === 'shop' && <ShopOverlay />}
       {type === 'memories' && <MemoriesOverlay />}
       {type === 'achievements' && <AchievementsOverlay />}
+      {type === 'propertyDetail' && <PropertyDetailOverlay />}
     </FullscreenOverlay>
   );
 }
