@@ -125,12 +125,12 @@ export function VideoBackground() {
       const track = tracksRef.current[nextIdx];
       v.src = track.videoUrl;
       a.src = track.audioUrl;
-      // 同时播放
-      v.muted = mutedRef.current;
-      v.volume = mutedRef.current ? 0 : volRef.current;
+      // 同时播放（视频永远静音，唯一声源为 MP3）
+      v.muted = true;
+      v.volume = 0;
       a.muted = mutedRef.current;
       a.volume = mutedRef.current ? 0 : volRef.current;
-      v.play().catch(() => { v.muted = true; v.play().catch(() => {}); });
+      v.play().catch(() => {});
       a.play().catch(() => { a.muted = true; a.play().catch(() => {}); });
       setCurrentIndex(nextIdx);
       setIsPlaying(true);
@@ -203,11 +203,12 @@ export function VideoBackground() {
       const track = tracks[currentIndex];
       v.src = track.videoUrl;
       a.src = track.audioUrl;
-      v.muted = mutedRef.current;
-      v.volume = mutedRef.current ? 0 : volRef.current;
+      // 视频永远静音，唯一声源为 MP3
+      v.muted = true;
+      v.volume = 0;
       a.muted = mutedRef.current;
       a.volume = mutedRef.current ? 0 : volRef.current;
-      v.play().catch(() => { v.muted = true; v.play().catch(() => {}); });
+      v.play().catch(() => {});
       a.play().catch(() => { a.muted = true; a.play().catch(() => {}); });
       setIsPlaying(true);
     }
@@ -223,18 +224,14 @@ export function VideoBackground() {
     goNextRef.current();
   }, []);
 
-  // ---- 光球点击：解除静音 ----
+  // ---- 光球点击：解除静音（仅音频，视频永远静音） ----
   const unmuteRef = useRef(() => {
-    const v = videoRef.current;
     const a = audioRef.current;
-    if (v) { v.muted = false; v.volume = volRef.current; }
     if (a) { a.muted = false; a.volume = volRef.current; }
     setIsMuted(false);
   });
   unmuteRef.current = () => {
-    const v = videoRef.current;
     const a = audioRef.current;
-    if (v) { v.muted = false; v.volume = volRef.current; }
     if (a) { a.muted = false; a.volume = volRef.current; }
     setIsMuted(false);
   };
@@ -260,19 +257,16 @@ export function VideoBackground() {
   const prevTrack = () => { goPrevRef.current(); };
   const nextTrack = () => { goNextRef.current(); };
   const toggleMute = () => {
-    const v = videoRef.current;
     const a = audioRef.current;
-    if (!v || !a) return;
-    v.muted = !v.muted; a.muted = !a.muted;
+    if (!a) return;
+    a.muted = !a.muted;
     setIsMuted(!isMuted);
   };
   const handleVolume = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const v = videoRef.current;
     const a = audioRef.current;
-    if (!v || !a) return;
+    if (!a) return;
     const val = Number(e.target.value);
     setVolume(val); setIsMuted(false);
-    v.volume = val; v.muted = false;
     a.volume = val; a.muted = false;
   };
 
@@ -284,6 +278,7 @@ export function VideoBackground() {
       {/* 视频层 */}
       <video
         ref={videoRef}
+        muted
         playsInline preload="auto"
         onEnded={handleVideoEnded}
         style={{
