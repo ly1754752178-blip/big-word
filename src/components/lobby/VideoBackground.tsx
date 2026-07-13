@@ -128,15 +128,12 @@ export function VideoBackground() {
       // 同时播放（视频永远静音，唯一声源为 MP3）
       v.muted = true;
       v.volume = 0;
-      a.muted = mutedRef.current;
-      a.volume = mutedRef.current ? 0 : volRef.current;
-      a.load();
+      if (!persistentMuted) {
+        a.muted = false;
+        a.volume = volRef.current;
+      }
       v.play().catch((e) => console.warn('switchTrack 视频播放失败:', e));
-      a.play().catch((e) => {
-        console.warn('switchTrack 音频播放失败，尝试静音重试:', e);
-        a.muted = true;
-        a.play().catch((e2) => console.error('switchTrack 音频静音重试仍失败:', e2));
-      });
+      a.play().catch((e) => console.warn('switchTrack 音频播放失败:', e));
       setCurrentIndex(nextIdx);
       setIsPlaying(true);
       // 渐入
@@ -190,22 +187,19 @@ export function VideoBackground() {
     if (!v || !a) return;
     const track = tracks[currentIndex];
     if (!track) return;
-    console.log(`▶️ 播放: ${track.name} (音频: ${track.audioUrl})`);
+    console.log(`▶️ 播放: ${track.name}`);
     v.src = track.videoUrl;
     a.src = track.audioUrl;
-    // 视频永远静音，唯一声源为 MP3
+    // 视频永远静音；音频由 HTML muted 属性保证自动播放，不在此处用 JS 触碰
     v.muted = true;
     v.volume = 0;
-    a.muted = mutedRef.current;
-    a.volume = mutedRef.current ? 0 : volRef.current;
-    // 强制加载音频再播放，避免浏览器因未就绪而拒绝
-    a.load();
+    // 若用户已点击光球解锁，则取消静音并恢复音量
+    if (!persistentMuted) {
+      a.muted = false;
+      a.volume = volRef.current;
+    }
     v.play().catch((e) => console.warn('视频播放失败:', e));
-    a.play().catch((e) => {
-      console.warn('音频播放失败，尝试静音重试:', e);
-      a.muted = true;
-      a.play().catch((e2) => console.error('音频静音重试仍失败:', e2));
-    });
+    a.play().catch((e) => console.warn('音频播放失败:', e));
     setIsPlaying(true);
   }, [tracks, currentIndex]);
 
