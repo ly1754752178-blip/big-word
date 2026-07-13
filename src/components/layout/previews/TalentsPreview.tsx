@@ -46,9 +46,9 @@ const skillIconMap: Record<string, React.ComponentType<any>> = {
 };
 
 const categoryMeta: Record<SkillCategory, { label: string; icon: typeof UtensilsCrossed; color: string; bg: string }> = {
-  daily: { label: '日常技能', icon: UtensilsCrossed, color: '#8B5CF6', bg: 'from-lavender-300/30 to-lavender-500/20' },
-  work: { label: '工作技能', icon: Code, color: '#0EA5E9', bg: 'from-sky-300/30 to-sky-500/20' },
-  special: { label: '特殊技能', icon: Wand2, color: '#F43F5E', bg: 'from-coral-300/30 to-coral-500/20' },
+  daily: { label: '通用领域', icon: UtensilsCrossed, color: '#D4A853', bg: 'from-amber-300/30 to-amber-500/20' },
+  work: { label: '专业领域', icon: Code, color: '#0EA5E9', bg: 'from-sky-300/30 to-sky-500/20' },
+  special: { label: '特殊领域', icon: Wand2, color: '#C084FC', bg: 'from-purple-300/30 to-purple-500/20' },
 };
 
 function TalentItem({ talent, onClick }: { talent: Talent; onClick: (talent: Talent) => void }) {

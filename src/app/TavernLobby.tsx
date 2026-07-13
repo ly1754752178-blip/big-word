@@ -10,9 +10,14 @@ import { PresetModal } from '@/components/SillyTavern/PresetModal';
 import { SettingsModal } from '@/components/SillyTavern/SettingsModal';
 import { ApiConfigForm } from '@/components/SillyTavern/ApiConfigForm';
 import { useSillytavern } from '@/hooks/useSillytavern';
+import { injectSTBridge } from '@/lib/st-bridge';
 import '@/components/SillyTavern/sillytavern.css';
 
-interface TavernLobbyProps { onEnterGame: () => void; }
+interface TavernLobbyProps {
+  onEnterGame: () => void;
+  /** 为 true 时跳过光球界面，直接显示菜单 */
+  skipOrb?: boolean;
+}
 
 const menuItemStyle: React.CSSProperties = {
   display: 'flex', alignItems: 'center', gap: 14, padding: '14px 24px',
@@ -22,9 +27,14 @@ const menuItemStyle: React.CSSProperties = {
   fontWeight: 500, cursor: 'pointer', minWidth: 200, width: '100%',
 };
 
-export function TavernLobby({ onEnterGame }: TavernLobbyProps) {
+export function TavernLobby({ onEnterGame, skipOrb = false }: TavernLobbyProps) {
   const st = useSillytavern();
-  const [showOrb, setShowOrb] = useState(true);
+  const [showOrb, setShowOrb] = useState(!skipOrb);
+
+  // 将 ST 聊天列表桥接到全局，供 SettingsPreview 等组件使用
+  useEffect(() => {
+    injectSTBridge(st.chats, st.activeChatId);
+  }, [st.chats, st.activeChatId]);
 
   useEffect(() => {
     const orig = document.body.style.overflow;

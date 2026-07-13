@@ -1,13 +1,33 @@
 // ============================================================
 // AvatarImg — 统一头像组件
-// 根据角色名自动匹配 public/juesetouxiang/ 中的同名图片
+// 根据角色名自动匹配 public/juesetouxiang/ 中的同名图片（支持任意格式）
 // 加载失败时回退到默认占位头像
 // ============================================================
 import { useState } from 'react';
 import { User } from 'lucide-react';
 
-/** 根据名称生成 juesetouxiang 头像路径 */
+// 扫描 juesetouxiang 目录下所有图片文件，构建 角色名→路径 映射
+const avatarGlob = import.meta.glob('/public/juesetouxiang/*.{png,jpg,jpeg,gif,webp,svg,bmp}', {
+  eager: true,
+  query: '?url',
+  import: 'default',
+}) as Record<string, string>;
+
+const avatarMap = new Map<string, string>();
+for (const [filePath, url] of Object.entries(avatarGlob)) {
+  // 提取文件名（不含扩展名）：/public/juesetouxiang/雪之下雪乃.png → 雪之下雪乃
+  const fileName = filePath.split('/').pop()?.replace(/\.[^.]+$/, '') ?? '';
+  if (fileName) {
+    avatarMap.set(fileName, url);
+  }
+}
+
+/** 根据角色名查找 juesetouxiang 中的实际头像路径，支持任意图片格式 */
 export function getAvatarSrc(name: string): string {
+  // 优先从实际文件中匹配（支持所有图片格式）
+  const found = avatarMap.get(name);
+  if (found) return found;
+  // 回退：尝试 .png（最常见格式）
   return `/juesetouxiang/${encodeURIComponent(name)}.png`;
 }
 

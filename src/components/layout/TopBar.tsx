@@ -1,14 +1,10 @@
 import { useGame } from '@/hooks/useGameState';
 import { SkyOrb } from '@/components/ui/SkyOrb';
 import { BgmPlayer } from '@/components/ui/BgmPlayer';
-import { Calendar, Star, ArrowLeft } from 'lucide-react';
+import { Calendar, Star } from 'lucide-react';
 import type { Festival } from '@/types';
 
-interface TopBarProps {
-  onBackToLobby: () => void;
-}
-
-export function TopBar({ onBackToLobby }: TopBarProps) {
+export function TopBar() {
   const { state, openOverlayView } = useGame();
   const { date, time, festival } = state;
 
@@ -74,16 +70,8 @@ export function TopBar({ onBackToLobby }: TopBarProps) {
         <SkyOrb />
       </div>
 
-      {/* 右侧 BGM 播放器 + 返回大厅按钮 */}
-      <div className="flex items-center justify-end h-full gap-2">
-        <button
-          onClick={onBackToLobby}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-purple-100 hover:bg-purple-200 text-purple-600 text-xs font-medium transition-colors"
-          title="返回酒馆大厅"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          <span>大厅</span>
-        </button>
+      {/* 右侧 BGM 播放器 */}
+      <div className="flex items-center justify-end h-full">
         <BgmPlayer />
       </div>
     </header>

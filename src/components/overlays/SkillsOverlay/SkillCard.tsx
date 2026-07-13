@@ -1,6 +1,5 @@
 /**
- * SkillCard — 技能卡牌
- * 毛玻璃 + 渐变光晕 + hover 浮起 + 进度光环
+ * SkillCard — 技能卡牌（暖色系 + 清晰边框）
  */
 import { motion } from 'framer-motion';
 import { Star } from 'lucide-react';
@@ -20,65 +19,50 @@ export function SkillCard({ skill, color, onClick, index }: Props) {
 
   return (
     <motion.article
-      id={`skill-card-${skill.id}`}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: index * 0.05, type: 'spring', stiffness: 350, damping: 26 }}
-      whileHover={{ y: -6, scale: 1.03 }}
+      transition={{ delay: index * 0.04, type: 'spring', stiffness: 350, damping: 26 }}
+      whileHover={{ y: -3, scale: 1.02 }}
       whileTap={{ scale: 0.97 }}
       onClick={() => onClick(skill)}
-      className="relative p-5 rounded-2xl border border-white/10 cursor-pointer overflow-hidden group"
-      style={{ background: 'rgba(255,255,255,0.04)', backdropFilter: 'blur(12px)' }}
+      className="relative p-4 rounded-2xl cursor-pointer overflow-hidden group transition-shadow"
+      style={{
+        background: '#FFFBF7',
+        border: '1.5px solid #E8DFD3',
+        boxShadow: '0 1px 6px rgba(0,0,0,0.05)',
+      }}
     >
-      {/* hover 光晕 */}
-      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
-        style={{ background: `radial-gradient(circle at 50% 0%, ${color}20, transparent 70%)` }} />
-
       <div className="relative z-10">
-        {/* 图标 + 名称 */}
         <div className="flex items-center gap-3 mb-3">
-          <div className="w-10 h-10 rounded-xl flex items-center justify-center text-lg"
-            style={{ background: `linear-gradient(135deg, ${color}30, ${color}10)` }}>
+          <div className="w-11 h-11 rounded-xl flex items-center justify-center text-xl"
+            style={{ background: `${color}10`, border: `1px solid ${color}25` }}>
             {iconMap[skill.icon] ?? '📦'}
           </div>
           <div>
-            <h3 className="font-bold text-sm text-white"
-              style={{ fontFamily: '"Inter","PingFang SC","Microsoft YaHei",sans-serif' }}>
-              {skill.name}
-            </h3>
-            <p className="text-[10px] text-white/40"
-              style={{ fontFamily: '"Inter","PingFang SC","Microsoft YaHei",sans-serif' }}>
-              {learned}/{total} 节点
-            </p>
+            <h3 className="font-bold text-sm" style={{ color: '#4A3728' }}>{skill.name}</h3>
+            <p className="text-[10px]" style={{ color: '#B8A898' }}>{learned}/{total} 节点</p>
           </div>
         </div>
 
-        {/* 进度条 */}
-        <div className="h-1 rounded-full bg-white/5 mb-2 overflow-hidden">
+        <div className="h-1.5 rounded-full mb-2 overflow-hidden" style={{ background: '#EDE5DA' }}>
           <motion.div className="h-full rounded-full"
-            initial={{ width: 0 }}
-            animate={{ width: `${pct}%` }}
-            transition={{ duration: 0.8, delay: index * 0.1 }}
-            style={{ background: `linear-gradient(90deg, ${color}, ${color}88)` }} />
+            initial={{ width: 0 }} animate={{ width: `${pct}%` }}
+            transition={{ duration: 0.7, delay: index * 0.08 }}
+            style={{ background: color }} />
         </div>
 
-        {/* 等级 + 技能点 */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-1">
             {Array.from({ length: 3 }).map((_, i) => (
-              <Star key={i} size={10} className={i < Math.min(skill.level, 3) ? 'text-amber-400' : 'text-white/10'}
+              <Star key={i} size={10}
+                className={i < Math.min(skill.level, 3) ? 'text-amber-500' : 'text-amber-200/60'}
                 fill={i < Math.min(skill.level, 3) ? 'currentColor' : 'none'} />
             ))}
-            <span className="text-[10px] text-white/30 ml-1"
-              style={{ fontFamily: '"Inter","PingFang SC","Microsoft YaHei",sans-serif' }}>
-              Lv.{skill.level}
-            </span>
+            <span className="text-[10px] ml-1" style={{ color: '#B8A898' }}>Lv.{skill.level}</span>
           </div>
           {skill.skillPoints > 0 && (
             <span className="text-[10px] font-bold px-2 py-0.5 rounded-full"
-              style={{ color, background: `${color}15`, fontFamily: '"Inter","PingFang SC","Microsoft YaHei",sans-serif' }}>
-              +{skill.skillPoints}
-            </span>
+              style={{ color, background: `${color}12`, border: `1px solid ${color}20` }}>+{skill.skillPoints}</span>
           )}
         </div>
       </div>

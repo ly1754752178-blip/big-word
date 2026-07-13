@@ -1,4 +1,5 @@
 // src/lib/dialogue-parser.ts
+import { getAvatarSrc, DEFAULT_AVATAR_SRC } from '@/components/ui/AvatarImg';
 
 export interface ParsedDialogue {
   type: 'scene' | 'dialogue' | 'option' | 'thinking' | 'vars';
@@ -101,15 +102,11 @@ export function parseDialogueResponse(raw: string): ParsedDialogue[] {
 
 /**
  * 根据角色名查找头像 URL。
- * 读取 public/juesetouxiang/ 中匹配文件名的图片。
- * 支持常见图片格式。
+ * 自动匹配 public/juesetouxiang/ 中任意图片格式的文件。
  */
-export function getAvatarUrl(name: string): string | null {
-  // 构建可能的文件路径（Vite public 目录直接访问）
-  // 默认返回 .png 路径，由浏览器尝试加载
-  // 实际使用时通过 img onError 回退到默认头像
-  return `/juesetouxiang/${encodeURIComponent(name)}.png`;
+export function getAvatarUrl(name: string): string {
+  return getAvatarSrc(name);
 }
 
 /** 默认占位头像 */
-export const DEFAULT_AVATAR = '/juesetouxiang/_default.png';
+export const DEFAULT_AVATAR = DEFAULT_AVATAR_SRC;

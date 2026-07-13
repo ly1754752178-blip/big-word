@@ -30,6 +30,7 @@ interface GameContextValue {
   collapsePhone: () => void;
   openOverlayView: (type: OverlayViewType, payload?: Record<string, unknown>) => void;
   closeOverlayView: () => void;
+  updateOverlayTitle: (title: string) => void;
   setDateMark: (date: string, mark: DateMark) => void;
   clearDateMark: (date: string) => void;
   addInAppNotification: (notification: Omit<InAppNotification, 'id'>) => void;
@@ -58,6 +59,7 @@ type Action =
   | { type: 'CLOSE_PHONE_APP' }
   | { type: 'OPEN_OVERLAY_VIEW'; payload: OverlayViewType; meta?: Record<string, unknown> }
   | { type: 'CLOSE_OVERLAY_VIEW' }
+  | { type: 'UPDATE_OVERLAY_TITLE'; payload: string }
   | { type: 'SET_DATE_MARK'; payload: DateMark }
   | { type: 'CLEAR_DATE_MARK'; payload: string }
   | { type: 'ADD_IN_APP_NOTIFICATION'; payload: InAppNotification }
@@ -70,7 +72,7 @@ const overlayTitles: Record<OverlayViewType, string> = {
   wealth: '财富资产',
   calendar: '日历事件',
   settings: '系统设置',
-  skills: '日常领域·厨艺',
+  skills: '天赋才能',
   network: '关系网络',
   history: '叙事历史',
   calendarFull: '完整日历',
@@ -173,6 +175,9 @@ function gameReducer(state: GameState, action: Action): GameState {
       };
     case 'CLOSE_OVERLAY_VIEW':
       return { ...state, detailView: null };
+    case 'UPDATE_OVERLAY_TITLE':
+      if (!state.detailView) return state;
+      return { ...state, detailView: { ...state.detailView, title: action.payload } };
     case 'SET_DATE_MARK': {
       const date = action.payload.date;
       return {
@@ -355,6 +360,7 @@ export function GameProvider({ children }: GameProviderProps) {
     collapsePhone: () => dispatch({ type: 'COLLAPSE_PHONE' }),
     openOverlayView: (type, payload) => dispatch({ type: 'OPEN_OVERLAY_VIEW', payload: type, meta: payload }),
     closeOverlayView: () => dispatch({ type: 'CLOSE_OVERLAY_VIEW' }),
+    updateOverlayTitle: (title) => dispatch({ type: 'UPDATE_OVERLAY_TITLE', payload: title }),
     setDateMark: (date, mark) => dispatch({ type: 'SET_DATE_MARK', payload: { ...mark, date } }),
     clearDateMark: (date) => dispatch({ type: 'CLEAR_DATE_MARK', payload: date }),
     addInAppNotification: (notification) => dispatch({

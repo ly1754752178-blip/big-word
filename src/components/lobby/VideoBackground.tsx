@@ -12,15 +12,40 @@ function buildVideoList(): string[] {
   });
 }
 
+// Fisher-Yates 洗牌算法 — 随机打乱数组
+function shuffle<T>(arr: T[]): T[] {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+// 伪随机洗牌：确保新列表首项 ≠ 上次末项，避免连续重复
+function reshuffleAvoidRepeat<T>(arr: T[], lastItem: T): T[] {
+  let result = shuffle(arr);
+  if (result.length > 1 && result[0] === lastItem) {
+    // 将首项移到随机位置（非首位）
+    const insertPos = 1 + Math.floor(Math.random() * (result.length - 1));
+    const [first] = result;
+    result = [...result.slice(1, insertPos), first, ...result.slice(insertPos)];
+  }
+  return result;
+}
+
+// 跨页面保持静音状态：首次 true（需点光球解锁），解锁后 false（返回时保持开启）
+let persistentMuted = true;
+
 export function VideoBackground() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const switching = useRef(false); // 防止重复切换
+  const switching = useRef(false);
 
   const [videos, setVideos] = useState<string[]>([]);
-  const [currentIndex, setCurrentIndex] = useState(0);
+  const [currentIndex, setCurrentIndex] = useState(-1);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [isMuted, setIsMuted] = useState(true);
+  const [isMuted, setIsMuted] = useState(persistentMuted);
   const [volume, setVolume] = useState(0.5);
   const [opacity, setOpacity] = useState(1);
 
@@ -28,20 +53,24 @@ export function VideoBackground() {
   const idxRef = useRef(0);
   const mutedRef = useRef(true);
   const volRef = useRef(0.5);
+  const lastPlayedRef = useRef<string>(''); // 追踪上一轮播放的最后一首，用于避免跨轮重复
 
   useEffect(() => { videosRef.current = videos; }, [videos]);
   useEffect(() => { idxRef.current = currentIndex; }, [currentIndex]);
-  useEffect(() => { mutedRef.current = isMuted; }, [isMuted]);
+  useEffect(() => { mutedRef.current = isMuted; persistentMuted = isMuted; }, [isMuted]);
   useEffect(() => { volRef.current = volume; }, [volume]);
 
   // 判断当前视频是否为 120s 定时模式
   const isTimerVideo = (url: string) => url.includes('shipinbeijing60');
 
-  // ---- 初始化：动态加载扫描到的全部视频 ----
+  // ---- 初始化：动态加载扫描到的全部视频，洗牌后从 0 开始 ----
   useEffect(() => {
     const urls = buildVideoList();
     console.log(`📂 动态扫描到 ${urls.length} 个视频:`, urls.map(u => u.split('/').pop()));
-    setVideos(urls);
+    const shuffled = shuffle(urls);
+    console.log(`🔀 洗牌完成，共 ${shuffled.length} 首，从索引 0 开始`);
+    setVideos(shuffled);
+    setCurrentIndex(0);
   }, []);
 
   // ---- 切换视频：渐出 → 换源 → 渐入 ----
@@ -68,6 +97,42 @@ export function VideoBackground() {
       }, 200);
     }, 800); // 渐出持续 800ms
   }, []);
+
+  // ---- 下一首（伪随机队列）：顺序遍历洗牌列表，播完一轮后重新洗牌 ----
+  const goNextRef = useRef(() => {});
+  goNextRef.current = () => {
+    if (timerRef.current) { clearTimeout(timerRef.current); timerRef.current = null; }
+    const total = videosRef.current.length;
+    if (total === 0) return;
+    const cur = idxRef.current;
+
+    if (cur >= total - 1) {
+      // 本轮最后一首 → 重新洗牌，确保新首项 ≠ 旧末项
+      const lastUrl = videosRef.current[cur];
+      lastPlayedRef.current = lastUrl;
+      const reshuffled = reshuffleAvoidRepeat(videosRef.current, lastUrl);
+      console.log(`🔄 一轮播完，重新洗牌。旧末项: ${lastUrl.split('/').pop()}, 新首项: ${reshuffled[0].split('/').pop()}`);
+      videosRef.current = reshuffled;
+      setVideos(reshuffled);
+      switchVideo(0);
+    } else {
+      switchVideo(cur + 1);
+    }
+  };
+
+  // ---- 上一首：沿洗牌队列回退 ----
+  const goPrevRef = useRef(() => {});
+  goPrevRef.current = () => {
+    if (timerRef.current) { clearTimeout(timerRef.current); timerRef.current = null; }
+    const total = videosRef.current.length;
+    if (total === 0) return;
+    const cur = idxRef.current;
+    if (cur <= 0) {
+      switchVideo(total - 1);
+    } else {
+      switchVideo(cur - 1);
+    }
+  };
 
   // 初始加载
   useEffect(() => {
@@ -103,7 +168,7 @@ export function VideoBackground() {
     }
     if (timerRef.current) clearTimeout(timerRef.current);
     timerRef.current = setTimeout(() => {
-      switchVideo((currentIndex + 1) % videos.length);
+      goNextRef.current();
     }, 120_000);
     return () => { if (timerRef.current) clearTimeout(timerRef.current); };
   }, [currentIndex, videos, switchVideo, isPlaying]);
@@ -115,11 +180,10 @@ export function VideoBackground() {
       // shipinbeijing60：不足 120 秒播完 → 循环重复
       videoRef.current?.play();
     } else {
-      // shipinbeijing00：播完即切下一个
-      const next = (idxRef.current + 1) % videosRef.current.length;
-      switchVideo(next);
+      // shipinbeijing00：播完即切下一首（伪随机队列）
+      goNextRef.current();
     }
-  }, [switchVideo]);
+  }, []);
 
   // ---- 光球点击：解除静音 ----
   const unmuteRef = useRef(() => {
@@ -141,8 +205,8 @@ export function VideoBackground() {
     const v = videoRef.current; if (!v) return;
     if (v.paused) { v.play(); setIsPlaying(true); } else { v.pause(); setIsPlaying(false); }
   };
-  const prevVideo = () => { if (timerRef.current) clearTimeout(timerRef.current); switchVideo(currentIndex === 0 ? videos.length - 1 : currentIndex - 1); };
-  const nextVideo = () => { if (timerRef.current) clearTimeout(timerRef.current); switchVideo((currentIndex + 1) % videos.length); };
+  const prevVideo = () => { goPrevRef.current(); };
+  const nextVideo = () => { goNextRef.current(); };
   const toggleMute = () => {
     const v = videoRef.current; if (!v) return;
     v.muted = !v.muted; setIsMuted(!isMuted);

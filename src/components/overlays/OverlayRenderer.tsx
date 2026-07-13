@@ -4,7 +4,6 @@ import { PersonalStatusOverlay } from './PersonalStatusOverlay';
 import { SocialRelationsOverlay } from './SocialRelationsOverlay';
 import { WealthAssetsOverlay } from './WealthAssetsOverlay';
 import { CalendarEventsOverlay } from './CalendarEventsOverlay';
-import { SystemSettingsOverlay } from './SystemSettingsOverlay';
 import { HistoryOverlay } from './HistoryOverlay';
 import { NetworkOverlay } from './NetworkOverlay';
 import { SkillsOverlay } from './SkillsOverlay';
@@ -40,12 +39,16 @@ export function OverlayRenderer() {
   const isOpen = detailView !== null;
   const type = detailView?.type;
 
+  // 全部使用奶油卡片模式（统一暖色标准）
+  const seamless = false;
+
   return (
     <FullscreenOverlay
       title={detailView?.title ?? ''}
       isOpen={isOpen}
       onClose={closeOverlayView}
       accent={type ? accentMap[type] : 'default'}
+      seamless={seamless}
     >
       {type === 'status' && <PersonalStatusOverlay />}
       {type === 'skills' && <SkillsOverlay />}
@@ -53,7 +56,6 @@ export function OverlayRenderer() {
       {type === 'network' && <NetworkOverlay />}
       {type === 'wealth' && <WealthAssetsOverlay />}
       {type === 'calendar' && <CalendarEventsOverlay />}
-      {type === 'settings' && <SystemSettingsOverlay />}
       {type === 'history' && <HistoryOverlay />}
       {type === 'calendarFull' && <CalendarOverlay />}
       {type === 'characters' && <CharacterGalleryOverlay />}

@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { TopBar } from '@/components/layout/TopBar';
 import { LeftSidebar } from '@/components/layout/LeftSidebar';
 import { SidebarPreviewPanel } from '@/components/layout/SidebarPreviewPanel';
@@ -5,12 +6,23 @@ import { RightPanel } from '@/components/layout/RightPanel';
 import { NarrativePanel } from '@/components/modules/NarrativePanel';
 import { OverlayRenderer } from '@/components/overlays/OverlayRenderer';
 import { NotificationContainer } from '@/components/ui/NotificationContainer';
+import { useGame } from '@/hooks/useGameState';
+
+// 共享返回大厅回调（供预览面板使用）
+let _goToLobby: (() => void) | null = null;
+export function goToLobby() { _goToLobby?.(); }
 
 interface GameLayoutProps {
   onBackToLobby: () => void;
 }
 
 export function GameLayout({ onBackToLobby }: GameLayoutProps) {
+  const { closeOverlayView } = useGame();
+
+  // 挂载时关闭可能残留的 overlay（防止从菜单返回后自动弹出）
+  useEffect(() => { closeOverlayView(); }, []); // eslint-disable-line
+  useEffect(() => { _goToLobby = onBackToLobby; return () => { _goToLobby = null; }; }, [onBackToLobby]);
+
   return (
     <div className="min-h-screen bg-cream-50 text-slate-800 font-body selection:bg-sky-200/40">
       {/* 背景装饰 */}
@@ -23,7 +35,7 @@ export function GameLayout({ onBackToLobby }: GameLayoutProps) {
 
       {/* 主布局 */}
       <div className="relative z-10 flex flex-col h-screen">
-        <TopBar onBackToLobby={onBackToLobby} />
+        <TopBar />
         <div className="flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-[auto_1fr_320px]">
           <aside className="hidden lg:flex min-h-0 overflow-hidden bg-[#F5F0EA] shadow-[inset_-1px_0_0_rgba(218,205,190,0.3)]">
             <LeftSidebar />
