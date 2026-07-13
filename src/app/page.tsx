@@ -1,49 +1,68 @@
+import { useState } from 'react';
 import { GameProvider } from '@/context/GameContext';
-import { TopBar } from '@/components/layout/TopBar';
-import { LeftSidebar } from '@/components/layout/LeftSidebar';
-import { SidebarPreviewPanel } from '@/components/layout/SidebarPreviewPanel';
-import { RightPanel } from '@/components/layout/RightPanel';
-import { NarrativePanel } from '@/components/modules/NarrativePanel';
-import { OverlayRenderer } from '@/components/overlays/OverlayRenderer';
-import { NotificationContainer } from '@/components/ui/NotificationContainer';
+import { TavernLobby } from '@/app/TavernLobby';
+import { GameLayout } from '@/app/GameLayout';
+
+type Page = 'lobby' | 'menu' | 'game';
+
+/** 渐黑过渡阶段 */
+type FadePhase = 'none' | 'fade-out' | 'hold' | 'fade-in';
+
+const FADE_DURATION = 700; // ms，与 CSS transition 保持一致
 
 export default function App() {
+  const [page, setPage] = useState<Page>('lobby');
+  const [fadePhase, setFadePhase] = useState<FadePhase>('none');
+
+  /** 带渐黑渐明效果的页面切换 */
+  const transitionTo = (target: Page) => {
+    setFadePhase('fade-out');
+    requestAnimationFrame(() => {
+      setFadePhase('hold');
+      setTimeout(() => {
+        setPage(target);
+        setFadePhase('fade-in');
+        setTimeout(() => setFadePhase('none'), FADE_DURATION);
+      }, FADE_DURATION);
+    });
+  };
+
+  // 从游戏内「返回主菜单」→ 跳过光球，直接进入视频背景 + 菜单
+  const goToMenu = () => transitionTo('menu');
+  // 从主菜单「开始游戏」→ 进入正文
+  const goToGame = () => transitionTo('game');
+
   return (
     <GameProvider>
-      <div className="min-h-screen bg-cream-50 text-slate-800 font-body selection:bg-sky-200/40">
-        {/* 背景装饰 */}
-        <div className="fixed inset-0 pointer-events-none overflow-hidden">
-          <div className="absolute -top-40 -right-40 w-[600px] h-[600px] rounded-full bg-sky-200/30 blur-3xl" />
-          <div className="absolute top-1/2 -left-40 w-[500px] h-[500px] rounded-full bg-coral-200/30 blur-3xl" />
-          <div className="absolute -bottom-40 right-1/4 w-[450px] h-[450px] rounded-full bg-mint-200/30 blur-3xl" />
-          <div className="absolute inset-0 grain-overlay" />
-        </div>
+      {/* 大厅（含光球） */}
+      {page === 'lobby' && (
+        <TavernLobby onEnterGame={goToGame} skipOrb={false} />
+      )}
 
-        {/* 主布局：全屏紧凑分区 */}
-        <div className="relative z-10 flex flex-col h-screen">
-          <TopBar />
-          <div className="flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-[auto_1fr_320px]">
-            {/* 左栏：功能按钮 + 信息预览 —— 暖灰底增强层次 */}
-            <aside className="hidden lg:flex min-h-0 overflow-hidden bg-[#F5F0EA] shadow-[inset_-1px_0_0_rgba(218,205,190,0.3)]">
-              <LeftSidebar />
-              <SidebarPreviewPanel />
-            </aside>
-            {/* 中间：叙事正文 —— 最亮纸色聚焦 */}
-            <main className="min-h-0 overflow-hidden bg-[#FDFAF5] border-x border-[#E8DFD3] shadow-[inset_0_0_30px_rgba(61,50,41,0.03)]">
-              <NarrativePanel />
-            </main>
-            {/* 右栏：地图+通知 —— 略深于左栏 */}
-            <aside className="hidden lg:block min-h-0 overflow-hidden bg-[#F3EEE7] shadow-[inset_1px_0_0_rgba(218,205,190,0.3)]">
-              <RightPanel />
-            </aside>
-          </div>
-        </div>
+      {/* 主菜单（无光球，视频背景 + 菜单按钮） */}
+      {page === 'menu' && (
+        <TavernLobby onEnterGame={goToGame} skipOrb={true} />
+      )}
 
-        <NotificationContainer />
+      {/* 游戏正文 */}
+      {page === 'game' && (
+        <GameLayout onBackToLobby={goToMenu} />
+      )}
 
-        {/* 全局全屏浮层 */}
-        <OverlayRenderer />
-      </div>
+      {/* 渐黑遮罩层 */}
+      {fadePhase !== 'none' && (
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            zIndex: 999999,
+            background: 'black',
+            opacity: fadePhase === 'hold' ? 1 : 0,
+            transition: `opacity ${FADE_DURATION}ms ease-in-out`,
+            pointerEvents: 'none',
+          }}
+        />
+      )}
     </GameProvider>
   );
 }

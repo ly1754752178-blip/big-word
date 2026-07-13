@@ -1,0 +1,76 @@
+- generic [ref=f4e3]:
+  - generic [ref=f4e4]:
+    - banner [ref=f4e5]:
+      - button "2026 / 07 / 08 水曜日 今天是七夕哦！ 周三 · 黄昏" [ref=f4e7] [cursor=pointer]:
+        - img [ref=f4e10]
+        - generic [ref=f4e12]:
+          - generic [ref=f4e13]:
+            - generic [ref=f4e14]: 2026 / 07 / 08
+            - generic [ref=f4e15]: 水曜日
+          - generic [ref=f4e16]:
+            - generic [ref=f4e17]
+            - generic [ref=f4e20]: 周三 · 黄昏
+      - generic [ref=f4e24]:
+        - img [ref=f4e28]
+        - generic [ref=f4e31]:
+          - img [ref=f4e32]
+          - generic [ref=f4e38]: 18:30
+      - generic [ref=f4e41]:
+        - generic [ref=f4e45]: 封面
+        - generic [ref=f4e48]: 《黄昏的车站》
+        - generic [ref=f4e49]:
+          - button "循环" [ref=f4e50] [cursor=pointer]:
+            - img [ref=f4e51]
+          - button "上一首" [ref=f4e56] [cursor=pointer]:
+            - img [ref=f4e57]
+          - button "暂停" [ref=f4e59] [cursor=pointer]:
+            - img [ref=f4e60]
+          - button "下一首" [ref=f4e63] [cursor=pointer]:
+            - img [ref=f4e64]
+          - button "列表" [ref=f4e66] [cursor=pointer]:
+            - img [ref=f4e67]
+    - generic [ref=f4e69]:
+      - complementary [ref=f4e70]:
+        - complementary [ref=f4e71]:
+          - button "个人状态" [ref=f4e72] [cursor=pointer]:
+            - img [ref=f4e73]
+          - button "天赋才能" [ref=f4e76] [cursor=pointer]:
+            - img [ref=f4e77]
+          - button "社交关系" [ref=f4e79] [cursor=pointer]:
+            - img [ref=f4e80]
+          - button "财富资产" [ref=f4e85] [cursor=pointer]:
+            - img [ref=f4e86]
+          - button "日历事件" [ref=f4e89] [cursor=pointer]:
+            - img [ref=f4e90]
+          - button "系统设置" [ref=f4e92] [cursor=pointer]:
+            - img [ref=f4e93]
+          - button "角色图鉴" [ref=f4e97] [cursor=pointer]:
+            - img [ref=f4e98]
+        - generic [ref=f4e102]:
+          - generic [ref=f4e104]: 个人状态
+          - generic [ref=f4e105]:
+            - generic [ref=f4e106]
+            - generic [ref=f4e114]
+            - generic [ref=f4e153]
+      - main [ref=f4e181]:
+        - generic [ref=f4e182]:
+          - generic [ref=f4e183]:
+            - paragraph [ref=f4e186]: 你醒来时，窗外是四月的黄昏。远处传来电车的声音，风把窗帘吹得轻轻晃动。
+            - generic [ref=f4e188]
+            - paragraph [ref=f4e197]: 她将书包抱在胸前，夕阳把她的发梢染成温暖的橘色。车站方向的铃声隐约传来。
+          - generic [ref=f4e199]:
+            - button "历史" [ref=f4e200] [cursor=pointer]
+            - textbox "输入你想说的话……" [ref=f4e205]
+            - button "发送" [disabled] [ref=f4e206]
+      - complementary [ref=f4e210]:
+        - generic [ref=f4e211]:
+          - generic [ref=f4e212]:
+            - generic
+          - generic [ref=f4e220]:
+            - generic [ref=f4e221]
+            - generic [ref=f4e229]
+          - generic [ref=f4e268]:
+            - generic [ref=f4e269]
+            - generic [ref=f4e280]
+  - button "打开手机" [ref=f4e291] [cursor=pointer]
+  - button [ref=f4e295] [cursor=pointer]

@@ -17,6 +17,7 @@ interface GameContextValue {
   setPreviewTab: (tab: SidebarTab) => void;
   setNarrativeInput: (text: string) => void;
   sendNarrativeMessage: (content: string) => void;
+  appendNarrativeMessage: (msg: NarrativeMessage) => void;
   selectNarrativeOption: (optionId: string) => void;
   regenerateLastMessage: () => void;
   branchNarrativeTo: (messageId: string) => void;
@@ -29,6 +30,7 @@ interface GameContextValue {
   collapsePhone: () => void;
   openOverlayView: (type: OverlayViewType, payload?: Record<string, unknown>) => void;
   closeOverlayView: () => void;
+  updateOverlayTitle: (title: string) => void;
   setDateMark: (date: string, mark: DateMark) => void;
   clearDateMark: (date: string) => void;
   addInAppNotification: (notification: Omit<InAppNotification, 'id'>) => void;
@@ -50,12 +52,14 @@ type Action =
   | { type: 'SET_MAP_ZOOM'; payload: number }
   | { type: 'SET_MAP_CENTER'; payload: { x: number; y: number } }
   | { type: 'SET_SELECTED_MARKER'; payload: string | null }
+  | { type: 'TOGGLE_PHONE' }
   | { type: 'EXPAND_PHONE' }
   | { type: 'COLLAPSE_PHONE' }
   | { type: 'OPEN_PHONE_APP'; payload: PhoneAppId }
   | { type: 'CLOSE_PHONE_APP' }
   | { type: 'OPEN_OVERLAY_VIEW'; payload: OverlayViewType; meta?: Record<string, unknown> }
   | { type: 'CLOSE_OVERLAY_VIEW' }
+  | { type: 'UPDATE_OVERLAY_TITLE'; payload: string }
   | { type: 'SET_DATE_MARK'; payload: DateMark }
   | { type: 'CLEAR_DATE_MARK'; payload: string }
   | { type: 'ADD_IN_APP_NOTIFICATION'; payload: InAppNotification }
@@ -64,12 +68,11 @@ type Action =
 
 const overlayTitles: Record<OverlayViewType, string> = {
   status: '个人状态',
-  talents: '天赋才能',
   social: '社交关系',
   wealth: '财富资产',
   calendar: '日历事件',
   settings: '系统设置',
-  skillTree: '技能树',
+  skills: '天赋才能',
   network: '关系网络',
   history: '叙事历史',
   calendarFull: '完整日历',
@@ -151,6 +154,8 @@ function gameReducer(state: GameState, action: Action): GameState {
       return { ...state, map: { ...state.map, center: action.payload } };
     case 'SET_SELECTED_MARKER':
       return { ...state, selectedMarkerId: action.payload };
+    case 'TOGGLE_PHONE':
+      return { ...state, phoneExpanded: !state.phoneExpanded };
     case 'EXPAND_PHONE':
       return { ...state, phoneExpanded: true };
     case 'COLLAPSE_PHONE':
@@ -170,6 +175,9 @@ function gameReducer(state: GameState, action: Action): GameState {
       };
     case 'CLOSE_OVERLAY_VIEW':
       return { ...state, detailView: null };
+    case 'UPDATE_OVERLAY_TITLE':
+      if (!state.detailView) return state;
+      return { ...state, detailView: { ...state.detailView, title: action.payload } };
     case 'SET_DATE_MARK': {
       const date = action.payload.date;
       return {
@@ -283,6 +291,13 @@ export function GameProvider({ children }: GameProviderProps) {
     [state, llm, timestamp]
   );
 
+  const appendNarrativeMessage = useCallback(
+    (msg: NarrativeMessage) => {
+      dispatch({ type: 'ADD_NARRATIVE_MESSAGE', payload: msg });
+    },
+    []
+  );
+
   const sendNarrativeMessage = useCallback(
     async (content: string) => {
       const userMsg: NarrativeMessage = {
@@ -332,6 +347,7 @@ export function GameProvider({ children }: GameProviderProps) {
     setPreviewTab: (tab) => dispatch({ type: 'SET_PREVIEW_TAB', payload: tab }),
     setNarrativeInput: (text) => dispatch({ type: 'SET_NARRATIVE_INPUT', payload: text }),
     sendNarrativeMessage,
+    appendNarrativeMessage,
     selectNarrativeOption,
     regenerateLastMessage,
     branchNarrativeTo,
@@ -340,10 +356,11 @@ export function GameProvider({ children }: GameProviderProps) {
     setSelectedMarker: (id) => dispatch({ type: 'SET_SELECTED_MARKER', payload: id }),
     openPhoneApp: (appId) => dispatch({ type: 'OPEN_PHONE_APP', payload: appId }),
     closePhoneApp: () => dispatch({ type: 'CLOSE_PHONE_APP' }),
-    expandPhone: () => dispatch({ type: 'EXPAND_PHONE' }),
+    expandPhone: () => dispatch({ type: 'TOGGLE_PHONE' }),
     collapsePhone: () => dispatch({ type: 'COLLAPSE_PHONE' }),
     openOverlayView: (type, payload) => dispatch({ type: 'OPEN_OVERLAY_VIEW', payload: type, meta: payload }),
     closeOverlayView: () => dispatch({ type: 'CLOSE_OVERLAY_VIEW' }),
+    updateOverlayTitle: (title) => dispatch({ type: 'UPDATE_OVERLAY_TITLE', payload: title }),
     setDateMark: (date, mark) => dispatch({ type: 'SET_DATE_MARK', payload: { ...mark, date } }),
     clearDateMark: (date) => dispatch({ type: 'CLEAR_DATE_MARK', payload: date }),
     addInAppNotification: (notification) => dispatch({

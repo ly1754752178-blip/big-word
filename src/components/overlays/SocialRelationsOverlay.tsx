@@ -6,9 +6,9 @@ import type { Relation } from '@/types';
 
 function RelationAvatar({ name, size = 'md' }: { name: string; size?: 'sm' | 'md' | 'lg' }) {
   const sizeClasses = {
-    sm: 'w-10 h-10 text-xs',
-    md: 'w-14 h-14 text-base',
-    lg: 'w-20 h-20 text-xl',
+    sm: 'w-14 h-14 text-sm',
+    md: 'w-[78px] h-[78px] text-lg',
+    lg: 'w-24 h-24 text-xl',
   };
 
   return (
@@ -38,7 +38,7 @@ function RelationListItem({ relation, index }: { relation: Relation; index: numb
     >
       <GlassCard variant="default" className="p-4 flex items-center gap-4"
       >
-        <RelationAvatar name={relation.name} />
+        <RelationAvatar name={relation.name} size="md" />
         <div className="flex-1 min-w-0">
           <div className="flex items-center justify-between">
             <span className="text-base font-bold text-slate-800 truncate">{relation.name}</span>

@@ -47,11 +47,8 @@ export function PhoneAppGrid({ apps, onAppClick }: PhoneAppGridProps) {
             style={{ backgroundColor: app.color }}
           >
             {appIconMap[app.id]}
-            {app.badge && (
-              <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-coral-400 text-white text-[10px] flex items-center justify-center border-2 border-white"
-              >
-                {app.badge}
-              </span>
+            {app.badge && app.badge > 0 && (
+              <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-[#F43F5E] border border-white" />
             )}
           </div>
           <span className="text-[11px] text-slate-700/90">{app.name}</span>

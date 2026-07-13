@@ -1,6 +1,6 @@
 import { useGame } from '@/hooks/useGameState';
 import { GlassCard } from '@/components/ui/GlassCard';
-import { User } from 'lucide-react';
+import { AvatarImg } from '@/components/ui/AvatarImg';
 import { motion } from 'framer-motion';
 import type { NarrativeMessage } from '@/types';
 
@@ -28,11 +28,7 @@ function HistoryMessage({ message, index }: { message: NarrativeMessage; index: 
         <div className="w-full max-w-[90%] flex items-start gap-4">
           <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-coral-200 to-coral-300 border-4 border-white shadow-soft flex items-center justify-center shrink-0"
           >
-            {message.speakerAvatar ? (
-              <span className="text-lg font-bold text-white">{message.speakerAvatar.slice(0, 1).toUpperCase()}</span>
-            ) : (
-              <User className="w-7 h-7 text-white" />
-            )}
+            <AvatarImg name={message.speaker} src={message.speakerAvatar || undefined} className="w-full h-full object-cover" size={56} />
           </div>
           <div className="flex-1 min-w-0">
             {message.speaker && (

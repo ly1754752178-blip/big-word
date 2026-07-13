@@ -10,8 +10,10 @@ export function WealthPreview() {
 
   return (
     <div className="space-y-3">
-      <div className="flex items-center justify-between">
-        <span className="px-3 py-1 rounded-full bg-mint-100 text-mint-600 text-sm font-medium">财富资产</span>
+      {/* 财富资产 —— 居中标题横栏 */}
+      <div className="-mx-2.5 -mt-3 px-3 py-3 bg-gradient-to-r from-mint-50 via-mint-100/40 to-mint-50 border-b border-mint-100/60 text-center">
+        <span className="text-base font-bold text-slate-800 tracking-wide">财富资产</span>
+        <div className="mt-1 mx-auto w-8 h-0.5 rounded-full" style={{ backgroundColor: '#22C55E' }} />
       </div>
 
       <div className="grid grid-cols-2 gap-2">

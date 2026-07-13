@@ -1,57 +1,49 @@
 # Subagent-Driven Development Progress Ledger
 
-Project: 综漫日本生活模拟器 — 蔚蓝档案 × 日常 Galgame 风格改造
-Plan: docs/superpowers/plans/2026-07-09-blue-archive-galgame-redesign-plan.md
-Baseline commit: 2b532d9
+Project: 人生模拟器 — 酒馆融合重制
+Plan: docs/superpowers/plans/2026-07-12-tavern-integration-plan.md
+Baseline commit: 079a165
 
 ## Tasks
 
-### Phase 1: 视觉系统基础
-- [x] Task 1.1: 更新 Tailwind 主题 token
-- [x] Task 1.2: 更新全局 CSS 变量与动画
-- [x] Task 1.3: 改造 GlassCard 组件
-- [x] Task 1.4: 改造 FullscreenOverlay 组件
-- [x] Task 1.5: 改造 TopBar 视觉
-- [x] Task 1.6: 改造 LeftSidebar 与预览面板视觉
-- [x] Task 1.7: 改造 RightPanel 视觉
-- [x] Task 1.8: 改造 NarrativePanel 视觉
-- [x] Task 1.9: 改造 NotificationItem
-- [x] Task 1.10: Phase 1 视觉验收
+- [x] Task 1: 静态资源目录 + 视频文件复制
+- [x] Task 2: 移除分支对话功能（核心层）
+- [x] Task 3: 移除分支对话功能（Hook + UI）
+- [x] Task 4: 视频背景组件 VideoBackground
+- [x] Task 5: 角色标签解析器 + 头像匹配
+- [x] Task 6: 大厅菜单组件 LobbyMenu
+- [x] Task 7: 酒馆大厅页面 TavernLobby
+- [x] Task 8: 游戏布局组件 GameLayout
+- [x] Task 9: 修改 TopBar — 返回大厅按钮
+- [x] Task 10: 修改 page.tsx — 双页面入口
+- [x] Task 11: ThinkingPanel 思考面板
+- [x] Task 12: 修改 SkyOrb — thinking toggle
+- [x] Task 13: 修改 NarrativePanel — 融合酒馆
+- [x] Task 14: 修改 GameContext — 保留兼容
+- [x] Task 15: 清理无用文件
+- [x] Task 16: 最终集成验证
 
-### Phase 2: 数据层与角色系统
-- [x] Task 2.1: 扩展类型定义
-- [x] Task 2.2: 扩展 mockData
-- [x] Task 2.3: 创建 CharacterCard 组件
-- [x] Task 2.4: 创建 CharacterGallery 覆盖层
-- [x] Task 2.5: 创建 CharacterDetail 覆盖层
-- [x] Task 2.6: 改造 Relationship Network
-- [x] Task 2.7: Phase 2 验收
+ALL TASKS COMPLETE ✅
 
-### Phase 3: 生活与城市系统
-- [ ] Task 3.1: 改造 Calendar 覆盖层
-- [ ] Task 3.2: 改造 Map 组件
-- [ ] Task 3.3: 改造 Status / Wealth / Skill 覆盖层
-- [x] Task 3.4: 创建 Creative Workshop 覆盖层（已提前完成）
-- [x] Task 3.5: 创建 Shop & Wardrobe 覆盖层（已提前完成）
-- [ ] Task 3.6: Phase 3 验收
+## Commits
 
-### Phase 4: 手机、回忆与 LLM 叙事
-- [ ] Task 4.1: 重构 Phone 系统（部分完成：新增 chat/sns/wallet 应用）
-- [x] Task 4.2: 创建 Memories 覆盖层（已提前完成）
-- [x] Task 4.3: 创建 Achievements 覆盖层（已提前完成）
-- [ ] Task 4.4: 扩展叙事类型与状态
-- [ ] Task 4.5: 创建 LLM 占位 Hook
-- [ ] Task 4.6: 改造 NarrativePanel 支持选项与生成状态
-- [ ] Task 4.7: 创建内部通知系统
-- [ ] Task 4.8: 最终集成与验收
+```
+89ab684 feat: 清理废弃组件 + 移除酒馆浮层引用 — Tasks 14-16
+00511c1 feat: SkyOrb 新增 onClick 回调 — thinking toggle — Task 12
+(Task 13 NarrativePanel rewrite — sonnet subagent)
+baba494 feat: 抽取 GameLayout 组件 — 为双页面架构准备
+6eab174 feat: TopBar 新增返回大厅按钮
+6db7fae feat: 思考过程面板 ThinkingPanel
+87404c1 feat: 酒馆大厅页面 — 视频背景 + 菜单 + 配置面板
+c957d4c feat: 角色标签解析器 + 头像自动匹配
+d577fe0 feat: 大厅 3A 经典风格左侧菜单
+06a1eb1 feat: 视频背景组件 — 双模式播放 + 控件
+d3637cc refactor: 移除分支对话 Hook 和 UI 功能
+493c92b refactor: 移除分支对话核心函数 truncateChatAt/branchChat
+0ab9270 feat: 添加视频背景和角色头像目录 — Task 1
+```
 
-## Completed
+## Verification
 
-- Phase 1 全部任务已完成并通过类型检查与生产构建。
-- Phase 2 全部任务已完成：扩展类型、mock 数据、CharacterCard、CharacterGallery/Detail、NetworkOverlay、LeftSidebar 入口、GameContext 扩展。
-- 已提前实现 Phase 3/4 的部分覆盖层：CreativeWorkshop、Shop、Memories、Achievements。
-- 验收方式：`npx tsc --noEmit` 通过，`npm run build` 通过，本地 dev 启动并截取角色图鉴、角色详情、关系网络截图确认视觉与功能方向正确。
-
-## Review Findings
-
-*None yet.*
+- TypeScript: 1 pre-existing warning (BgmPlayer.tsx), 0 new errors
+- Vite build: ✅ 1964 modules, success

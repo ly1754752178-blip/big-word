@@ -43,10 +43,6 @@ export function PhoneFrame({ expanded, onHeadClick, children }: PhoneFrameProps)
           className="h-10 shrink-0 flex items-center justify-center border-b border-white/10 relative"
         >
           <div className="w-20 h-1 rounded-full bg-white/30" />
-          <div className="absolute right-4 flex items-center gap-2 text-white/70">
-            <Wifi className="w-4 h-4" />
-            <Battery className="w-4 h-4" />
-          </div>
         </button>
 
         {/* 屏幕区域 */}

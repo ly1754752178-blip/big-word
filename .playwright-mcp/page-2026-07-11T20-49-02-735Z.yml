@@ -1,0 +1,11 @@
+- generic [ref=f46e3]:
+  - generic [ref=f46e4]:
+    - paragraph [ref=f46e5]: 《孤独摇滚1》
+    - generic [ref=f46e6]:
+      - button "上一曲" [ref=f46e7] [cursor=pointer]
+      - button "暂停" [ref=f46e10] [cursor=pointer]
+      - button "下一曲" [ref=f46e14] [cursor=pointer]
+    - generic [ref=f46e17]:
+      - button "取消静音" [ref=f46e18] [cursor=pointer]
+      - slider [ref=f46e23]: "0"
+  - paragraph [ref=f46e30] [cursor=pointer]: 点击光球开始

@@ -1,0 +1,46 @@
+- generic [ref=f7e357]:
+  - generic [ref=f7e359]:
+    - paragraph [ref=f7e360]: 《孤独摇滚1》
+    - generic [ref=f7e361]:
+      - button "上一曲" [ref=f7e362] [cursor=pointer]
+      - button "暂停" [ref=f7e365] [cursor=pointer]
+      - button "下一曲" [ref=f7e369] [cursor=pointer]
+    - generic [ref=f7e372]:
+      - button "取消静音" [ref=f7e373] [cursor=pointer]
+      - slider [ref=f7e378]: "0"
+  - navigation [ref=f7e379]:
+    - button "开始游戏" [ref=f7e380] [cursor=pointer]
+    - button "继续游戏" [active] [ref=f7e384] [cursor=pointer]
+    - button "世界书" [ref=f7e388] [cursor=pointer]
+    - button "API 配置" [ref=f7e393] [cursor=pointer]
+    - button "预设" [ref=f7e397] [cursor=pointer]
+    - button "设置" [ref=f7e400] [cursor=pointer]
+  - generic [ref=f7e406]:
+    - generic [ref=f7e407]:
+      - heading "对话列表" [level=2] [ref=f7e408]
+      - button [ref=f7e411] [cursor=pointer]
+    - generic [ref=f7e415]:
+      - generic [ref=f7e416]:
+        - textbox "对话名称（可选）" [ref=f7e417]
+        - button "新建" [ref=f7e418] [cursor=pointer]
+      - generic [ref=f7e420]:
+        - generic [ref=f7e421]:
+          - generic [ref=f7e422]:
+            - text: 未命名角色 - 新对话 4
+            - generic [ref=f7e423]: 0 条消息 · 2026/7/12
+          - button "删除" [ref=f7e424] [cursor=pointer]
+        - generic [ref=f7e428]:
+          - generic [ref=f7e429]:
+            - text: 未命名角色 - 新对话 3
+            - generic [ref=f7e430]: 0 条消息 · 2026/7/12
+          - button "删除" [ref=f7e431] [cursor=pointer]
+        - generic [ref=f7e435]:
+          - generic [ref=f7e436]:
+            - text: 未命名角色 - 新对话 2
+            - generic [ref=f7e437]: 0 条消息 · 2026/7/12
+          - button "删除" [ref=f7e438] [cursor=pointer]
+        - generic [ref=f7e442]:
+          - generic [ref=f7e443]:
+            - text: 未命名角色 - 新对话 1
+            - generic [ref=f7e444]: 0 条消息 · 2026/7/12
+          - button "删除" [ref=f7e445] [cursor=pointer]

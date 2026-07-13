@@ -43,8 +43,10 @@ export function CalendarPreview() {
 
   return (
     <div className="space-y-3">
-      <div className="flex items-center justify-between">
-        <span className="px-3 py-1 rounded-full bg-sky-100 text-sky-600 text-sm font-medium">日程安排</span>
+      {/* 日程安排 —— 居中标题横栏 */}
+      <div className="-mx-2.5 -mt-3 px-3 py-3 bg-gradient-to-r from-sky-50 via-sky-100/40 to-sky-50 border-b border-sky-100/60 text-center">
+        <span className="text-base font-bold text-slate-800 tracking-wide">日程安排</span>
+        <div className="mt-1 mx-auto w-8 h-0.5 rounded-full" style={{ backgroundColor: '#0EA5E9' }} />
       </div>
 
       <div className="grid grid-cols-3 gap-2">

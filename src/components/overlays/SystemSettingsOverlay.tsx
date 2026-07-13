@@ -10,10 +10,15 @@ import {
   Volume2,
   Monitor,
   Languages,
+  Home,
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
-export function SystemSettingsOverlay() {
+interface SystemSettingsOverlayProps {
+  onBackToLobby: () => void;
+}
+
+export function SystemSettingsOverlay({ onBackToLobby }: SystemSettingsOverlayProps) {
   const { state } = useGame();
   const [message, setMessage] = useState('');
 
@@ -120,6 +125,16 @@ export function SystemSettingsOverlay() {
             className="flex items-center justify-center gap-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-500 py-3 text-sm font-medium transition-colors"
           >
             <RotateCcw className="w-4 h-4" /> 重置
+          </button>
+        </div>
+
+        <div className="mt-6 pt-4 border-t border-slate-200">
+          <button
+            type="button"
+            onClick={onBackToLobby}
+            className="w-full flex items-center justify-center gap-2 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-600 border border-amber-200 py-3 text-sm font-medium transition-colors"
+          >
+            <Home className="w-4 h-4" /> 返回主菜单
           </button>
         </div>
 

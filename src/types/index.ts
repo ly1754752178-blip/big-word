@@ -14,10 +14,14 @@ export type PhoneAppId =
   | 'sns'
   | 'wallet';
 
-/** 全屏浮层视图类型：左侧六个模块 + 技能树/关系网/叙事历史 + 生活系统 */
+/** 全屏浮层视图类型：左侧六个模块 + 关系网/叙事历史 + 生活系统 */
 export type OverlayViewType =
-  | SidebarTab
-  | 'skillTree'
+  | 'status'
+  | 'skills'
+  | 'social'
+  | 'wealth'
+  | 'calendar'
+  | 'settings'
   | 'network'
   | 'history'
   | 'calendarFull'
@@ -100,6 +104,9 @@ export interface Talent {
   description: string;
   icon: string;
   rarity: 'common' | 'rare' | 'epic' | 'legendary';
+  level?: number;
+  effect?: string;
+  acquiredAt?: string;
 }
 
 export interface SkillNode {
@@ -114,6 +121,8 @@ export interface SkillNode {
   parentIds?: string[];
   /** 节点在技能树画布中的相对坐标（百分比 0–100） */
   position?: { x: number; y: number };
+  /** 大技能节点：上限1级，可折叠/展开其子节点 */
+  isMajor?: boolean;
 }
 
 export interface SkillTree {

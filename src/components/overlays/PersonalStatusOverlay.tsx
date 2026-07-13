@@ -69,9 +69,9 @@ export function PersonalStatusOverlay() {
             </div>
 
             <div className="mt-5 grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <StatBar label="体力" value={player.status.stamina} color="bg-coral-400" icon={<Heart className="w-4 h-4" />} />
-              <StatBar label="精神" value={player.status.mental} color="bg-sky-400" icon={<Brain className="w-4 h-4" />} />
-              <StatBar label="健康" value={player.status.health} color="bg-mint-400" icon={<Activity className="w-4 h-4" />} />
+              <StatBar label="体力" value={player.status.stamina} color="#F43F5E" icon={<Heart className="w-4 h-4" />} />
+              <StatBar label="精神" value={player.status.mental} color="#0EA5E9" icon={<Brain className="w-4 h-4" />} />
+              <StatBar label="健康" value={player.status.health} color="#22C55E" icon={<Activity className="w-4 h-4" />} />
             </div>
           </div>
         </div>
@@ -101,7 +101,7 @@ export function PersonalStatusOverlay() {
           </div>
 
           <div className="mt-5 pt-5 border-t border-coral-100/60">
-            <StatBar label="疲劳" value={player.bodyState.fatigue} color="bg-coral-400" />
+            <StatBar label="疲劳" value={player.bodyState.fatigue} color="#F43F5E" />
             <div className="flex flex-wrap gap-2 mt-4">
               {player.bodyState.conditions.map((condition) => (
                 <span
