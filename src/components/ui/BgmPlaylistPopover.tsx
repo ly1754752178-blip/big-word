@@ -68,7 +68,7 @@ export function BgmPlaylistPopover({
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: 8 }}
         transition={{ duration: 0.2, ease: 'easeOut' }}
-        className="absolute right-0 bottom-full mb-2 w-56 rounded-xl overflow-hidden z-50"
+        className="absolute right-0 top-full mt-2 w-56 rounded-xl overflow-hidden z-50"
         style={{
           background: 'rgba(20,15,10,0.94)',
           backdropFilter: 'blur(16px)',
