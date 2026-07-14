@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { createPortal } from 'react-dom';
+import { motion } from 'framer-motion';
 import type { BgmScanResult, BgmTrack } from '@/lib/bgm-loader';
 
 interface BgmPlaylistPopoverProps {
@@ -7,6 +8,8 @@ interface BgmPlaylistPopoverProps {
   currentAudioUrl: string | null;
   onSelect: (track: BgmTrack) => void;
   onClose: () => void;
+  /** 锚点元素，用于计算 fixed 定位（脱离层叠上下文限制） */
+  anchorEl: HTMLElement | null;
 }
 
 // ── 情景词 → HSL 色相映射（用于无封面占位） ──
@@ -27,6 +30,7 @@ export function BgmPlaylistPopover({
   currentAudioUrl,
   onSelect,
   onClose,
+  anchorEl,
 }: BgmPlaylistPopoverProps) {
   const [activeCategory, setActiveCategory] = useState<string>(
     result.categories[0] ?? ''
@@ -60,21 +64,31 @@ export function BgmPlaylistPopover({
 
   const tracks = result.tracksByCategory[activeCategory] ?? [];
 
-  return (
-    <AnimatePresence>
-      <motion.div
-        ref={panelRef}
-        initial={{ opacity: 0, y: 8 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: 8 }}
-        transition={{ duration: 0.2, ease: 'easeOut' }}
-        className="absolute right-0 top-full mt-2 w-56 rounded-xl overflow-hidden z-50"
-        style={{
-          background: 'rgba(20,15,10,0.94)',
-          backdropFilter: 'blur(16px)',
-          boxShadow: '0 8px 32px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.08), inset 0 1px 0 rgba(255,255,255,0.06)',
-        }}
-      >
+  // 基于锚点计算 fixed 定位
+  const anchorRect = anchorEl?.getBoundingClientRect();
+  const panelStyle: React.CSSProperties = anchorRect
+    ? {
+        position: 'fixed',
+        top: anchorRect.bottom + 8,
+        right: window.innerWidth - anchorRect.right,
+      }
+    : { position: 'fixed', top: 72, right: 20 };
+
+  const panel = (
+    <motion.div
+      ref={panelRef}
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: 8 }}
+      transition={{ duration: 0.2, ease: 'easeOut' }}
+      className="w-56 rounded-xl overflow-hidden"
+      style={{
+        ...panelStyle,
+        background: 'rgba(20,15,10,0.94)',
+        backdropFilter: 'blur(16px)',
+        boxShadow: '0 8px 32px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.08), inset 0 1px 0 rgba(255,255,255,0.06)',
+      }}
+    >
         {/* 情景词标签栏 */}
         {result.categories.length > 1 && (
           <div
@@ -173,6 +187,6 @@ export function BgmPlaylistPopover({
           )}
         </div>
       </motion.div>
-    </AnimatePresence>
   );
+  return createPortal(panel, document.body);
 }

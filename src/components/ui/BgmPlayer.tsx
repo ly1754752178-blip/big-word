@@ -21,6 +21,7 @@ export function BgmPlayer() {
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const playerRef = useRef<HTMLDivElement>(null);
+  const listBtnRef = useRef<HTMLDivElement>(null);
 
   // ── 启动时加载 BGM 清单 ──
   useEffect(() => {
@@ -169,7 +170,7 @@ export function BgmPlayer() {
       style={{
         background: hasCover
           ? 'rgba(30,25,18,0.65)'
-          : 'linear-gradient(135deg, rgba(238,228,198,0.96) 0%, rgba(228,218,185,0.94) 50%, rgba(218,208,173,0.96) 100%)',
+          : 'linear-gradient(135deg, rgba(208,198,168,0.96) 0%, rgba(198,188,155,0.94) 50%, rgba(188,178,143,0.96) 100%)',
         clipPath: `polygon(${slantPct} 0, 100% 0, 100% 100%, 0% 100%)`,
         filter: 'drop-shadow(-2px 0 6px rgba(0,0,0,0.06))',
         boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.12), inset 0 -1px 0 rgba(0,0,0,0.08)',
@@ -426,7 +427,7 @@ export function BgmPlayer() {
         </button>
 
         {/* ── 列表按钮 — 新增弹窗和激活态 ── */}
-        <div className="relative">
+        <div className="relative" ref={listBtnRef}>
           <button
             type="button"
             aria-label="播放列表"
@@ -454,6 +455,7 @@ export function BgmPlayer() {
               currentAudioUrl={currentTrack?.audioUrl ?? null}
               onSelect={handleSelectTrack}
               onClose={() => setShowPlaylist(false)}
+              anchorEl={listBtnRef.current}
             />
           )}
         </div>
