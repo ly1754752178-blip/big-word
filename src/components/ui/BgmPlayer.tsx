@@ -430,6 +430,11 @@ export function BgmPlayer() {
           <button
             type="button"
             aria-label="播放列表"
+            onMouseDown={(e) => {
+              // 阻止 mousedown 冒泡到 document，避免 click-outside 先于 onClick 触发关闭
+              e.stopPropagation();
+              e.nativeEvent.stopImmediatePropagation();
+            }}
             onClick={() => setShowPlaylist((v) => !v)}
             className="w-7 h-7 rounded-full flex items-center justify-center transition-all duration-200"
             style={{

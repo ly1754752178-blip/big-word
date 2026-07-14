@@ -33,6 +33,16 @@ export function BgmPlaylistPopover({
   );
   const panelRef = useRef<HTMLDivElement>(null);
 
+  // result 异步加载后，同步 activeCategory
+  useEffect(() => {
+    setActiveCategory((prev) => {
+      if (result.categories.length > 0 && !result.categories.includes(prev)) {
+        return result.categories[0];
+      }
+      return prev;
+    });
+  }, [result.categories]);
+
   // 点击外部关闭
   const handleClickOutside = useCallback(
     (e: MouseEvent) => {
