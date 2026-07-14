@@ -3,7 +3,8 @@ import react from '@vitejs/plugin-react';
 import path from 'path';
 import fs from 'fs';
 
-// ── BGM 扫描插件：构建/开发时扫描 public/BGM/，生成 manifest.json ──
+// ── BGM 扫描插件：构建/开发时扫描 public/BGM/ 子文件夹，生成 manifest.json ──
+// 每个子文件夹 = 一个情景词分类，文件夹名 = 分类名，内放 mp3 和同名封面图
 function bgmScannerPlugin(): Plugin {
   const BGM_DIR = path.resolve(__dirname, 'public/BGM');
   const AUDIO_EXTS = new Set(['.mp3', '.ogg', '.wav', '.flac', '.m4a']);
@@ -16,26 +17,9 @@ function bgmScannerPlugin(): Plugin {
       fs.mkdirSync(BGM_DIR, { recursive: true });
     }
 
-    // 读取 order.txt
-    const orderPath = path.join(BGM_DIR, 'order.txt');
-    const categoryOrder: string[] = [];
-    if (fs.existsSync(orderPath)) {
-      const lines = fs.readFileSync(orderPath, 'utf-8').split('\n').filter(Boolean);
-      for (const line of lines) {
-        const m = line.match(/^\d+[、,.]\s*(.+)/);
-        if (m) categoryOrder.push(m[1].trim());
-      }
-    }
+    const entries = fs.readdirSync(BGM_DIR, { withFileTypes: true });
+    const categoryDirs = entries.filter((e) => e.isDirectory());
 
-    // 扫描文件
-    const allFiles = fs.existsSync(BGM_DIR) ? fs.readdirSync(BGM_DIR) : [];
-    const audioFiles = allFiles.filter((f) => {
-      const ext = path.extname(f).toLowerCase();
-      return AUDIO_EXTS.has(ext) && f.includes('_');
-    });
-
-    // 构建分类 map
-    const categorySet = new Set<string>();
     const tracksByCategory: Record<string, Array<{
       category: string;
       title: string;
@@ -43,46 +27,46 @@ function bgmScannerPlugin(): Plugin {
       coverUrl?: string;
     }>> = {};
 
-    for (const file of audioFiles) {
-      const firstUnderscore = file.indexOf('_');
-      const category = file.slice(0, firstUnderscore);
-      const rest = file.slice(firstUnderscore + 1);
-      const ext = path.extname(rest);
-      const title = rest.slice(0, rest.length - ext.length);
+    for (const dir of categoryDirs) {
+      const category = dir.name;
+      const dirPath = path.join(BGM_DIR, category);
+      const files = fs.readdirSync(dirPath);
 
-      // 查找封面：同名 jpg 或 png
-      const baseName = file.slice(0, file.length - path.extname(file).length);
-      let coverUrl: string | undefined;
-      for (const cext of COVER_EXTS) {
-        const coverFile = baseName + cext;
-        if (allFiles.includes(coverFile)) {
-          coverUrl = `/BGM/${coverFile}`;
-          break;
+      // 建立封面索引：basename → ext
+      const coverMap = new Map<string, string>();
+      for (const f of files) {
+        const ext = path.extname(f).toLowerCase();
+        if (COVER_EXTS.includes(ext)) {
+          const base = f.slice(0, f.length - ext.length);
+          if (!coverMap.has(base)) coverMap.set(base, ext); // 先遇见的优先（jpg 排前面）
         }
       }
 
-      categorySet.add(category);
-      if (!tracksByCategory[category]) tracksByCategory[category] = [];
-      tracksByCategory[category].push({
-        category,
-        title,
-        audioUrl: `/BGM/${file}`,
-        ...(coverUrl ? { coverUrl } : {}),
-      });
+      for (const f of files) {
+        const ext = path.extname(f).toLowerCase();
+        if (!AUDIO_EXTS.has(ext)) continue;
+        const baseName = f.slice(0, f.length - ext.length);
+        const coverExt = coverMap.get(baseName);
+
+        if (!tracksByCategory[category]) tracksByCategory[category] = [];
+        tracksByCategory[category].push({
+          category,
+          title: baseName,
+          audioUrl: `/BGM/${category}/${f}`,
+          ...(coverExt ? { coverUrl: `/BGM/${category}/${baseName}${coverExt}` } : {}),
+        });
+      }
     }
 
-    // 排序分类：order.txt 中的在前，其余按字母序
-    const orderedCategories: string[] = [];
-    for (const cat of categoryOrder) {
-      if (categorySet.has(cat)) orderedCategories.push(cat);
-    }
-    for (const cat of [...categorySet].sort()) {
-      if (!orderedCategories.includes(cat)) orderedCategories.push(cat);
-    }
+    // 按文件夹名称排序（中文按拼音，英文按字母）
+    const categories = Object.keys(tracksByCategory).sort((a, b) =>
+      a.localeCompare(b, 'zh-Hans-CN', { sensitivity: 'base' })
+    );
 
-    const manifest = { categories: orderedCategories, tracksByCategory };
+    const totalTracks = Object.values(tracksByCategory).reduce((s, t) => s + t.length, 0);
+    const manifest = { categories, tracksByCategory };
     fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2), 'utf-8');
-    console.log(`[bgm-scanner] 已扫描 ${audioFiles.length} 首 BGM，${orderedCategories.length} 个分类`);
+    console.log(`[bgm-scanner] 已扫描 ${totalTracks} 首 BGM，${categories.length} 个分类：${categories.join('、') || '(无)'}`);
   }
 
   return {
@@ -90,26 +74,20 @@ function bgmScannerPlugin(): Plugin {
     buildStart() { scan(); },
     configureServer(server) {
       scan();
-      // 监听目录变化，自动重新扫描
       const watcher = server.watcher;
       if (fs.existsSync(BGM_DIR)) {
         watcher.add(BGM_DIR);
-        watcher.on('change', (filePath) => {
+        const onBgmChange = (filePath: string) => {
           if (filePath.startsWith(BGM_DIR) && !filePath.endsWith('manifest.json')) {
             console.log('[bgm-scanner] 检测到 BGM 目录变化，重新扫描...');
             scan();
           }
-        });
-        watcher.on('add', (filePath) => {
-          if (filePath.startsWith(BGM_DIR) && !filePath.endsWith('manifest.json')) {
-            scan();
-          }
-        });
-        watcher.on('unlink', (filePath) => {
-          if (filePath.startsWith(BGM_DIR) && !filePath.endsWith('manifest.json')) {
-            scan();
-          }
-        });
+        };
+        watcher.on('change', onBgmChange);
+        watcher.on('add', onBgmChange);
+        watcher.on('unlink', onBgmChange);
+        watcher.on('addDir', onBgmChange);
+        watcher.on('unlinkDir', onBgmChange);
       }
     },
   };
