@@ -1,31 +1,13 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { Repeat, SkipBack, Pause, Play, SkipForward, ListMusic, Volume2, Volume1, VolumeX } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { BgmPlaylistPopover } from './BgmPlaylistPopover';
+import { loadBgmPlaylist, flattenTracks, type BgmTrack, type BgmScanResult } from '@/lib/bgm-loader';
 
-interface Track {
-  title: string;
-  artist?: string;
-  audioUrl: string;
-  coverUrl: string;
-}
-
-interface BgmPlayerProps {
-  playlist?: Track[];
-}
-
-const DEFAULT_PLAYLIST: Track[] = [
-  {
-    title: 'おしんこ',
-    artist: '未知艺术家',
-    audioUrl: '/bgm.mp3',
-    coverUrl: '/cover.jpg',
-  },
-];
-
-// 唱片纹理圆环尺寸（适配 52px 唱片）
+// ── 唱片纹理圆环尺寸（适配 52px 唱片）──
 const GROOVE_RINGS = [23, 26, 29, 32, 35, 38, 41, 44, 47];
 
-export function BgmPlayer({ playlist = DEFAULT_PLAYLIST }: BgmPlayerProps) {
+export function BgmPlayer() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [repeatMode, setRepeatMode] = useState<'off' | 'all' | 'one'>('all');
@@ -33,10 +15,23 @@ export function BgmPlayer({ playlist = DEFAULT_PLAYLIST }: BgmPlayerProps) {
   const [duration, setDuration] = useState(0);
   const [, setCoverLoaded] = useState(true);
   const [volume, setVolume] = useState(0.5);
+  const [showPlaylist, setShowPlaylist] = useState(false);
+  const [bgmResult, setBgmResult] = useState<BgmScanResult>({ categories: [], tracksByCategory: {} });
+  const [playlist, setPlaylist] = useState<BgmTrack[]>([]);
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const playerRef = useRef<HTMLDivElement>(null);
 
-  const currentTrack = playlist[currentIndex] ?? playlist[0];
+  // ── 启动时加载 BGM 清单 ──
+  useEffect(() => {
+    loadBgmPlaylist().then((result) => {
+      setBgmResult(result);
+      const flat = flattenTracks(result);
+      setPlaylist(flat);
+    });
+  }, []);
+
+  const currentTrack: BgmTrack | undefined = playlist[currentIndex];
   const hasCover = Boolean(currentTrack?.coverUrl);
 
   // ── 初始化 audio 元素 ──
@@ -136,6 +131,12 @@ export function BgmPlayer({ playlist = DEFAULT_PLAYLIST }: BgmPlayerProps) {
     setRepeatMode((v) => (v === 'off' ? 'all' : v === 'all' ? 'one' : 'off'));
   }, []);
 
+  // ── 选歌回调 ──
+  const handleSelectTrack = useCallback((track: BgmTrack) => {
+    const idx = playlist.findIndex((t) => t.audioUrl === track.audioUrl);
+    if (idx >= 0) setCurrentIndex(idx);
+  }, [playlist]);
+
   // ── 格式化时间 ──
   const formatTime = (t: number) => {
     if (!t || !isFinite(t)) return '0:00';
@@ -162,8 +163,9 @@ export function BgmPlayer({ playlist = DEFAULT_PLAYLIST }: BgmPlayerProps) {
 
   return (
     <div
+      ref={playerRef}
       id="topbar-bgm-player"
-      className="h-16 flex items-center gap-3 pl-8 pr-4 relative overflow-hidden"
+      className="h-16 flex items-center gap-3 pl-8 pr-4 relative"
       style={{
         background: hasCover
           ? 'rgba(30,25,18,0.65)'
@@ -423,12 +425,33 @@ export function BgmPlayer({ playlist = DEFAULT_PLAYLIST }: BgmPlayerProps) {
           <SkipForward className="w-3.5 h-3.5" />
         </button>
 
-        <button
-          type="button" aria-label="列表"
-          className={`w-7 h-7 rounded-full flex items-center justify-center transition-all duration-200 ${hasCover ? 'text-white/35 hover:text-white/70 hover:bg-white/8' : 'text-[#5a4030]/40 hover:text-[#5a4030]/70 hover:bg-[#5a4030]/8'}`}
-        >
-          <ListMusic className="w-3.5 h-3.5" />
-        </button>
+        {/* ── 列表按钮 — 新增弹窗和激活态 ── */}
+        <div className="relative">
+          <button
+            type="button"
+            aria-label="播放列表"
+            onClick={() => setShowPlaylist((v) => !v)}
+            className="w-7 h-7 rounded-full flex items-center justify-center transition-all duration-200"
+            style={{
+              color: showPlaylist
+                ? '#8ec8f6'
+                : (hasCover ? 'rgba(255,255,255,0.45)' : 'rgba(90,64,48,0.4)'),
+              background: showPlaylist ? 'rgba(74,143,212,0.15)' : 'transparent',
+            }}
+          >
+            <ListMusic className="w-3.5 h-3.5" />
+          </button>
+
+          {/* 弹窗 */}
+          {showPlaylist && (
+            <BgmPlaylistPopover
+              result={bgmResult}
+              currentAudioUrl={currentTrack?.audioUrl ?? null}
+              onSelect={handleSelectTrack}
+              onClose={() => setShowPlaylist(false)}
+            />
+          )}
+        </div>
       </div>
     </div>
   );
