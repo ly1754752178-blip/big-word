@@ -24,7 +24,7 @@ export function MapTargetDetail() {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4"
+      className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/50 p-4"
       onClick={() => setSelectedMarker(null)}
     >
       <div onClick={(e) => e.stopPropagation()}>

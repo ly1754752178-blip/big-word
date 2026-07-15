@@ -108,7 +108,7 @@ export function FullMapModal({ onClose, view = 'city' }: FullMapModalProps) {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-4"
     >
       <GlassCard variant="floating" className="w-full max-w-5xl h-[85vh] flex flex-col overflow-hidden">
         {/* 标题栏 */}

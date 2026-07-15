@@ -26,7 +26,7 @@ const accentBarClass: Record<NonNullable<FullscreenOverlayProps['accent']>, stri
 };
 
 // 退场动画持续时间（ms）
-const EXIT_DURATION = 250;
+const EXIT_DURATION = 200;
 
 export function FullscreenOverlay({
   title,
@@ -41,16 +41,24 @@ export function FullscreenOverlay({
   const wrapperRef = useRef<HTMLDivElement>(null);
 
   // 自管理开关状态：延迟卸载 DOM 以实现退场动画
-  const [mounted, setMounted] = useState(false);
+  const [mounted, setMounted] = useState(isOpen);
   const [exiting, setExiting] = useState(false);
   const exitTimerRef = useRef<ReturnType<typeof setTimeout>>();
 
-  // 管理打开/关闭状态
+  // 打开时在渲染期同步挂载（React 派生状态模式）：
+  // 避免"先渲染 null → effect 后再挂载"造成的空白帧与二次提交
+  if (isOpen && !mounted) setMounted(true);
+  if (isOpen && exiting) setExiting(false);
+
+  // 管理关闭退场
   useEffect(() => {
-    if (isOpen && !mounted) {
-      setMounted(true);
-      setExiting(false);
-    } else if (!isOpen && mounted && !exiting) {
+    if (isOpen) {
+      // 打开（含退场中途重新打开）：取消待执行的卸载
+      if (exitTimerRef.current) {
+        clearTimeout(exitTimerRef.current);
+        exitTimerRef.current = undefined;
+      }
+    } else if (mounted && !exiting) {
       // 开始退场动画
       setExiting(true);
       exitTimerRef.current = setTimeout(() => {
@@ -107,17 +115,15 @@ export function FullscreenOverlay({
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: exiting ? 0 : 1 }}
-        transition={{ duration: 0.25 }}
-        className="absolute inset-0 bg-slate-900/50 backdrop-blur-sm"
+        transition={{ duration: 0.2 }}
+        // 不用 backdrop-blur：遮罩淡入期间全屏实时模糊逐帧重采样，是低端 GPU 掉帧来源，用略深遮罩替代
+        className="absolute inset-0 bg-slate-900/60"
         onClick={onClose}
       />
 
-      {/* 内容定位层 */}
-      <motion.div
+      {/* 内容定位层（纯定位，不参与动画，避免与卡片双重淡入） */}
+      <div
         ref={wrapperRef}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: exiting ? 0 : 1 }}
-        transition={{ duration: 0.2 }}
         className="absolute inset-0 flex items-center justify-center p-4 md:p-6 pointer-events-none"
       >
         {/* 无缝模式：内容直接铺满，无边卡 */}
@@ -125,7 +131,7 @@ export function FullscreenOverlay({
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: exiting ? 0 : 1 }}
-            transition={{ duration: 0.3 }}
+            transition={{ duration: 0.2 }}
             className="pointer-events-auto absolute inset-0 flex flex-col"
           >
             <div className="relative flex items-center justify-between px-6 py-4 shrink-0">
@@ -145,9 +151,10 @@ export function FullscreenOverlay({
           </motion.div>
         ) : (
           <motion.div
-            initial={{ y: 40, opacity: 0, scale: 0.96 }}
-            animate={exiting ? { y: 40, opacity: 0, scale: 0.96 } : { y: 0, opacity: 1, scale: 1 }}
-            transition={{ type: 'spring', stiffness: 320, damping: 30 }}
+            // 入场只用 y+opacity（纯合成器动画）：去掉 scale，避免大卡片在缩放中每帧重栅格化
+            initial={{ y: 24, opacity: 0 }}
+            animate={exiting ? { y: 24, opacity: 0 } : { y: 0, opacity: 1 }}
+            transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
             className={cn(
               'pointer-events-auto relative max-h-[calc(100vh-2rem)] md:max-h-[calc(100vh-3rem)] w-full max-w-6xl flex flex-col rounded-3xl overflow-hidden bg-cream-50 shadow-soft-lg border border-white/80',
               className
@@ -166,7 +173,7 @@ export function FullscreenOverlay({
             </div>
           </motion.div>
         )}
-      </motion.div>
+      </div>
     </div>
   );
 }
