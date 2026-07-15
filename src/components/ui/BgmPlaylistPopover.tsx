@@ -104,13 +104,13 @@ export function BgmPlaylistPopover({
                 className="shrink-0 px-2.5 py-1 rounded-full text-[11px] font-medium transition-all duration-200"
                 style={{
                   background: cat === activeCategory
-                    ? 'rgba(74,143,212,0.25)'
+                    ? 'rgba(201,168,76,0.22)'
                     : 'rgba(255,255,255,0.06)',
                   color: cat === activeCategory
-                    ? '#8ec8f6'
+                    ? '#D4B85A'
                     : 'rgba(255,255,255,0.55)',
                   border: cat === activeCategory
-                    ? '1px solid rgba(74,143,212,0.4)'
+                    ? '1px solid rgba(201,168,76,0.35)'
                     : '1px solid transparent',
                 }}
               >
@@ -139,7 +139,7 @@ export function BgmPlaylistPopover({
                   onClick={() => { onSelect(track); onClose(); }}
                   className="w-full flex items-center gap-2.5 px-3 py-2 text-left transition-all duration-150"
                   style={{
-                    background: isActive ? 'rgba(74,143,212,0.15)' : 'transparent',
+                    background: isActive ? 'rgba(201,168,76,0.12)' : 'transparent',
                   }}
                   onMouseEnter={(e) => {
                     if (!isActive) (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.05)';
@@ -173,14 +173,14 @@ export function BgmPlaylistPopover({
                   {/* 歌名 */}
                   <span
                     className="flex-1 text-xs truncate"
-                    style={{ color: isActive ? '#8ec8f6' : 'rgba(240,234,216,0.85)' }}
+                    style={{ color: isActive ? '#D4B85A' : 'rgba(240,234,216,0.85)' }}
                   >
                     {track.title}
                   </span>
 
                   {/* 播放中指示 */}
                   {isActive && (
-                    <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: '#6AADF0', boxShadow: '0 0 6px rgba(106,173,240,0.6)' }} />
+                    <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: '#D4B85A', boxShadow: '0 0 6px rgba(212,184,90,0.55)' }} />
                   )}
                 </button>
               );
