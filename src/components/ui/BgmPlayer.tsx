@@ -23,6 +23,11 @@ export function BgmPlayer() {
   const playerRef = useRef<HTMLDivElement>(null);
   const listBtnRef = useRef<HTMLDivElement>(null);
 
+  // ── Ref 保持回调最新，避免 ended 事件闭包过期 ──
+  const handleNextRef = useRef<() => void>(() => {});
+  const repeatModeRef = useRef(repeatMode);
+  repeatModeRef.current = repeatMode;
+
   // ── 启动时加载 BGM 清单 ──
   useEffect(() => {
     loadBgmPlaylist().then((result) => {
@@ -45,11 +50,11 @@ export function BgmPlayer() {
     const onTimeUpdate = () => setCurrentTime(audio.currentTime);
     const onDuration = () => setDuration(audio.duration || 0);
     const onEnded = () => {
-      if (repeatMode === 'one') {
+      if (repeatModeRef.current === 'one') {
         audio.currentTime = 0;
         audio.play().catch(() => {});
-      } else if (repeatMode === 'all') {
-        handleNext();
+      } else if (repeatModeRef.current === 'all') {
+        handleNextRef.current();
       } else {
         setIsPlaying(false);
         audio.currentTime = 0;
@@ -75,10 +80,12 @@ export function BgmPlayer() {
     };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // ── 切换音轨时加载新音频 ──
+  // ── 切换音轨时加载新音频（包括首次加载）──
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio || !currentTrack) return;
+    // 避免同一音轨重复加载
+    if (audio.src && audio.src.endsWith(currentTrack.audioUrl.replace(/^\//, ''))) return;
     const wasPlaying = !audio.paused;
     audio.src = currentTrack.audioUrl;
     audio.load();
@@ -87,7 +94,7 @@ export function BgmPlayer() {
     if (wasPlaying) {
       audio.play().catch(() => setIsPlaying(false));
     }
-  }, [currentIndex]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [currentTrack?.audioUrl]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── 音量变更 ──
   const handleVolumeChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
@@ -126,6 +133,7 @@ export function BgmPlayer() {
     }
     setCurrentIndex((v) => (v === playlist.length - 1 ? 0 : v + 1));
   }, [playlist.length]);
+  handleNextRef.current = handleNext;
 
   // ── 循环模式 ──
   const toggleRepeat = useCallback(() => {
