@@ -125,7 +125,7 @@ export function BgmPlayer() {
   const handlePrev = useCallback(() => {
     if (playlist.length <= 1) {
       const audio = audioRef.current;
-      if (audio) { audio.currentTime = 0; audio.play().catch(() => {}); setIsPlaying(true); }
+      if (audio) { audio.currentTime = 0; audio.play().then(() => setIsPlaying(true)).catch(() => {}); }
       return;
     }
     setCurrentIndex((v) => (v === 0 ? playlist.length - 1 : v - 1));
@@ -134,7 +134,7 @@ export function BgmPlayer() {
   const handleNext = useCallback(() => {
     if (playlist.length <= 1) {
       const audio = audioRef.current;
-      if (audio) { audio.currentTime = 0; audio.play().catch(() => {}); setIsPlaying(true); }
+      if (audio) { audio.currentTime = 0; audio.play().then(() => setIsPlaying(true)).catch(() => {}); }
       return;
     }
     setCurrentIndex((v) => (v === playlist.length - 1 ? 0 : v + 1));
