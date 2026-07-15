@@ -26,7 +26,9 @@ export function BgmPlayer() {
   // ── Ref 保持回调最新，避免 ended 事件闭包过期 ──
   const handleNextRef = useRef<() => void>(() => {});
   const repeatModeRef = useRef(repeatMode);
+  const isPlayingRef = useRef(isPlaying);
   repeatModeRef.current = repeatMode;
+  isPlayingRef.current = isPlaying;
 
   // ── 启动时加载 BGM 清单 ──
   useEffect(() => {
@@ -52,7 +54,7 @@ export function BgmPlayer() {
     const onEnded = () => {
       if (repeatModeRef.current === 'one') {
         audio.currentTime = 0;
-        audio.play().catch(() => {});
+        audio.play().then(() => setIsPlaying(true)).catch(() => {});
       } else if (repeatModeRef.current === 'all') {
         handleNextRef.current();
       } else {
@@ -86,13 +88,14 @@ export function BgmPlayer() {
     if (!audio || !currentTrack) return;
     // 避免同一音轨重复加载
     if (audio.src && audio.src.endsWith(currentTrack.audioUrl.replace(/^\//, ''))) return;
-    const wasPlaying = !audio.paused;
+    // 如果 UI 显示播放中（用户主动播放或自动切歌），记录需要自动播放
+    const shouldAutoPlay = !audio.paused || isPlayingRef.current;
     audio.src = currentTrack.audioUrl;
     audio.load();
     setCurrentTime(0);
     setDuration(0);
-    if (wasPlaying) {
-      audio.play().catch(() => setIsPlaying(false));
+    if (shouldAutoPlay) {
+      audio.play().then(() => setIsPlaying(true)).catch(() => setIsPlaying(false));
     }
   }, [currentTrack?.audioUrl]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -102,6 +105,9 @@ export function BgmPlayer() {
     setVolume(v);
     if (audioRef.current) audioRef.current.volume = v;
   }, []);
+
+  // ── 关闭播放列表（稳定引用，避免 Popover effect 频繁重建）──
+  const handleClosePlaylist = useCallback(() => setShowPlaylist(false), []);
 
   // ── 播放/暂停 ──
   const togglePlay = useCallback(() => {
@@ -462,7 +468,7 @@ export function BgmPlayer() {
               result={bgmResult}
               currentAudioUrl={currentTrack?.audioUrl ?? null}
               onSelect={handleSelectTrack}
-              onClose={() => setShowPlaylist(false)}
+              onClose={handleClosePlaylist}
               anchorEl={listBtnRef.current}
             />
           )}
