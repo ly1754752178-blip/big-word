@@ -5,7 +5,6 @@ import { SidebarPreviewPanel } from '@/components/layout/SidebarPreviewPanel';
 import { RightPanel } from '@/components/layout/RightPanel';
 import { NarrativePanel } from '@/components/modules/NarrativePanel';
 import { OverlayRenderer } from '@/components/overlays/OverlayRenderer';
-import { NotificationContainer } from '@/components/ui/NotificationContainer';
 import { useGame } from '@/hooks/useGameState';
 
 // 共享返回大厅回调（供预览面板使用）
@@ -50,7 +49,6 @@ export function GameLayout({ onBackToLobby }: GameLayoutProps) {
         </div>
       </div>
 
-      <NotificationContainer />
       <OverlayRenderer />
     </div>
   );

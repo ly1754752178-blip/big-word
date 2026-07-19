@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { GameProvider } from '@/context/GameContext';
+import { NotificationContainer } from '@/components/ui/NotificationContainer';
 import { TavernLobby } from '@/app/TavernLobby';
 import { GameLayout } from '@/app/GameLayout';
 
@@ -48,6 +49,9 @@ export default function App() {
       {page === 'game' && (
         <GameLayout onBackToLobby={goToMenu} />
       )}
+
+      {/* 全局通知容器 */}
+      <NotificationContainer />
 
       {/* 渐黑遮罩层 */}
       {fadePhase !== 'none' && (

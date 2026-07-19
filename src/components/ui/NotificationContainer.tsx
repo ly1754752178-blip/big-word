@@ -7,7 +7,11 @@ export function NotificationContainer() {
   const notifications = state.inAppNotifications;
 
   return (
-    <div className="fixed top-20 right-4 z-[100] flex flex-col gap-2 w-80">
+    <div
+      id="notification-container"
+      className="fixed top-4 right-4 z-[9999] flex flex-col gap-2 w-80"
+      aria-label="应用内通知"
+    >
       <AnimatePresence>
         {notifications.map((n) => (
           <InAppNotification
