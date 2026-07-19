@@ -25,3 +25,6 @@ dist-ssr
 
 # BGM 扫描生成的 manifest（自动生成，不提交）
 public/BGM/manifest.json
+
+# Claude worktrees
+.worktrees/
