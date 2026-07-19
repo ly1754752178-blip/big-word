@@ -1,142 +1,260 @@
+import { useEffect } from 'react';
 import { useGame } from '@/hooks/useGameState';
 import { GlassCard } from '@/components/ui/GlassCard';
 import { StatBar } from '@/components/ui/StatBar';
 import {
   User,
   Heart,
-  Activity,
   Brain,
+  Activity,
+  Stethoscope,
+  Sparkles,
   Fingerprint,
-  Home,
-  Cake,
-  MapPin,
+  Award,
+  FileBadge,
   Ruler,
   Weight,
   Baby,
-  Stethoscope,
-  Sparkles,
-  Award,
-  FileBadge,
+  Cake,
+  MapPin,
+  Home,
 } from 'lucide-react';
 
-function InfoRow({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
+interface FieldGroupProps {
+  children: React.ReactNode;
+  className?: string;
+}
+
+function FieldGroup({ children, className = '' }: FieldGroupProps) {
   return (
-    <div className="flex items-start gap-4 p-4 rounded-2xl bg-white border border-coral-100">
-      <div className="w-10 h-10 rounded-xl bg-coral-50 flex items-center justify-center text-coral-400 shrink-0">
-        {icon}
-      </div>
-      <div className="flex-1 min-w-0">
-        <span className="text-xs text-slate-400 block mb-0.5">{label}</span>
-        <span className="text-base text-slate-700 leading-snug">{value}</span>
+    <div className={`flex flex-wrap items-center gap-x-6 gap-y-2 py-4 px-5 border-b border-slate-100 last:border-b-0 ${className}`}>
+      {children}
+    </div>
+  );
+}
+
+interface FieldProps {
+  icon: React.ReactNode;
+  label: string;
+  value: React.ReactNode;
+}
+
+function Field({ icon, label, value }: FieldProps) {
+  return (
+    <div className="flex items-center gap-3 min-w-[7.5rem]">
+      <span className="text-slate-400">{icon}</span>
+      <div>
+        <dt className="text-xs text-slate-400">{label}</dt>
+        <dd className="text-sm font-medium text-slate-700">{value}</dd>
       </div>
     </div>
   );
 }
 
 export function PersonalStatusOverlay() {
-  const { state } = useGame();
+  const { state, addNotification } = useGame();
   const { player } = state;
 
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      addNotification({
+        type: 'info',
+        title: '个人状态已更新',
+        message: '疲劳相关状态已移除，当前显示最新身体档案。',
+        duration: 4000,
+      });
+    }, 400);
+    return () => clearTimeout(timer);
+  }, [addNotification]);
+
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
-      {/* 身份证大卡 */}
-      <GlassCard variant="floating" className="relative overflow-hidden p-6 md:p-8">
-        <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-coral-300 via-sky-300 to-amber-300" />
-        <div className="absolute top-4 right-4 text-xs font-number text-slate-400 tracking-widest">
-          ID CARD · {player.socialIdentity}
-        </div>
+    <div className="max-w-5xl mx-auto space-y-6 pb-8">
+      {/* 身份锚点区 */}
+      <GlassCard
+        id="personal-status-identity-card"
+        variant="floating"
+        className="relative overflow-hidden p-6 md:p-8"
+      >
+        <div className="absolute top-0 left-0 w-full h-[3px] bg-gradient-to-r from-status-coral via-accent-teal to-accent-green" />
 
-        <div className="absolute right-8 top-8 bottom-8 w-24 holographic-stripe opacity-60" />
-
-        <div className="relative z-10 flex flex-col md:flex-row items-start gap-6">
-          <div className="relative w-24 h-24 md:w-28 md:h-28 rounded-2xl bg-gradient-to-br from-coral-100 to-coral-200 border-4 border-white shadow-soft flex items-center justify-center overflow-hidden"
-          >
-            <User className="w-14 h-14 text-coral-400" />
-            <div className="absolute bottom-0 left-0 right-0 h-1/3 bg-gradient-to-t from-black/10 to-transparent" />
+        <div className="relative z-10 flex flex-col sm:flex-row items-start gap-6">
+          {/* 头像 */}
+          <div className="relative w-20 h-20 md:w-24 md:h-24 rounded-2xl bg-gradient-to-br from-coral-100 to-coral-200 border-4 border-white shadow-soft flex items-center justify-center overflow-hidden shrink-0">
+            <User className="w-10 h-10 md:w-12 md:h-12 text-coral-400" />
           </div>
 
-          <div className="flex-1 min-w-0">
-            <h2 className="font-heading text-2xl md:text-3xl font-bold text-slate-800">
-              {player.name}
-            </h2>
-            <div className="flex flex-wrap items-center gap-2 mt-3">
-              <span className="px-3 py-1 rounded-full bg-coral-100 text-coral-600 text-sm font-medium border border-coral-200">
-                {player.bodyState.label}
-              </span>
-              <span className="px-3 py-1 rounded-full bg-sky-100 text-sky-600 text-sm border border-sky-200">
-                {player.bodyState.mood}
-              </span>
-            </div>
+          {/* 身份信息 */}
+          <div className="flex-1 min-w-0 w-full">
+            <header className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+              <h2 className="font-heading text-2xl md:text-3xl font-bold text-slate-800">
+                {player.name}
+              </h2>
+              <p className="text-sm text-slate-500">
+                {player.socialIdentity} · {player.age}岁
+              </p>
+            </header>
 
-            <div className="mt-5 grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <StatBar label="体力" value={player.status.stamina} color="#F43F5E" icon={<Heart className="w-4 h-4" />} />
-              <StatBar label="精神" value={player.status.mental} color="#0EA5E9" icon={<Brain className="w-4 h-4" />} />
-              <StatBar label="健康" value={player.status.health} color="#22C55E" icon={<Activity className="w-4 h-4" />} />
+            {/* 状态条 */}
+            <div className="mt-5 grid grid-cols-1 sm:grid-cols-3 gap-5">
+              <StatBar
+                id="personal-status-stamina"
+                label="体力"
+                value={player.status.stamina}
+                color="#E87A5D"
+                icon={<Heart className="w-4 h-4" />}
+              />
+              <StatBar
+                id="personal-status-mental"
+                label="精神"
+                value={player.status.mental}
+                color="#38BDF8"
+                icon={<Brain className="w-4 h-4" />}
+              />
+              <StatBar
+                id="personal-status-health"
+                label="健康"
+                value={player.status.health}
+                color="#6BBF73"
+                icon={<Activity className="w-4 h-4" />}
+              />
             </div>
           </div>
         </div>
       </GlassCard>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* 身体状态 */}
-        <GlassCard variant="coral" className="p-5">
-          <h3 className="font-heading text-base font-bold text-slate-800 flex items-center gap-2 mb-4">
-            <Activity className="w-5 h-5 text-coral-400" /> 身体状态
-          </h3>
-
-          <div className="space-y-3">
-            <InfoRow icon={<Ruler className="w-5 h-5" />} label="身高" value={`${player.bodyState.height} cm`} />
-            <InfoRow icon={<Weight className="w-5 h-5" />} label="体重" value={`${player.bodyState.weight} 斤`} />
-            <InfoRow icon={<Baby className="w-5 h-5" />} label="年龄阶段" value={player.bodyState.ageStage} />
-            <InfoRow
-              icon={<Stethoscope className="w-5 h-5" />}
-              label="生理状态"
-              value={player.bodyState.physiological.join('、') || '无异常'}
-            />
-            <InfoRow
-              icon={<Sparkles className="w-5 h-5" />}
-              label="精神状态"
-              value={player.bodyState.mental.join('、') || '平稳'}
-            />
+      {/* 身体状态区 */}
+      <section id="personal-status-body-section">
+        <GlassCard variant="default" className="overflow-hidden">
+          <div className="flex items-center gap-2 px-5 py-4 border-b border-slate-100 bg-slate-50/50">
+            <Activity className="w-5 h-5 text-coral-400" />
+            <h3 className="font-heading text-base font-bold text-slate-800">身体状态</h3>
           </div>
 
-          <div className="mt-5 pt-5 border-t border-coral-100/60">
-            <div className="flex flex-wrap gap-2">
-              {player.bodyState.conditions.map((condition) => (
-                <span
-                  key={condition}
-                  className="px-3 py-1.5 rounded-full bg-coral-100 text-coral-600 text-xs font-medium border border-coral-200"
-                >
-                  {condition}
-                </span>
-              ))}
-            </div>
-            <p className="mt-4 text-sm text-slate-600 leading-relaxed">{player.bodyState.description}</p>
-          </div>
+          <dl>
+            {/* 基础测量 */}
+            <FieldGroup className="grid grid-cols-1 sm:grid-cols-3">
+              <Field icon={<Ruler className="w-4 h-4" />} label="身高" value={`${player.bodyState.height} cm`} />
+              <Field icon={<Weight className="w-4 h-4" />} label="体重" value={`${player.bodyState.weight} 斤`} />
+              <Field icon={<Baby className="w-4 h-4" />} label="年龄阶段" value={player.bodyState.ageStage} />
+            </FieldGroup>
+
+            {/* 生理与精神标签 */}
+            <FieldGroup>
+              <div className="flex flex-col gap-2 w-full sm:w-auto">
+                <div className="flex items-center gap-2">
+                  <Stethoscope className="w-4 h-4 text-mint-500" />
+                  <span className="text-xs text-slate-400">生理</span>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {player.bodyState.physiological.map((item) => (
+                    <span
+                      key={item}
+                      className="px-2.5 py-1 rounded-full bg-mint-50 text-mint-600 text-xs font-medium border border-mint-100"
+                    >
+                      {item}
+                    </span>
+                  ))}
+                  {player.bodyState.physiological.length === 0 && (
+                    <span className="text-sm text-slate-600">无异常</span>
+                  )}
+                </div>
+              </div>
+
+              <div className="flex flex-col gap-2 w-full sm:w-auto">
+                <div className="flex items-center gap-2">
+                  <Sparkles className="w-4 h-4 text-sky-500" />
+                  <span className="text-xs text-slate-400">精神</span>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {player.bodyState.mental.map((item) => (
+                    <span
+                      key={item}
+                      className="px-2.5 py-1 rounded-full bg-sky-50 text-sky-600 text-xs font-medium border border-sky-100"
+                    >
+                      {item}
+                    </span>
+                  ))}
+                  {player.bodyState.mental.length === 0 && (
+                    <span className="text-sm text-slate-600">平稳</span>
+                  )}
+                </div>
+              </div>
+            </FieldGroup>
+
+            {/* 综合描述 */}
+            <FieldGroup className="!border-b-0">
+              <p className="text-sm text-slate-600 leading-relaxed w-full">
+                {player.bodyState.description}
+              </p>
+            </FieldGroup>
+          </dl>
         </GlassCard>
+      </section>
 
-        {/* 个人资讯 */}
-        <GlassCard variant="sky" className="p-5">
-          <h3 className="font-heading text-base font-bold text-slate-800 flex items-center gap-2 mb-4">
-            <Fingerprint className="w-5 h-5 text-sky-500" /> 个人讯息
-          </h3>
-
-          <div className="space-y-3">
-            <InfoRow icon={<User className="w-5 h-5" />} label="姓名" value={player.name} />
-            <InfoRow icon={<User className="w-5 h-5" />} label="性别" value={player.gender} />
-            <InfoRow icon={<Baby className="w-5 h-5" />} label="年龄" value={`${player.age}岁`} />
-            <InfoRow icon={<Cake className="w-5 h-5" />} label="生日" value={player.birthday} />
-            <InfoRow icon={<MapPin className="w-5 h-5" />} label="国籍" value={player.nationality} />
-            <InfoRow icon={<Home className="w-5 h-5" />} label="户籍" value={player.householdRegistration} />
-            <InfoRow icon={<Sparkles className="w-5 h-5" />} label="母语" value={player.nativeLanguage} />
-            <InfoRow icon={<Award className="w-5 h-5" />} label="社会身份" value={player.socialIdentity} />
-            <InfoRow icon={<Home className="w-5 h-5" />} label="家庭成员" value={player.familyMembers} />
-            <InfoRow icon={<MapPin className="w-5 h-5" />} label="住址" value={player.address} />
-            <InfoRow icon={<FileBadge className="w-5 h-5" />} label="证件证书" value={player.certificates.join('、') || '无'} />
-            <InfoRow icon={<Award className="w-5 h-5" />} label="奖项成就" value={player.awards.join('、') || '无'} />
+      {/* 个人讯息区 */}
+      <section id="personal-status-info-section">
+        <GlassCard variant="default" className="overflow-hidden">
+          <div className="flex items-center gap-2 px-5 py-4 border-b border-slate-100 bg-slate-50/50">
+            <Fingerprint className="w-5 h-5 text-sky-500" />
+            <h3 className="font-heading text-base font-bold text-slate-800">个人讯息</h3>
           </div>
+
+          <dl>
+            <FieldGroup>
+              <Field icon={<User className="w-4 h-4" />} label="姓名" value={player.name} />
+              <Field icon={<User className="w-4 h-4" />} label="性别" value={player.gender} />
+              <Field icon={<Baby className="w-4 h-4" />} label="年龄" value={`${player.age}岁`} />
+            </FieldGroup>
+
+            <FieldGroup>
+              <Field icon={<Cake className="w-4 h-4" />} label="生日" value={player.birthday} />
+              <Field icon={<MapPin className="w-4 h-4" />} label="国籍" value={player.nationality} />
+              <Field icon={<Home className="w-4 h-4" />} label="户籍" value={player.householdRegistration} />
+            </FieldGroup>
+
+            <FieldGroup>
+              <Field icon={<Sparkles className="w-4 h-4" />} label="母语" value={player.nativeLanguage} />
+              <Field icon={<Award className="w-4 h-4" />} label="社会身份" value={player.socialIdentity} />
+            </FieldGroup>
+
+            <FieldGroup>
+              <Field icon={<User className="w-4 h-4" />} label="家庭成员" value={player.familyMembers} />
+            </FieldGroup>
+
+            <FieldGroup className="!border-b-0">
+              <Field icon={<MapPin className="w-4 h-4" />} label="住址" value={player.address} />
+            </FieldGroup>
+          </dl>
         </GlassCard>
-      </div>
+      </section>
+
+      {/* 资质与荣誉区 */}
+      <section id="personal-status-awards-section">
+        <GlassCard variant="default" className="overflow-hidden">
+          <div className="flex items-center gap-2 px-5 py-4 border-b border-slate-100 bg-slate-50/50">
+            <Award className="w-5 h-5 text-amber-500" />
+            <h3 className="font-heading text-base font-bold text-slate-800">资质与荣誉</h3>
+          </div>
+
+          <dl>
+            <FieldGroup>
+              <Field
+                icon={<FileBadge className="w-4 h-4" />}
+                label="证件证书"
+                value={player.certificates.join('、') || '无'}
+              />
+            </FieldGroup>
+
+            <FieldGroup className="!border-b-0">
+              <Field
+                icon={<Award className="w-4 h-4" />}
+                label="奖项成就"
+                value={player.awards.join('、') || '无'}
+              />
+            </FieldGroup>
+          </dl>
+        </GlassCard>
+      </section>
     </div>
   );
 }
