@@ -24,14 +24,16 @@ const glassCardVariants = cva(
 );
 
 interface GlassCardProps extends VariantProps<typeof glassCardVariants> {
+  id?: string;
   children: ReactNode;
   className?: string;
   onClick?: (e: MouseEvent<HTMLDivElement>) => void;
 }
 
-export function GlassCard({ children, className, variant = 'default', onClick }: GlassCardProps) {
+export function GlassCard({ id, children, className, variant = 'default', onClick }: GlassCardProps) {
   return (
     <div
+      id={id}
       className={cn(glassCardVariants({ variant }), onClick && 'cursor-pointer', className)}
       onClick={onClick}
       role={onClick ? 'button' : undefined}
