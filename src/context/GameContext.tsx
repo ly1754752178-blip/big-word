@@ -33,8 +33,9 @@ interface GameContextValue {
   updateOverlayTitle: (title: string) => void;
   setDateMark: (date: string, mark: DateMark) => void;
   clearDateMark: (date: string) => void;
-  addInAppNotification: (notification: Omit<InAppNotification, 'id'>) => void;
-  removeInAppNotification: (id: string) => void;
+  addNotification: (notification: Omit<InAppNotification, 'id'>) => void;
+  dismissNotification: (id: string) => void;
+  clearNotifications: () => void;
   buyShopItem: (itemId: string) => void;
 }
 
@@ -63,7 +64,8 @@ type Action =
   | { type: 'SET_DATE_MARK'; payload: DateMark }
   | { type: 'CLEAR_DATE_MARK'; payload: string }
   | { type: 'ADD_IN_APP_NOTIFICATION'; payload: InAppNotification }
-  | { type: 'REMOVE_IN_APP_NOTIFICATION'; payload: string }
+  | { type: 'DISMISS_IN_APP_NOTIFICATION'; payload: string }
+  | { type: 'CLEAR_IN_APP_NOTIFICATIONS' }
   | { type: 'BUY_SHOP_ITEM'; payload: string };
 
 const overlayTitles: Record<OverlayViewType, string> = {
@@ -193,15 +195,25 @@ function gameReducer(state: GameState, action: Action): GameState {
       return { ...state, dateMarks: next };
     }
     case 'ADD_IN_APP_NOTIFICATION': {
+      const nextNotifications = [...state.inAppNotifications, action.payload];
+      if (nextNotifications.length > 3) {
+        nextNotifications.shift();
+      }
       return {
         ...state,
-        inAppNotifications: [...state.inAppNotifications, action.payload],
+        inAppNotifications: nextNotifications,
       };
     }
-    case 'REMOVE_IN_APP_NOTIFICATION': {
+    case 'DISMISS_IN_APP_NOTIFICATION': {
       return {
         ...state,
         inAppNotifications: state.inAppNotifications.filter((n) => n.id !== action.payload),
+      };
+    }
+    case 'CLEAR_IN_APP_NOTIFICATIONS': {
+      return {
+        ...state,
+        inAppNotifications: [],
       };
     }
     case 'BUY_SHOP_ITEM': {
@@ -364,11 +376,15 @@ export function GameProvider({ children }: GameProviderProps) {
     updateOverlayTitle: (title) => dispatch({ type: 'UPDATE_OVERLAY_TITLE', payload: title }),
     setDateMark: (date, mark) => dispatch({ type: 'SET_DATE_MARK', payload: { ...mark, date } }),
     clearDateMark: (date) => dispatch({ type: 'CLEAR_DATE_MARK', payload: date }),
-    addInAppNotification: (notification) => dispatch({
+    addNotification: (notification) => dispatch({
       type: 'ADD_IN_APP_NOTIFICATION',
-      payload: { ...notification, id: `notif-${Date.now()}` },
+      payload: {
+        ...notification,
+        id: `notif-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+      },
     }),
-    removeInAppNotification: (id) => dispatch({ type: 'REMOVE_IN_APP_NOTIFICATION', payload: id }),
+    dismissNotification: (id) => dispatch({ type: 'DISMISS_IN_APP_NOTIFICATION', payload: id }),
+    clearNotifications: () => dispatch({ type: 'CLEAR_IN_APP_NOTIFICATIONS' }),
     buyShopItem: (itemId) => dispatch({ type: 'BUY_SHOP_ITEM', payload: itemId }),
   };
 

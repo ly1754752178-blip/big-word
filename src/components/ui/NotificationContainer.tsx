@@ -3,7 +3,7 @@ import { useGame } from '@/hooks/useGameState';
 import { InAppNotification } from './InAppNotification';
 
 export function NotificationContainer() {
-  const { state, removeInAppNotification } = useGame();
+  const { state, dismissNotification } = useGame();
   const notifications = state.inAppNotifications;
 
   return (
@@ -13,7 +13,7 @@ export function NotificationContainer() {
           <InAppNotification
             key={n.id}
             notification={n}
-            onClose={() => removeInAppNotification(n.id)}
+            onClose={() => dismissNotification(n.id)}
           />
         ))}
       </AnimatePresence>
