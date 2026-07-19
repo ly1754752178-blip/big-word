@@ -335,7 +335,7 @@ const shopItems: GameState['shopItems'] = [
     name: '桌面小台灯',
     category: 'furniture',
     price: 3200,
-    effect: '夜间学习时减少疲劳积累',
+    effect: '夜间学习时保持专注',
     description: '暖色光，可三段调光。',
     icon: 'lamp',
   },
@@ -486,7 +486,6 @@ export const mockGameState: GameState = {
     },
     bodyState: {
       label: '略显疲惫',
-      fatigue: 42,
       mood: '平静',
       conditions: ['轻微睡眠不足', '运动后肌肉酸痛'],
       description: '昨晚熬夜看书，今天上课时有些走神。',

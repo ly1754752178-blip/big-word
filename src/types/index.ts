@@ -64,7 +64,6 @@ export interface PlayerStatus {
 
 export interface PlayerBodyState {
   label: string;
-  fatigue: number;
   mood: string;
   conditions: string[];
   description: string;

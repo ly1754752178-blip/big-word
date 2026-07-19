@@ -1,26 +1,26 @@
 # Subagent-Driven Development Progress Ledger
 
-Project: BGM 播放器升级
-Plan: docs/superpowers/plans/2026-07-14-bgm-player-upgrade.md
-Baseline commit: f780765
+Project: 个人状态界面重制
+Plan: docs/superpowers/plans/2026-07-20-personal-status-redesign.md
+Baseline commit: d3618e1
+Branch: feature/personal-status-redesign
 
 ## Tasks
 
-- [x] Task 1: Vite 插件 — 构建时扫描 BGM 目录生成 manifest (c5df037..c3e82a6, review ✅)
-- [x] Task 2: BGM 加载器 — 运行时获取播放列表 (7b3c610, review ✅)
-- [x] Task 3: 播放列表弹窗组件 (45e051f, review ✅)
-- [x] Task 4: 改造 BgmPlayer — 接入动态播放列表和弹窗 (493a2ac)
-- [x] Task 5: 端到端验证 — tsc + build + push ✅
+- [x] Task 1: 清理 fatigue 数据模型
+- [ ] Task 2: 在 GameContext 中扩展通知状态
+- [ ] Task 3: 实现通知 UI 组件
+- [ ] Task 4: 重制 StatusPreview
+- [ ] Task 5: 重制 PersonalStatusOverlay
+- [ ] Task 6: 全局检查与收尾
+- [ ] Task 7: 自检验证
 
 ## Verification
 
 - TypeScript: 0 errors
-- Vite build: ✅ 1994 modules, success
-- manifest.json 正确生成于 dist/BGM/
-- GitHub push: ✅
+- Vite build: pending
+- Browser verification: pending
 
 ## Minor Issues (for future)
 
-1. scan() 缺少 try-catch 错误处理
-2. watch 事件日志不一致（仅 change 有 log）
-3. BGM_DIR 冗余 existsSync 检查
+None yet.

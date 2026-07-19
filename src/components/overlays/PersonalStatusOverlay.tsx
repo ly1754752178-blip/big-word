@@ -101,8 +101,7 @@ export function PersonalStatusOverlay() {
           </div>
 
           <div className="mt-5 pt-5 border-t border-coral-100/60">
-            <StatBar label="疲劳" value={player.bodyState.fatigue} color="#F43F5E" />
-            <div className="flex flex-wrap gap-2 mt-4">
+            <div className="flex flex-wrap gap-2">
               {player.bodyState.conditions.map((condition) => (
                 <span
                   key={condition}
