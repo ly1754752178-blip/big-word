@@ -9,7 +9,7 @@ export function NotificationContainer() {
   return (
     <div
       id="notification-container"
-      className="fixed top-20 right-4 z-[9999] flex flex-col gap-2 w-80"
+      className="fixed bottom-6 left-4 z-[60] flex flex-col gap-2 w-80 max-w-[calc(100vw-2rem)]"
       aria-label="应用内通知"
     >
       <AnimatePresence>

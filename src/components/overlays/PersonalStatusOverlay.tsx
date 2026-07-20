@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect } from 'react';
 import { useGame } from '@/hooks/useGameState';
 import { GlassCard } from '@/components/ui/GlassCard';
 import { StatBar } from '@/components/ui/StatBar';
@@ -54,12 +54,9 @@ function Field({ icon, label, value }: FieldProps) {
 export function PersonalStatusOverlay() {
   const { state, addNotification } = useGame();
   const { player } = state;
-  const notifiedRef = useRef(false);
 
+  // 打开弹窗时发送通知（reducer 内置去重，无需组件侧守卫）
   useEffect(() => {
-    if (notifiedRef.current) return;
-    notifiedRef.current = true;
-
     const timer = setTimeout(() => {
       addNotification({
         type: 'info',
@@ -69,7 +66,9 @@ export function PersonalStatusOverlay() {
       });
     }, 400);
     return () => clearTimeout(timer);
-  }, [addNotification]);
+    // 仅在挂载时执行一次；addNotification 引用变化不应重置定时器
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <div className="max-w-5xl mx-auto space-y-6 pb-8">

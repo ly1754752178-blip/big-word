@@ -195,6 +195,8 @@ function gameReducer(state: GameState, action: Action): GameState {
       return { ...state, dateMarks: next };
     }
     case 'ADD_IN_APP_NOTIFICATION': {
+      // 去重：已有同标题通知则跳过
+      if (state.inAppNotifications.some((n) => n.title === action.payload.title)) return state;
       const nextNotifications = [...state.inAppNotifications, action.payload];
       if (nextNotifications.length > 3) {
         nextNotifications.shift();

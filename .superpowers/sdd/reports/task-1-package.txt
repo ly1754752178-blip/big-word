@@ -1,0 +1,114 @@
+ .superpowers/sdd/progress.md                      | 28 +++++++++++------------
+ src/components/overlays/PersonalStatusOverlay.tsx |  3 +--
+ src/data/mockData.ts                              |  3 +--
+ src/types/index.ts                                |  1 -
+ 4 files changed, 16 insertions(+), 19 deletions(-)
+
+diff --git a/.superpowers/sdd/progress.md b/.superpowers/sdd/progress.md
+index 270dd10..5f785c8 100644
+--- a/.superpowers/sdd/progress.md
++++ b/.superpowers/sdd/progress.md
+@@ -1,26 +1,26 @@
+ # Subagent-Driven Development Progress Ledger
+ 
+-Project: BGM 播放器升级
+-Plan: docs/superpowers/plans/2026-07-14-bgm-player-upgrade.md
+-Baseline commit: f780765
++Project: 个人状态界面重制
++Plan: docs/superpowers/plans/2026-07-20-personal-status-redesign.md
++Baseline commit: d3618e1
++Branch: feature/personal-status-redesign
+ 
+ ## Tasks
+ 
+-- [x] Task 1: Vite 插件 — 构建时扫描 BGM 目录生成 manifest (c5df037..c3e82a6, review ✅)
+-- [x] Task 2: BGM 加载器 — 运行时获取播放列表 (7b3c610, review ✅)
+-- [x] Task 3: 播放列表弹窗组件 (45e051f, review ✅)
+-- [x] Task 4: 改造 BgmPlayer — 接入动态播放列表和弹窗 (493a2ac)
+-- [x] Task 5: 端到端验证 — tsc + build + push ✅
++- [x] Task 1: 清理 fatigue 数据模型
++- [ ] Task 2: 在 GameContext 中扩展通知状态
++- [ ] Task 3: 实现通知 UI 组件
++- [ ] Task 4: 重制 StatusPreview
++- [ ] Task 5: 重制 PersonalStatusOverlay
++- [ ] Task 6: 全局检查与收尾
++- [ ] Task 7: 自检验证
+ 
+ ## Verification
+ 
+ - TypeScript: 0 errors
+-- Vite build: ✅ 1994 modules, success
+-- manifest.json 正确生成于 dist/BGM/
+-- GitHub push: ✅
++- Vite build: pending
++- Browser verification: pending
+ 
+ ## Minor Issues (for future)
+ 
+-1. scan() 缺少 try-catch 错误处理
+-2. watch 事件日志不一致（仅 change 有 log）
+-3. BGM_DIR 冗余 existsSync 检查
++None yet.
+diff --git a/src/components/overlays/PersonalStatusOverlay.tsx b/src/components/overlays/PersonalStatusOverlay.tsx
+index ed0b92d..57fe8f4 100644
+--- a/src/components/overlays/PersonalStatusOverlay.tsx
++++ b/src/components/overlays/PersonalStatusOverlay.tsx
+@@ -99,12 +99,11 @@ export function PersonalStatusOverlay() {
+               value={player.bodyState.mental.join('、') || '平稳'}
+             />
+           </div>
+ 
+           <div className="mt-5 pt-5 border-t border-coral-100/60">
+-            <StatBar label="疲劳" value={player.bodyState.fatigue} color="#F43F5E" />
+-            <div className="flex flex-wrap gap-2 mt-4">
++            <div className="flex flex-wrap gap-2">
+               {player.bodyState.conditions.map((condition) => (
+                 <span
+                   key={condition}
+                   className="px-3 py-1.5 rounded-full bg-coral-100 text-coral-600 text-xs font-medium border border-coral-200"
+                 >
+diff --git a/src/data/mockData.ts b/src/data/mockData.ts
+index 1a27e19..9bd43b9 100644
+--- a/src/data/mockData.ts
++++ b/src/data/mockData.ts
+@@ -333,11 +333,11 @@ const shopItems: GameState['shopItems'] = [
+   {
+     id: 'shop6',
+     name: '桌面小台灯',
+     category: 'furniture',
+     price: 3200,
+-    effect: '夜间学习时减少疲劳积累',
++    effect: '夜间学习时保持专注',
+     description: '暖色光，可三段调光。',
+     icon: 'lamp',
+   },
+ ];
+ 
+@@ -484,11 +484,10 @@ export const mockGameState: GameState = {
+       mental: 65,
+       health: 82,
+     },
+     bodyState: {
+       label: '略显疲惫',
+-      fatigue: 42,
+       mood: '平静',
+       conditions: ['轻微睡眠不足', '运动后肌肉酸痛'],
+       description: '昨晚熬夜看书，今天上课时有些走神。',
+       height: 180,
+       weight: 50,
+diff --git a/src/types/index.ts b/src/types/index.ts
+index 82d2e12..b78dae0 100644
+--- a/src/types/index.ts
++++ b/src/types/index.ts
+@@ -62,11 +62,10 @@ export interface PlayerStatus {
+   health: number;
+ }
+ 
+ export interface PlayerBodyState {
+   label: string;
+-  fatigue: number;
+   mood: string;
+   conditions: string[];
+   description: string;
+   height: number;
+   weight: number;
