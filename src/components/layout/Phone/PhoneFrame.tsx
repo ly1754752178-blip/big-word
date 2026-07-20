@@ -1,6 +1,5 @@
 import { ReactNode } from 'react';
 import { motion } from 'framer-motion';
-import { Wifi, Battery } from 'lucide-react';
 
 interface PhoneFrameProps {
   expanded: boolean;
@@ -11,7 +10,7 @@ interface PhoneFrameProps {
 export function PhoneFrame({ expanded, onHeadClick, children }: PhoneFrameProps) {
   return (
     <>
-      {/* 收起状态：扁平手机头部 —— 在右侧面板内居中 */}
+      {/* 收起状态：简约横条 —— 在右侧面板内居中 */}
       {!expanded && (
         <motion.button
           type="button"
@@ -21,10 +20,6 @@ export function PhoneFrame({ expanded, onHeadClick, children }: PhoneFrameProps)
           aria-label="打开手机"
         >
           <div className="w-20 h-1 rounded-full bg-white/30" />
-          <div className="absolute right-4 flex items-center gap-2 text-white/70">
-            <Wifi className="w-4 h-4" />
-            <Battery className="w-4 h-4" />
-          </div>
         </motion.button>
       )}
 
