@@ -1,7 +1,7 @@
 import { useGame } from '@/hooks/useGameState';
 import { SkyOrb } from '@/components/ui/SkyOrb';
 import { BgmPlayer } from '@/components/ui/BgmPlayer';
-import { Calendar, Star } from 'lucide-react';
+import { Calendar, Star, User } from 'lucide-react';
 import type { Festival } from '@/types';
 
 export function TopBar() {
@@ -71,7 +71,16 @@ export function TopBar() {
       </div>
 
       {/* 右侧 BGM 播放器 */}
-      <div className="flex items-center justify-end h-full">
+      <div className="flex items-center justify-end h-full gap-2">
+        <button
+          type="button"
+          id="mobile-status-entry"
+          onClick={() => openOverlayView('status')}
+          className="lg:hidden flex items-center justify-center w-10 h-10 rounded-xl bg-cream-100 border border-cream-200 text-slate-600 hover:bg-cream-200 hover:text-slate-800 transition-colors"
+          aria-label="打开个人状态"
+        >
+          <User className="w-5 h-5" />
+        </button>
         <BgmPlayer />
       </div>
     </header>

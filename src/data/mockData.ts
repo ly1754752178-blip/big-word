@@ -485,7 +485,7 @@ export const mockGameState: GameState = {
       health: 82,
     },
     bodyState: {
-      label: '略显疲惫',
+      label: '状态普通',
       mood: '平静',
       conditions: ['轻微睡眠不足', '运动后肌肉酸痛'],
       description: '昨晚熬夜看书，今天上课时有些走神。',

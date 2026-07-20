@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useGame } from '@/hooks/useGameState';
 import { GlassCard } from '@/components/ui/GlassCard';
 import { StatBar } from '@/components/ui/StatBar';
@@ -54,8 +54,12 @@ function Field({ icon, label, value }: FieldProps) {
 export function PersonalStatusOverlay() {
   const { state, addNotification } = useGame();
   const { player } = state;
+  const notifiedRef = useRef(false);
 
   useEffect(() => {
+    if (notifiedRef.current) return;
+    notifiedRef.current = true;
+
     const timer = setTimeout(() => {
       addNotification({
         type: 'info',
