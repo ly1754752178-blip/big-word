@@ -21,8 +21,25 @@ Branch: feature/personal-status-redesign
 - Vite build: success
 - Browser verification: done
 
+## Round 2 Fixes (2026-07-20)
+
+- [x] Fix 1: 通知去重 — reducer 层内置同标题去重 + 空依赖 useEffect 修复通知不触发 bug
+- [x] Fix 2: 通知层遮挡 — 移至左下角 + z-index 降至 z-[60]
+- [x] Fix 3: 移动端入口 — 按钮绝对定位防止 BGM 播放器挤出屏幕 (x=339@375px)
+- [x] Fix 4: SkyOrb 遮挡 — 无 onClick 时 pointer-events-none
+- [x] Fix 5: 状态词 — mockData 确认已为「状态普通」（前期 commit 已修）
+- [x] Fix 6: TopBar 响应式 — 左侧日期紧凑化，为移动端腾出空间
+
+## Verification (Round 2)
+
+- TypeScript: 0 errors
+- Vite build: success (1994 modules)
+- Desktop 1440px: StatusPreview ✅, Overlay ✅, 通知去重 ✅, 关闭按钮 ✅
+- Mobile 375px: 入口按钮可见可点击 ✅, 弹窗正常打开 ✅, 按钮在视口内 (x=339) ✅
+- 通知去重: 首次打开 1 条, 重复打开仍 1 条 ✅
+- Console errors: 0 ✅
+
 ## Minor Issues (for future)
 
-- 打开个人状态弹窗时通知重复叠加，遮挡关闭按钮。
-- 375px / 768px 下左侧状态预览与导航入口被隐藏，移动端无法进入个人状态。
-- 375px 下顶部音乐控件溢出可视区。
+- 375px 下 BGM 播放器仍宽至视口边缘，与移动端按钮有视觉重叠（不影响点击）
+- BGM 扫描为空 (0 首)，与本次修改无关
