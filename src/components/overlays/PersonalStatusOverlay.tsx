@@ -60,7 +60,7 @@ export function PersonalStatusOverlay() {
       addNotification({
         type: 'info',
         title: '个人状态已更新',
-        message: '疲劳相关状态已移除，当前显示最新身体档案。',
+        message: '旧的身体状态字段已移除，当前显示最新身体档案。',
         duration: 4000,
       });
     }, 400);

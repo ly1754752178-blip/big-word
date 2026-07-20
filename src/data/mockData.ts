@@ -907,17 +907,17 @@ export const mockGameState: GameState = {
     ],
 
     assets: [
-      // 💵 流动资金
+      // 流动资金
       { id: 'a1', name: '银行账户', value: 128500, icon: 'credit-card', description: '主要用于生活费与储蓄', category: 'liquid' as const },
       { id: 'a2', name: '電子マネー', value: 2500, icon: 'smartphone', description: 'Suica・PayPay 日常の支払い用', category: 'liquid' as const },
-      // 🚗 动产资产
+      // 动产资产
       { id: 'a3', name: '笔记本电脑', value: 85000, icon: 'laptop', description: '用于学习与兼职编程', category: 'movable' as const },
       { id: 'a4', name: '二手自行车', value: 8000, icon: 'bike', description: '上下学代步工具', category: 'movable' as const },
       { id: 'a5', name: '智能手机', value: 5000, icon: 'smartphone', description: '日常通讯与社交', category: 'movable' as const },
-      // 📈 金融资产
+      // 金融资产
       { id: 'a6', name: '基金定投', value: 10000, icon: 'trending-up', description: '每月定投沪深300指数基金', category: 'financial' as const },
       { id: 'a7', name: '便利店积分', value: 450, icon: 'coins', description: '可兑换小礼品', category: 'financial' as const },
-      // 💼 经营资产（初期暂无）
+      // 经营资产（初期暂无）
     ],
   },
   calendar: {
