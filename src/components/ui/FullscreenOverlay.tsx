@@ -169,7 +169,7 @@ export function FullscreenOverlay({
               </button>
             </div>
             <div ref={scrollRef} className="flex-1 min-h-0 overflow-y-scroll p-5 md:p-8 grain-overlay">
-              <div className="relative z-10">{children}</div>
+              <div className="relative z-10 h-full">{children}</div>
             </div>
           </motion.div>
         )}

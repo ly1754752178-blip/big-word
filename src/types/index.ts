@@ -138,6 +138,11 @@ export interface SkillTree {
   nodes: SkillNode[];
 }
 
+export interface CategoryExp {
+  exp: number;
+  maxExp: number;
+}
+
 export interface Relation {
   id: string;
   name: string;
@@ -372,6 +377,8 @@ export interface GameState {
     work: SkillTree[];
     special: SkillTree[];
   };
+  /** 分类泛用经验值：满后可转换为该分类下任意技能树的技能点 */
+  categoryExp: Record<SkillCategory, CategoryExp>;
   relationships: {
     list: Relation[];
     network: NetworkNode[];

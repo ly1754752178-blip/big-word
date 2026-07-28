@@ -356,6 +356,11 @@ export function GameProvider({ children }: GameProviderProps) {
     await generateNarrative(input);
   }, [state.narrative.messages, generateNarrative]);
 
+  const updateOverlayTitle = useCallback(
+    (title: string) => dispatch({ type: 'UPDATE_OVERLAY_TITLE', payload: title }),
+    []
+  );
+
   const value: GameContextValue = {
     state,
     setActiveTab: (tab) => dispatch({ type: 'SET_ACTIVE_TAB', payload: tab }),
@@ -375,7 +380,7 @@ export function GameProvider({ children }: GameProviderProps) {
     collapsePhone: () => dispatch({ type: 'COLLAPSE_PHONE' }),
     openOverlayView: (type, payload) => dispatch({ type: 'OPEN_OVERLAY_VIEW', payload: type, meta: payload }),
     closeOverlayView: () => dispatch({ type: 'CLOSE_OVERLAY_VIEW' }),
-    updateOverlayTitle: (title) => dispatch({ type: 'UPDATE_OVERLAY_TITLE', payload: title }),
+    updateOverlayTitle,
     setDateMark: (date, mark) => dispatch({ type: 'SET_DATE_MARK', payload: { ...mark, date } }),
     clearDateMark: (date) => dispatch({ type: 'CLEAR_DATE_MARK', payload: date }),
     addNotification: (notification) => dispatch({

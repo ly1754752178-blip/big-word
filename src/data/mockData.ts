@@ -766,6 +766,11 @@ export const mockGameState: GameState = {
       },
     ],
   },
+  categoryExp: {
+    daily: { exp: 340, maxExp: 1000 },
+    work: { exp: 520, maxExp: 1000 },
+    special: { exp: 120, maxExp: 1000 },
+  },
   relationships: {
     list: [
       {

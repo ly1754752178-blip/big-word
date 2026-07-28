@@ -72,7 +72,7 @@ export function SkillsOverlay() {
 
       {/* 统计栏 */}
       <div className="p-1 rounded-2xl" style={{ background: COL.card, border: `1.5px solid ${COL.border}` }}>
-        <StatsBanner skills={skills} color={color} />
+        <StatsBanner skills={skills} color={color} categoryExp={state.categoryExp[category]} />
       </div>
 
       {/* 分隔 */}

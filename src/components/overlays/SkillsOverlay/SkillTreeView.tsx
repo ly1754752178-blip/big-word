@@ -48,6 +48,27 @@ function isVis(n: SkillNode, all: SkillNode[], expId: string | null): boolean {
   return true;
 }
 
+// 计算包含文字标签在内的节点真实边界框（单位：viewBox 坐标）
+function computeNodeBounds(nodes: NodeWithPos[]) {
+  let minX = V, maxX = 0, minY = V, maxY = 0;
+  for (const n of nodes) {
+    if (!n.pos) continue;
+    const isR = n.depth === 0;
+    const isM = !!n.isMajor && !isR;
+    const isLeaf = n.depth >= 3;
+    const r = isR ? ROOT_R : isM ? MAJOR_R : isLeaf ? LEAF_W : CHILD_R;
+    // 节点圆本身
+    minX = Math.min(minX, n.pos.x - r);
+    maxX = Math.max(maxX, n.pos.x + r);
+    minY = Math.min(minY, n.pos.y - r);
+    maxY = Math.max(maxY, n.pos.y + r);
+    // 下方两行文字大致高度
+    const fontH = isR ? 2.4 : isM ? 2.0 : isLeaf ? 1.5 : 1.8;
+    maxY = Math.max(maxY, n.pos.y + r + 2.8 + fontH + 1.2);
+  }
+  return { minX: Math.max(0, minX), maxX: Math.min(V, maxX), minY: Math.max(0, minY), maxY: Math.min(V, maxY) };
+}
+
 const nodePalette = [
   { fill: '#FDE8D0', stroke: '#E8A87C' },
   { fill: '#FCE4EC', stroke: '#F48FB1' },
@@ -148,8 +169,13 @@ export function SkillTreeView({ skill, color, categoryLabel, categoryEmoji, onBa
 
   // ── 聚焦 ──
   const panTo = useCallback((tx: number, ty: number) => {
-    const { w, h } = containerSizeRef.current;
-    panTarget.current = { x: w * (0.5 - tx / V), y: h * (0.5 - ty / V) };
+    const { w } = containerSizeRef.current;
+    const unitPx = w / V;
+    // 保持当前 zoom，平移到让目标点(tx,ty)位于容器中心
+    panTarget.current = {
+      x: w * 0.5 - tx * unitPx * zoomRef.current,
+      y: w * 0.5 - ty * unitPx * zoomRef.current,
+    };
   }, []);
 
   useEffect(() => {
@@ -196,22 +222,46 @@ export function SkillTreeView({ skill, color, categoryLabel, categoryEmoji, onBa
     if (node.pos) panTo(node.pos.x, node.pos.y);
   }, [panTo]);
 
+  // ── 初始视图自适应：让所有节点完整可见并居中 ──
   useEffect(() => {
-    const root = nodes.find(n => !n.parentIds?.length);
-    if (root?.pos) {
-      const timer = setTimeout(() => {
-        const { w, h } = containerSizeRef.current;
-        setPan({ x: w * (0.5 - root.pos!.x / V), y: h * (0.5 - root.pos!.y / V) });
-      }, 200);
-      return () => clearTimeout(timer);
-    }
-  }, []); // eslint-disable-line
+    const rect = canvasRef.current?.getBoundingClientRect();
+    const w = rect?.width || containerSizeRef.current.w;
+    const h = rect?.height || containerSizeRef.current.h;
+    if (!w || !h) return;
+
+    const { minX, maxX, minY, maxY } = computeNodeBounds(nodes);
+    const bw = maxX - minX;
+    const bh = maxY - minY;
+    if (bw <= 0 || bh <= 0) return;
+
+    const pad = 22; // 边距，避免节点贴边
+    const cx = (minX + maxX) / 2;
+    const cy = (minY + maxY) / 2;
+
+    // SVG 已由浏览器按 viewBox 0 0 200 200 缩放到容器（w × h），即 1 viewBox 单位 = w/200 px。
+    // 整体缩放系数 zoom 在 CSS transform 中作为 scale(zoom) 使用。
+    const unitPx = w / V;
+    const targetZoom = Math.min(
+      w / (bw * unitPx + pad * 2),
+      h / (bh * unitPx + pad * 2)
+    );
+
+    const timer = setTimeout(() => {
+      setZoom(targetZoom);
+      // translate 在 scale 之前应用，因此以 viewBox 单位直接偏移即可
+      setPan({
+        x: w * 0.5 - cx * unitPx * targetZoom,
+        y: h * 0.5 - cy * unitPx * targetZoom,
+      });
+    }, 80);
+    return () => clearTimeout(timer);
+  }, [nodes]);
 
   return (
-    <div className="flex flex-col items-center h-full">
+    <div className="flex flex-col h-full">
       {/* 头部信息栏 —— 与画布同宽 */}
       <div
-        className="w-full max-w-[620px] shrink-0 flex items-center gap-3 px-4 py-2.5 rounded-t-2xl"
+        className="w-full shrink-0 flex items-center gap-3 px-4 py-2.5 rounded-t-2xl"
         style={{ background: '#FFFBF7', border: '1.5px solid #E8DFD3', borderBottom: 'none' }}
       >
         <button onClick={onBack}
@@ -234,25 +284,30 @@ export function SkillTreeView({ skill, color, categoryLabel, categoryEmoji, onBa
         </span>
       </div>
 
-      {/* 正方形画布 */}
-      <div className="flex-1 w-full max-w-[620px] flex items-center justify-center min-h-0">
+      {/* 技能树画布 —— 填满剩余空间 */}
+      <div
+        className="flex-1 w-full min-h-0 flex items-center justify-center overflow-hidden rounded-b-2xl"
+        style={{
+          background: `linear-gradient(170deg, ${BG1} 0%, ${BG2} 50%, #EDE3D5 100%)`,
+          border: '1.5px solid #E8DFD3',
+          borderTop: 'none',
+        }}
+      >
         <div
           ref={canvasRef}
-          className="relative w-full aspect-square select-none rounded-b-2xl overflow-hidden"
+          className="relative w-full h-full select-none"
           style={{
-            background: `linear-gradient(170deg, ${BG1} 0%, ${BG2} 50%, #EDE3D5 100%)`,
-            border: '1.5px solid #E8DFD3',
-            borderTop: 'none',
-            boxShadow: '0 4px 24px rgba(0,0,0,0.08), inset 0 0 60px rgba(180,140,100,0.05)',
+            boxShadow: 'inset 0 0 60px rgba(180,140,100,0.05)',
             cursor: drag ? 'grabbing' : 'grab',
           }}
           onMouseDown={onMD} onMouseMove={onMM} onMouseUp={onMU} onMouseLeave={onMU}
           onDoubleClick={onDbl}
         >
           <svg viewBox={`0 0 ${V} ${V}`} className="w-full h-full"
+            preserveAspectRatio="xMidYMid meet"
             style={{
-              transform: `scale(${zoom}) translate(${pan.x / zoom}px, ${pan.y / zoom}px)`,
-              transformOrigin: 'center',
+              transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`,
+              transformOrigin: '0 0',
               transition: drag ? 'none' : 'transform 0.12s ease-out',
             }}>
             <defs>
