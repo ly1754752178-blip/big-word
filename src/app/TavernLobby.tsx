@@ -19,13 +19,16 @@ interface TavernLobbyProps {
   skipOrb?: boolean;
 }
 
-const menuItemStyle: React.CSSProperties = {
-  display: 'flex', alignItems: 'center', gap: 14, padding: '14px 24px',
-  border: '1px solid rgba(255,255,255,0.15)', borderRadius: 10,
-  background: 'rgba(0,0,0,0.35)', backdropFilter: 'blur(16px)',
-  WebkitBackdropFilter: 'blur(16px)', color: 'white', fontSize: '1.05rem',
-  fontWeight: 500, cursor: 'pointer', minWidth: 200, width: '100%',
-};
+const menuItems = [
+  { key: 'start', label: '开始游戏', icon: Gamepad2, onClick: 'onStartGame' as const },
+  { key: 'continue', label: '继续游戏', icon: FolderOpen, onClick: 'onContinue' as const },
+  { key: 'worldbooks', label: '世界书', icon: BookOpen, onClick: 'onWorldBooks' as const },
+  { key: 'api', label: 'API 配置', icon: Plug, onClick: 'onApiConfig' as const },
+  { key: 'presets', label: '预设', icon: Sliders, onClick: 'onPresets' as const },
+  { key: 'settings', label: '设置', icon: Settings, onClick: 'onSettings' as const },
+] as const;
+
+type MenuHandlerKey = typeof menuItems[number]['onClick'];
 
 export function TavernLobby({ onEnterGame, skipOrb = false }: TavernLobbyProps) {
   const st = useSillytavern();
@@ -77,25 +80,21 @@ export function TavernLobby({ onEnterGame, skipOrb = false }: TavernLobbyProps) 
   const handlePresets = () => { console.log('🖱️ 预设 被点击'); closeAll(); setShowPresets(true); };
   const handleSettings = () => { console.log('🖱️ 设置 被点击'); closeAll(); setShowSettings(true); };
 
+  const handlerMap: Record<MenuHandlerKey, () => void> = {
+    onStartGame: handleStartGame,
+    onContinue: handleContinue,
+    onWorldBooks: handleWorldBooks,
+    onApiConfig: handleApiConfig,
+    onPresets: handlePresets,
+    onSettings: handleSettings,
+  };
+
   const handleSelectChat = (id: string) => {
     st.loadChat(id); setShowChats(false); onEnterGame();
   };
 
-  const menuHoverIn = (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.currentTarget.style.background = 'rgba(124,58,237,0.45)';
-    e.currentTarget.style.borderColor = 'rgba(255,255,255,0.4)';
-    e.currentTarget.style.transform = 'translateX(6px)';
-    e.currentTarget.style.boxShadow = '0 0 24px rgba(124,58,237,0.2)';
-  };
-  const menuHoverOut = (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.currentTarget.style.background = 'rgba(0,0,0,0.35)';
-    e.currentTarget.style.borderColor = 'rgba(255,255,255,0.15)';
-    e.currentTarget.style.transform = 'translateX(0)';
-    e.currentTarget.style.boxShadow = 'none';
-  };
-
   return (
-    <div style={{ width: '100vw', height: '100vh', position: 'relative', background: '#000' }}>
+    <div style={{ width: '100vw', height: '100vh', position: 'relative', background: '#000', overflow: 'hidden' }}>
       <VideoBackground />
 
       {/* 开场光球 */}
@@ -112,34 +111,111 @@ export function TavernLobby({ onEnterGame, skipOrb = false }: TavernLobbyProps) 
         )}
       </AnimatePresence>
 
+      {/* 背景暗角与氛围遮罩 */}
+      <div
+        style={{
+          position: 'fixed',
+          inset: 0,
+          zIndex: 1,
+          pointerEvents: 'none',
+          background: 'linear-gradient(to top, rgba(60,45,35,0.55) 0%, rgba(60,45,35,0.15) 40%, rgba(0,0,0,0) 100%)',
+        }}
+      />
 
-      {/* 菜单 — 光球点击后渐显 */}
+      {/* 主内容层 */}
       <AnimatePresence>
         {!showOrb && (
-          <motion.nav
+          <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ duration: 1.2, delay: 0.8 }}
-            style={{ position: 'fixed', left: 48, bottom: 60, zIndex: 9999, display: 'flex', flexDirection: 'column', gap: 8 }}>
-        <button style={menuItemStyle} onClick={handleStartGame} onMouseEnter={menuHoverIn} onMouseLeave={menuHoverOut}>
-          <Gamepad2 size={20} style={{ opacity: 0.8 }} /><span>开始游戏</span>
-        </button>
-        <button style={menuItemStyle} onClick={handleContinue} onMouseEnter={menuHoverIn} onMouseLeave={menuHoverOut}>
-          <FolderOpen size={20} style={{ opacity: 0.8 }} /><span>继续游戏</span>
-        </button>
-        <button style={menuItemStyle} onClick={handleWorldBooks} onMouseEnter={menuHoverIn} onMouseLeave={menuHoverOut}>
-          <BookOpen size={20} style={{ opacity: 0.8 }} /><span>世界书</span>
-        </button>
-        <button style={menuItemStyle} onClick={handleApiConfig} onMouseEnter={menuHoverIn} onMouseLeave={menuHoverOut}>
-          <Plug size={20} style={{ opacity: 0.8 }} /><span>API 配置</span>
-        </button>
-        <button style={menuItemStyle} onClick={handlePresets} onMouseEnter={menuHoverIn} onMouseLeave={menuHoverOut}>
-          <Sliders size={20} style={{ opacity: 0.8 }} /><span>预设</span>
-        </button>
-        <button style={menuItemStyle} onClick={handleSettings} onMouseEnter={menuHoverIn} onMouseLeave={menuHoverOut}>
-          <Settings size={20} style={{ opacity: 0.8 }} /><span>设置</span>
-        </button>
-      </motion.nav>)}</AnimatePresence>
+            transition={{ duration: 1, delay: 0.6 }}
+            style={{
+              position: 'fixed',
+              inset: 0,
+              zIndex: 2,
+              pointerEvents: 'none',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'space-between',
+              padding: '40px 48px 60px',
+            }}
+          >
+            {/* 顶部标题横幅 */}
+            <div style={{ pointerEvents: 'auto', alignSelf: 'flex-start' }}>
+              <motion.div
+                animate={{ y: [0, -4, 0] }}
+                transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
+              >
+                <div className="gal-title-banner">综漫日本生活模拟器</div>
+              </motion.div>
+            </div>
+
+            {/* 中部：左侧菜单 + 右侧信息面板 */}
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'flex-end',
+                justifyContent: 'space-between',
+                width: '100%',
+                flex: 1,
+                marginTop: 80,
+              }}
+            >
+              {/* 左侧菜单 */}
+              <motion.nav
+                initial={{ opacity: 0, x: -30 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.8, delay: 0.9, ease: 'easeOut' }}
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: 12,
+                  pointerEvents: 'auto',
+                }}
+              >
+                {menuItems.map((item, idx) => (
+                  <motion.button
+                    key={item.key}
+                    type="button"
+                    className="gal-btn"
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.5, delay: 1 + idx * 0.08 }}
+                    onClick={handlerMap[item.onClick]}
+                  >
+                    <item.icon size={20} style={{ opacity: 0.85 }} />
+                    <span>{item.label}</span>
+                  </motion.button>
+                ))}
+              </motion.nav>
+
+              {/* 右侧信息面板 */}
+              <motion.aside
+                initial={{ opacity: 0, x: 30 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.8, delay: 1.1, ease: 'easeOut' }}
+                className="gal-info-panel"
+                style={{ pointerEvents: 'auto' }}
+              >
+                <div className="gal-info-section">
+                  <span className="gal-info-label">最新存档</span>
+                  <span className="gal-info-value">3月14日 15:30</span>
+                </div>
+                <div className="gal-divider" />
+                <div className="gal-info-section">
+                  <span className="gal-info-label">通知</span>
+                  <span className="gal-info-value">春のイベント開催中</span>
+                </div>
+                <div className="gal-divider" />
+                <div className="gal-info-section">
+                  <span className="gal-info-label">BGM</span>
+                  <span className="gal-info-value">放課後の風</span>
+                </div>
+              </motion.aside>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* 所有弹窗通过 Portal 渲染到 body，彻底跳出层叠上下文 */}
       {showChats && createPortal(
