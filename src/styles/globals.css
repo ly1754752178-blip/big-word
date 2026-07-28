@@ -475,8 +475,9 @@
   .gal-player {
     display: flex;
     align-items: center;
-    gap: 14px;
-    padding: 10px 14px;
+    gap: 16px;
+    padding: 12px 18px;
+    min-width: 460px;
     border-radius: 16px;
     background: rgba(255, 248, 240, 0.88);
     backdrop-filter: blur(16px);
@@ -488,8 +489,10 @@
   }
 
   .gal-player-cover {
-    width: 84px;
-    height: 84px;
+    width: 140px;
+    height: 140px;
+    max-width: 220px;
+    max-height: 150px;
     border-radius: 12px;
     overflow: hidden;
     flex-shrink: 0;
@@ -504,12 +507,12 @@
   .gal-player-cover canvas {
     width: 100%;
     height: 100%;
-    object-fit: cover;
+    object-fit: contain;
   }
 
   .gal-player-btn {
-    width: 32px;
-    height: 32px;
+    width: 34px;
+    height: 34px;
     border-radius: 10px;
     display: flex;
     align-items: center;
@@ -533,17 +536,17 @@
   }
 
   .gal-player-title {
-    font-size: 0.85rem;
+    font-size: 0.9rem;
     color: #5A4A3D;
     font-weight: 600;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    max-width: 160px;
+    max-width: 260px;
   }
 
   .gal-player-volume {
-    width: 70px;
+    width: 90px;
     accent-color: #E88D4F;
   }
 }

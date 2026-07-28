@@ -84,6 +84,11 @@ export function VideoBackground() {
   const [volume, setVolume] = useState(0.5);
   const [opacity, setOpacity] = useState(1);
   const [coverUrl, setCoverUrl] = useState<string | null>(null);
+  const [coverStyle, setCoverStyle] = useState<{ width: number; height: number; aspectRatio: number }>({
+    width: 140,
+    height: 140,
+    aspectRatio: 1,
+  });
 
   const tracksRef = useRef<TrackPair[]>([]);
   const idxRef = useRef(0);
@@ -275,18 +280,36 @@ export function VideoBackground() {
   const currentTrack = tracks[currentIndex];
   const displayName = currentTrack ? decodeURIComponent(currentTrack.name) : '';
 
-  // ---- 从视频截取首帧作为封面 ----
+  // ---- 从视频截取首帧作为封面，按视频比例自适应尺寸 ----
   const handleLoadedData = useCallback(() => {
     const v = videoRef.current;
     const c = canvasRef.current;
     if (!v || !c) return;
     try {
-      c.width = 168;
-      c.height = 168;
+      const vw = v.videoWidth || 1920;
+      const vh = v.videoHeight || 1080;
+      const ratio = vw / vh;
+
+      // 预览图最大区域：宽 220px、高 150px，按视频比例缩放，不裁剪、不拉伸
+      const maxW = 220;
+      const maxH = 150;
+      let w = maxW;
+      let h = w / ratio;
+      if (h > maxH) {
+        h = maxH;
+        w = h * ratio;
+      }
+      // 向下取整避免半像素模糊
+      w = Math.floor(w);
+      h = Math.floor(h);
+
+      c.width = w;
+      c.height = h;
       const ctx = c.getContext('2d');
       if (!ctx) return;
-      ctx.drawImage(v, 0, 0, 168, 168);
-      setCoverUrl(c.toDataURL('image/jpeg', 0.85));
+      ctx.drawImage(v, 0, 0, w, h);
+      setCoverUrl(c.toDataURL('image/jpeg', 0.92));
+      setCoverStyle({ width: w, height: h, aspectRatio: ratio });
     } catch {
       // 忽略跨域或截图失败
     }
@@ -324,14 +347,22 @@ export function VideoBackground() {
       <div style={{ position: 'fixed', top: 24, right: 24, zIndex: 9999, pointerEvents: 'auto' }}>
         <motion.div
           className="gal-player"
+          style={{ minWidth: 460 }}
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 1.2, ease: 'easeOut' }}
         >
-          {/* 左侧预览方框 */}
-          <div className="gal-player-cover">
+          {/* 左侧预览方框：按视频比例自适应 */}
+          <div
+            className="gal-player-cover"
+            style={{
+              width: coverStyle.width,
+              height: coverStyle.height,
+              aspectRatio: String(coverStyle.aspectRatio),
+            }}
+          >
             {coverUrl ? (
-              <img src={coverUrl} alt={displayName} />
+              <img src={coverUrl} alt={displayName} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
             ) : (
               <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#C4A98C" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                 <rect x="2" y="2" width="20" height="20" rx="5" />
@@ -341,12 +372,12 @@ export function VideoBackground() {
           </div>
 
           {/* 右侧控制区 */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 8, minWidth: 0 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10, minWidth: 0, flex: 1 }}>
             <span className="gal-player-title" title={displayName}>
               {currentTrack ? `《${displayName}》` : '未在播放'}
             </span>
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
               <button type="button" className="gal-player-btn" onClick={prevTrack} title="上一曲">
                 <SkipBack size={16} />
               </button>
@@ -356,9 +387,7 @@ export function VideoBackground() {
               <button type="button" className="gal-player-btn" onClick={nextTrack} title="下一曲">
                 <SkipForward size={16} />
               </button>
-            </div>
-
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <div style={{ width: 1, height: 20, background: 'rgba(200,175,155,0.4)', margin: '0 4px' }} />
               <button type="button" className="gal-player-btn" onClick={toggleMute} title={isMuted ? '取消静音' : '静音'}>
                 {isMuted ? <VolumeX size={14} /> : <Volume2 size={14} />}
               </button>
@@ -370,6 +399,7 @@ export function VideoBackground() {
                 value={isMuted ? 0 : volume}
                 onChange={handleVolume}
                 className="gal-player-volume"
+                style={{ width: 90 }}
                 aria-label="音量"
               />
             </div>
