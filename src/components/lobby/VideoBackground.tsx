@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
+import { motion } from 'framer-motion';
 import { Play, Pause, SkipBack, SkipForward, Volume2, VolumeX } from 'lucide-react';
 
 // 动态扫描 public/videos/shipinbeijing 下所有 .mp4 和 .mp3 文件
@@ -73,6 +74,7 @@ let persistentMuted = true;
 export function VideoBackground() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
   const switching = useRef(false);
 
   const [tracks, setTracks] = useState<TrackPair[]>([]);
@@ -81,6 +83,7 @@ export function VideoBackground() {
   const [isMuted, setIsMuted] = useState(persistentMuted);
   const [volume, setVolume] = useState(0.5);
   const [opacity, setOpacity] = useState(1);
+  const [coverUrl, setCoverUrl] = useState<string | null>(null);
 
   const tracksRef = useRef<TrackPair[]>([]);
   const idxRef = useRef(0);
@@ -272,6 +275,23 @@ export function VideoBackground() {
   const currentTrack = tracks[currentIndex];
   const displayName = currentTrack ? decodeURIComponent(currentTrack.name) : '';
 
+  // ---- 从视频截取首帧作为封面 ----
+  const handleLoadedData = useCallback(() => {
+    const v = videoRef.current;
+    const c = canvasRef.current;
+    if (!v || !c) return;
+    try {
+      c.width = 168;
+      c.height = 168;
+      const ctx = c.getContext('2d');
+      if (!ctx) return;
+      ctx.drawImage(v, 0, 0, 168, 168);
+      setCoverUrl(c.toDataURL('image/jpeg', 0.85));
+    } catch {
+      // 忽略跨域或截图失败
+    }
+  }, []);
+
   return (
     <>
       {/* 视频层 */}
@@ -280,6 +300,7 @@ export function VideoBackground() {
         muted
         playsInline preload="auto"
         onEnded={handleVideoEnded}
+        onLoadedData={handleLoadedData}
         style={{
           position: 'fixed', inset: 0, width: '100%', height: '100%',
           objectFit: 'cover', zIndex: 0, pointerEvents: 'none',
@@ -299,39 +320,65 @@ export function VideoBackground() {
         background: 'linear-gradient(to top, rgba(0,0,0,0.45) 0%, rgba(0,0,0,0.1) 50%, rgba(0,0,0,0) 100%)',
         pointerEvents: 'none',
       }} />
-      {/* 控件栏 */}
-      <div style={ctrlBar}>
-        <p style={ctrlTitle}>《{displayName}》</p>
-        <div style={ctrlRow}>
-          <button onClick={prevTrack} style={btn} title="上一曲"><SkipBack size={16} /></button>
-          <button onClick={togglePlay} style={btn} title={isPlaying ? '暂停' : '播放'}>
-            {isPlaying ? <Pause size={16} /> : <Play size={16} />}
-          </button>
-          <button onClick={nextTrack} style={btn} title="下一曲"><SkipForward size={16} /></button>
-        </div>
-        <div style={ctrlRow}>
-          <button onClick={toggleMute} style={btn} title={isMuted ? '取消静音' : '静音'}>
-            {isMuted ? <VolumeX size={14} /> : <Volume2 size={14} />}
-          </button>
-          <input type="range" min="0" max="1" step="0.05" value={isMuted ? 0 : volume}
-            onChange={handleVolume} style={{ width: 60, accentColor: 'white' }} />
-        </div>
+      {/* 播放器 */}
+      <div style={{ position: 'fixed', top: 24, right: 24, zIndex: 9999, pointerEvents: 'auto' }}>
+        <motion.div
+          className="gal-player"
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 1.2, ease: 'easeOut' }}
+        >
+          {/* 左侧预览方框 */}
+          <div className="gal-player-cover">
+            {coverUrl ? (
+              <img src={coverUrl} alt={displayName} />
+            ) : (
+              <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#C4A98C" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="2" y="2" width="20" height="20" rx="5" />
+                <path d="M2 10l4-3 5 4 6-7 4 5" />
+              </svg>
+            )}
+          </div>
+
+          {/* 右侧控制区 */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8, minWidth: 0 }}>
+            <span className="gal-player-title" title={displayName}>
+              {currentTrack ? `《${displayName}》` : '未在播放'}
+            </span>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <button type="button" className="gal-player-btn" onClick={prevTrack} title="上一曲">
+                <SkipBack size={16} />
+              </button>
+              <button type="button" className="gal-player-btn" onClick={togglePlay} title={isPlaying ? '暂停' : '播放'}>
+                {isPlaying ? <Pause size={18} /> : <Play size={18} style={{ marginLeft: 2 }} />}
+              </button>
+              <button type="button" className="gal-player-btn" onClick={nextTrack} title="下一曲">
+                <SkipForward size={16} />
+              </button>
+            </div>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <button type="button" className="gal-player-btn" onClick={toggleMute} title={isMuted ? '取消静音' : '静音'}>
+                {isMuted ? <VolumeX size={14} /> : <Volume2 size={14} />}
+              </button>
+              <input
+                type="range"
+                min="0"
+                max="1"
+                step="0.05"
+                value={isMuted ? 0 : volume}
+                onChange={handleVolume}
+                className="gal-player-volume"
+                aria-label="音量"
+              />
+            </div>
+          </div>
+        </motion.div>
       </div>
+
+      {/* 隐藏的 canvas，用于截取视频帧 */}
+      <canvas ref={canvasRef} style={{ display: 'none' }} />
     </>
   );
 }
-
-const ctrlBar: React.CSSProperties = {
-  position: 'fixed', top: 20, right: 20, zIndex: 9999,
-  display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8,
-  padding: '12px 16px', borderRadius: 12,
-  background: 'rgba(0,0,0,0.35)', backdropFilter: 'blur(16px)',
-  WebkitBackdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.2)',
-};
-const ctrlTitle: React.CSSProperties = { color: 'rgba(255,255,255,0.9)', fontSize: '0.8rem', margin: 0 };
-const ctrlRow: React.CSSProperties = { display: 'flex', alignItems: 'center', gap: 6 };
-const btn: React.CSSProperties = {
-  padding: 6, border: '1px solid rgba(255,255,255,0.2)',
-  background: 'rgba(255,255,255,0.1)', color: 'white', borderRadius: 6,
-  cursor: 'pointer', display: 'flex', alignItems: 'center',
-};
