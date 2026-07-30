@@ -69,7 +69,8 @@ export function OverlayRenderer() {
       accent={type ? accentMap[type] : 'default'}
       seamless={seamless}
       headerLeft={type === 'skills' ? skillsHeaderLeft : undefined}
-      contentClassName={type === 'skills' ? 'p-0 overflow-hidden' : undefined}
+      contentClassName={type === 'skills' ? 'p-0' : undefined}
+      fullBleed={type === 'skills'}
     >
       {type === 'status' && <PersonalStatusOverlay />}
       {type === 'skills' && (

@@ -17,6 +17,8 @@ interface FullscreenOverlayProps {
   headerLeft?: ReactNode;
   /** 内容区额外类名，用于覆盖默认内边距等 */
   contentClassName?: string;
+  /** 内容区铺满整个卡片，标题栏浮动在内容上方（用于技能树等需要沉浸式填充的场景） */
+  fullBleed?: boolean;
 }
 
 const accentBarClass: Record<NonNullable<FullscreenOverlayProps['accent']>, string> = {
@@ -42,6 +44,7 @@ export function FullscreenOverlay({
   seamless = false,
   headerLeft,
   contentClassName,
+  fullBleed = false,
 }: FullscreenOverlayProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const wrapperRef = useRef<HTMLDivElement>(null);
@@ -132,8 +135,29 @@ export function FullscreenOverlay({
         ref={wrapperRef}
         className="absolute inset-0 flex items-center justify-center p-4 md:p-6 pointer-events-none"
       >
-        {/* 无缝模式：内容直接铺满，无边卡 */}
-        {seamless ? (
+        {/* 沉浸式铺满模式：内容直达卡片边缘，标题栏浮动在内容上方 */}
+        {fullBleed ? (
+          <motion.div
+            initial={{ y: 24, opacity: 0 }}
+            animate={exiting ? { y: 24, opacity: 0 } : { y: 0, opacity: 1 }}
+            transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
+            className={cn(
+              'pointer-events-auto relative max-h-[calc(100vh-2rem)] md:max-h-[calc(100vh-3rem)] w-full max-w-6xl flex flex-col rounded-3xl overflow-hidden bg-cream-50 shadow-soft-lg border border-white/80',
+              className
+            )}
+          >
+            <div className="absolute top-0 left-0 right-0 z-20 flex items-center px-6 py-4 bg-gradient-to-b from-white/90 via-white/60 to-transparent pointer-events-auto">
+              <div className="w-10 h-10 flex items-center justify-center">{headerLeft}</div>
+              <h2 className="flex-1 text-center font-heading text-xl md:text-2xl font-bold text-slate-800">{title}</h2>
+              <button type="button" onClick={onClose} className="w-10 h-10 rounded-full bg-white/70 hover:bg-white border border-slate-100/60 flex items-center justify-center transition-colors shrink-0" aria-label="关闭">
+                <X className="w-5 h-5 text-slate-500" />
+              </button>
+            </div>
+            <div ref={scrollRef} className={cn('flex-1 min-h-0 overflow-hidden', contentClassName)}>
+              <div className="relative z-10 h-full">{children}</div>
+            </div>
+          </motion.div>
+        ) : seamless ? (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: exiting ? 0 : 1 }}
