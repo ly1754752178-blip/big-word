@@ -14,15 +14,30 @@ const ORBIT_R = 26;
 const BG1 = '#FDF8F2', BG2 = '#F5EDE0';
 const PAPER_LINE = 'rgba(180,160,140,0.2)';
 const INK = '#8B7355';
-const INK_LIGHT = '#B8A088';
 
-function curvePath(from: { x: number; y: number }, to: { x: number; y: number }): string {
-  const mx = (from.x + to.x) / 2, my = (from.y + to.y) / 2;
-  const dx = to.x - from.x, dy = to.y - from.y;
+function branchPath(parent: { x: number; y: number }, children: { x: number; y: number }[]): string[] {
+  if (children.length === 0) return [];
+  if (children.length === 1) {
+    return [`M${parent.x},${parent.y} L${children[0].x},${children[0].y}`];
+  }
+  // 以子节点平均位置计算分叉方向
+  const cx = children.reduce((s, c) => s + c.x, 0) / children.length;
+  const cy = children.reduce((s, c) => s + c.y, 0) / children.length;
+  const dx = cx - parent.x;
+  const dy = cy - parent.y;
   const dist = Math.sqrt(dx * dx + dy * dy) || 1;
-  const cx1 = mx - dy / dist * (dist * 0.15);
-  const cy1 = my + dx / dist * (dist * 0.15);
-  return `M${from.x},${from.y} Q${cx1},${cy1} ${to.x},${to.y}`;
+  // 分叉点比例：让主干与分支都有足够长度，避免挤成一团
+  const ratio = Math.min(0.5, Math.max(0.18, dist * 0.018));
+  const forkX = parent.x + dx * ratio;
+  const forkY = parent.y + dy * ratio;
+  const paths: string[] = [];
+  // 主干
+  paths.push(`M${parent.x},${parent.y} L${forkX},${forkY}`);
+  // 分支到每个子节点
+  for (const c of children) {
+    paths.push(`M${forkX},${forkY} L${c.x},${c.y}`);
+  }
+  return paths;
 }
 
 function childPos(p: { x: number; y: number }, idx: number, total: number) {
@@ -169,12 +184,29 @@ export function SkillTreeView({ skill, color, categoryLabel, categoryEmoji, onBa
 
   // ── 聚焦 ──
   const panTo = useCallback((tx: number, ty: number) => {
+    const canvas = canvasRef.current;
     const { w } = containerSizeRef.current;
     const unitPx = w / V;
-    // 保持当前 zoom，平移到让目标点(tx,ty)位于容器中心
+    const zoom = zoomRef.current;
+    if (!canvas) {
+      panTarget.current = {
+        x: w * 0.5 - tx * unitPx * zoom,
+        y: containerSizeRef.current.h * 0.5 - ty * unitPx * zoom,
+      };
+      return;
+    }
+    const rect = canvas.getBoundingClientRect();
+    // 计算画布当前在视口中的可视区域中心
+    const vLeft = Math.max(0, rect.left);
+    const vRight = Math.min(window.innerWidth, rect.right);
+    const vTop = Math.max(0, rect.top);
+    const vBottom = Math.min(window.innerHeight, rect.bottom);
+    const cx = (vLeft + vRight) / 2;
+    const cy = (vTop + vBottom) / 2;
+    // 让目标节点(tx,ty)位于可视区域中心
     panTarget.current = {
-      x: w * 0.5 - tx * unitPx * zoomRef.current,
-      y: w * 0.5 - ty * unitPx * zoomRef.current,
+      x: cx - rect.left - tx * unitPx * zoom,
+      y: cy - rect.top - ty * unitPx * zoom,
     };
   }, []);
 
@@ -333,30 +365,35 @@ export function SkillTreeView({ skill, color, categoryLabel, categoryEmoji, onBa
                 stroke="rgba(180,160,140,0.1)" strokeWidth="0.2" strokeDasharray="1 5" />
             ))}
 
-            {/* 连线 */}
+            {/* 连线：直线 + 分叉 */}
             <g>
-              {nodes.filter(n => n.pos && n.parentIds?.length).map(n => {
-                const p = nodes.find(pn => pn.id === n.parentIds![0]);
-                if (!p?.pos || !visibleIds.has(n.id) || !visibleIds.has(p.id)) return null;
-                const lit = n.unlocked && p.unlocked;
-                const d = curvePath(p.pos, n.pos!);
-                return (
-                  <g key={`curve-${p.id}-${n.id}`}>
-                    {lit && <path d={d} fill="none" stroke={INK_LIGHT} strokeWidth="1.8" opacity={0.1} strokeLinecap="round" />}
-                    <path d={d} fill="none"
-                      stroke={lit ? INK : 'rgba(180,160,140,0.2)'}
-                      strokeWidth={lit ? '0.55' : '0.25'}
-                      strokeDasharray={lit ? undefined : '3 5'} strokeLinecap="round" />
-                    {lit && (
-                      <motion.circle r={0.4} fill="#D4A853" opacity={0.5}
-                        animate={{ opacity: [0.15, 0.55, 0.15] }}
-                        transition={{ duration: 3, repeat: Infinity }}>
-                        <animateMotion dur="4s" repeatCount="indefinite" path={d} />
-                      </motion.circle>
-                    )}
-                  </g>
-                );
-              })}
+              {(() => {
+                const groups = new Map<string, { parent: NodeWithPos; children: NodeWithPos[] }>();
+                for (const n of nodes) {
+                  if (!n.pos || !n.parentIds?.length || !visibleIds.has(n.id)) continue;
+                  const pid = n.parentIds[0];
+                  const p = nodes.find(pn => pn.id === pid);
+                  if (!p?.pos || !visibleIds.has(p.id)) continue;
+                  const entry = groups.get(pid);
+                  if (entry) entry.children.push(n);
+                  else groups.set(pid, { parent: p, children: [n] });
+                }
+                return Array.from(groups.entries()).map(([pid, { parent, children }]) => {
+                  const lit = children.every(c => c.unlocked && parent.unlocked);
+                  const paths = branchPath(parent.pos!, children.map(c => c.pos!));
+                  return (
+                    <g key={`branch-${pid}`}>
+                      {paths.map((d, i) => (
+                        <path key={`${pid}-${i}`} d={d} fill="none"
+                          stroke={lit ? INK : 'rgba(180,160,140,0.25)'}
+                          strokeWidth={lit ? '0.6' : '0.3'}
+                          strokeDasharray={lit ? undefined : '2 4'}
+                          strokeLinecap="round" strokeLinejoin="round" />
+                      ))}
+                    </g>
+                  );
+                });
+              })()}
             </g>
 
             {/* 节点 */}
