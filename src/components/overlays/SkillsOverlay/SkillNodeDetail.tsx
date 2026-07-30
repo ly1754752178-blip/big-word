@@ -5,21 +5,35 @@ import { motion } from 'framer-motion';
 import { Lock, Star, X } from 'lucide-react';
 import type { SkillNode } from '@/types';
 
-interface Props { node: SkillNode; color: string; position: { x: number; y: number }; onClose: () => void; }
+interface Props { node: SkillNode; color: string; position: { x: number; y: number }; placement?: 'top' | 'bottom'; onClose: () => void; }
 
-export function SkillNodeDetail({ node, color, position, onClose }: Props) {
+export function SkillNodeDetail({ node, color, position, placement = 'top', onClose }: Props) {
+  const isBottom = placement === 'bottom';
   return (
     <motion.aside
-      initial={{ opacity: 0, scale: 0.85, y: 10 }}
+      initial={{ opacity: 0, scale: 0.85, y: isBottom ? -10 : 10 }}
       animate={{ opacity: 1, scale: 1, y: 0 }}
-      exit={{ opacity: 0, scale: 0.85, y: 10 }}
+      exit={{ opacity: 0, scale: 0.85, y: isBottom ? -10 : 10 }}
       transition={{ type: 'spring', stiffness: 420, damping: 26 }}
       className="absolute z-50 w-60 pointer-events-auto"
-      style={{ left: `${position.x}%`, top: `${position.y}%`, transform: 'translate(-50%, -120%)' }}
+      style={{
+        left: position.x,
+        top: position.y,
+        transform: isBottom ? 'translate(-50%, 12px)' : 'translate(-50%, -120%)',
+      }}
     >
-      <div className="flex justify-center">
-        <div className="w-3 h-3 rotate-45 -mb-[6px]"
-          style={{ background: '#FFFBF7', border: '1px solid #E8DFD3', borderBottom: 'none', borderRight: 'none' }} />
+      <div className="flex justify-center" style={{ order: isBottom ? -1 : 0 }}>
+        <div className="w-3 h-3 rotate-45"
+          style={{
+            background: '#FFFBF7',
+            border: '1px solid #E8DFD3',
+            borderBottom: isBottom ? '1px solid #E8DFD3' : 'none',
+            borderRight: isBottom ? '1px solid #E8DFD3' : 'none',
+            borderTop: isBottom ? 'none' : '1px solid #E8DFD3',
+            borderLeft: isBottom ? 'none' : '1px solid #E8DFD3',
+            marginBottom: isBottom ? 0 : -6,
+            marginTop: isBottom ? -6 : 0,
+          }} />
       </div>
       <div className="rounded-2xl overflow-hidden"
         style={{

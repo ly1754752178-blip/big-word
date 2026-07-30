@@ -15,6 +15,8 @@ interface FullscreenOverlayProps {
   seamless?: boolean;
   /** 标题栏左侧自定义内容（如返回按钮） */
   headerLeft?: ReactNode;
+  /** 内容区额外类名，用于覆盖默认内边距等 */
+  contentClassName?: string;
 }
 
 const accentBarClass: Record<NonNullable<FullscreenOverlayProps['accent']>, string> = {
@@ -39,6 +41,7 @@ export function FullscreenOverlay({
   accent = 'default',
   seamless = false,
   headerLeft,
+  contentClassName,
 }: FullscreenOverlayProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const wrapperRef = useRef<HTMLDivElement>(null);
@@ -171,7 +174,7 @@ export function FullscreenOverlay({
                 <X className="w-5 h-5 text-slate-500" />
               </button>
             </div>
-            <div ref={scrollRef} className="flex-1 min-h-0 overflow-y-scroll p-5 md:p-8 grain-overlay">
+            <div ref={scrollRef} className={cn('flex-1 min-h-0 overflow-y-scroll p-5 md:p-8 grain-overlay', contentClassName)}>
               <div className="relative z-10 h-full">{children}</div>
             </div>
           </motion.div>

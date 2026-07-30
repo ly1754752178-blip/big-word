@@ -53,7 +53,7 @@ export function SkillsOverlay({ selectedSkill, onSelectSkill }: Props) {
 
   if (selectedSkill) {
     return (
-      <div className="h-full flex flex-col" style={{ background: COL.bg }}>
+      <div className="h-full flex flex-col">
         <SkillTreeView
           skill={selectedSkill}
           color={color}

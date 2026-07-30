@@ -285,21 +285,32 @@ export function SkillTreeView({ skill, color }: Props) {
     return () => clearTimeout(timer);
   }, [nodes]);
 
+  const selPopup = useMemo(() => {
+    if (!selNode?.pos) return null;
+    const canvas = canvasRef.current;
+    const w = canvas?.clientWidth || containerSizeRef.current.w;
+    const h = canvas?.clientHeight || containerSizeRef.current.h;
+    const unitPx = w / V;
+    const x = selNode.pos.x * unitPx * zoom + pan.x;
+    const y = selNode.pos.y * unitPx * zoom + pan.y;
+    // 节点靠近画布顶部时，详情卡片显示在节点下方，避免被截断或遮挡
+    const placement: 'top' | 'bottom' = y < h * 0.3 ? 'bottom' : 'top';
+    return { x, y, placement };
+  }, [selNode, pan, zoom]);
+
   return (
     <div className="flex flex-col h-full">
-      {/* 技能树画布 —— 填满弹窗内容区 */}
+      {/* 技能树画布 —— 填满弹窗内容区，无卡片边框 */}
       <div
-        className="flex-1 w-full min-h-0 flex items-center justify-center overflow-hidden rounded-2xl"
+        className="flex-1 w-full min-h-0 flex items-center justify-center overflow-hidden"
         style={{
           background: `linear-gradient(170deg, ${BG1} 0%, ${BG2} 50%, #EDE3D5 100%)`,
-          border: '1.5px solid #E8DFD3',
         }}
       >
         <div
           ref={canvasRef}
           className="relative w-full h-full select-none"
           style={{
-            boxShadow: 'inset 0 0 60px rgba(180,140,100,0.05)',
             cursor: drag ? 'grabbing' : 'grab',
           }}
           onMouseDown={onMD} onMouseMove={onMM} onMouseUp={onMU} onMouseLeave={onMU}
@@ -430,9 +441,10 @@ export function SkillTreeView({ skill, color }: Props) {
             </g>
           </svg>
 
-          {selNode && selNode.pos && (
+          {selPopup && selNode && (
             <SkillNodeDetail node={selNode} color={color}
-              position={{ x: (selNode.pos.x / V) * 100, y: (selNode.pos.y / V) * 100 }}
+              position={{ x: selPopup.x, y: selPopup.y }}
+              placement={selPopup.placement}
               onClose={() => setSelId(null)} />
           )}
         </div>
