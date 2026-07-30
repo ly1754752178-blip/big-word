@@ -2,7 +2,7 @@
  * SkillsOverlay — 技能系统主容器
  * 整片统一暖色不透明背景，匹配主 UI 奶油色系
  */
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useGame } from '@/hooks/useGameState';
 import type { SkillCategory, SkillTree } from '@/types';
 import { CategoryTabs } from './CategoryTabs';
@@ -27,13 +27,17 @@ const COL = {
   divider: '#E0D5C5',  // 分隔线
 };
 
-export function SkillsOverlay() {
+interface Props {
+  selectedSkill: SkillTree | null;
+  onSelectSkill: (skill: SkillTree | null) => void;
+}
+
+export function SkillsOverlay({ selectedSkill, onSelectSkill }: Props) {
   const { state, updateOverlayTitle } = useGame();
   const payload = state.detailView?.payload;
   const initialCat = (payload?.category as SkillCategory) || 'daily';
 
   const [category, setCategory] = useState<SkillCategory>(initialCat);
-  const [selectedSkill, setSelectedSkill] = useState<SkillTree | null>(null);
 
   const skills = state.skills[category];
   const meta = catMeta[category];
@@ -47,17 +51,12 @@ export function SkillsOverlay() {
     );
   }, [category, selectedSkill, meta, updateOverlayTitle]);
 
-  const handleBack = useCallback(() => setSelectedSkill(null), []);
-
   if (selectedSkill) {
     return (
       <div className="h-full flex flex-col" style={{ background: COL.bg }}>
         <SkillTreeView
           skill={selectedSkill}
           color={color}
-          categoryLabel={meta.label}
-          categoryEmoji={meta.emoji}
-          onBack={handleBack}
         />
       </div>
     );
@@ -85,7 +84,7 @@ export function SkillsOverlay() {
       </div>
 
       {/* 技能卡片 */}
-      <SkillCardGrid skills={skills} color={color} onClick={setSelectedSkill} />
+      <SkillCardGrid skills={skills} color={color} onClick={onSelectSkill} />
     </div>
   );
 }

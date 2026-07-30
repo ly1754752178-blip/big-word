@@ -13,6 +13,8 @@ interface FullscreenOverlayProps {
   accent?: 'status' | 'talent' | 'social' | 'wealth' | 'calendar' | 'map' | 'default';
   /** 无缝模式——去掉卡片容器，内容直接铺满 */
   seamless?: boolean;
+  /** 标题栏左侧自定义内容（如返回按钮） */
+  headerLeft?: ReactNode;
 }
 
 const accentBarClass: Record<NonNullable<FullscreenOverlayProps['accent']>, string> = {
@@ -36,6 +38,7 @@ export function FullscreenOverlay({
   className,
   accent = 'default',
   seamless = false,
+  headerLeft,
 }: FullscreenOverlayProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const wrapperRef = useRef<HTMLDivElement>(null);
@@ -162,7 +165,7 @@ export function FullscreenOverlay({
           >
             <div className={cn('h-1.5 w-full', accentBarClass[accent])} />
             <div className="relative flex items-center px-6 py-4 border-b border-slate-100 bg-white/60 shrink-0">
-              <div className="w-10 h-10" />
+              <div className="w-10 h-10 flex items-center justify-center">{headerLeft}</div>
               <h2 className="flex-1 text-center font-heading text-xl md:text-2xl font-bold text-slate-800">{title}</h2>
               <button type="button" onClick={onClose} className="w-10 h-10 rounded-full bg-cream-50 hover:bg-white border border-slate-100 flex items-center justify-center transition-colors shrink-0" aria-label="关闭">
                 <X className="w-5 h-5 text-slate-500" />

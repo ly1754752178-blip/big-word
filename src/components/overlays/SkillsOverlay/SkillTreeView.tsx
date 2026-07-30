@@ -3,7 +3,6 @@
  */
 import { useState, useCallback, useEffect, useRef, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Maximize2 } from 'lucide-react';
 import type { SkillTree, SkillNode } from '@/types';
 import { SkillNodeDetail } from './SkillNodeDetail';
 
@@ -98,14 +97,11 @@ const nodePalette = [
 interface Props {
   skill: SkillTree;
   color: string;
-  categoryLabel: string;
-  categoryEmoji: string;
-  onBack: () => void;
 }
 
 type NodeWithPos = SkillNode & { pos?: { x: number; y: number } | null; depth: number; paletteIdx: number };
 
-export function SkillTreeView({ skill, color, categoryLabel, categoryEmoji, onBack }: Props) {
+export function SkillTreeView({ skill, color }: Props) {
   const [selId, setSelId] = useState<string | null>(null);
   const [expId, setExpId] = useState<string | null>(null);
   const [zoom, setZoom] = useState(1);
@@ -291,38 +287,12 @@ export function SkillTreeView({ skill, color, categoryLabel, categoryEmoji, onBa
 
   return (
     <div className="flex flex-col h-full">
-      {/* 头部信息栏 —— 与画布同宽 */}
+      {/* 技能树画布 —— 填满弹窗内容区 */}
       <div
-        className="w-full shrink-0 flex items-center gap-3 px-4 py-2.5 rounded-t-2xl"
-        style={{ background: '#FFFBF7', border: '1.5px solid #E8DFD3', borderBottom: 'none' }}
-      >
-        <button onClick={onBack}
-          className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-amber-50 transition-colors"
-          style={{ background: '#FDFAF5', border: '1px solid #E8DFD3' }}>
-          <ArrowLeft size={16} style={{ color: '#8B7560' }} />
-        </button>
-        <div>
-          <h3 className="font-bold text-sm" style={{ color: '#4A3728' }}>
-            {categoryEmoji} {categoryLabel} · {skill.name}
-          </h3>
-          <p className="text-[10px]" style={{ color: '#B8A898' }}>
-            Lv.{skill.level}/{skill.maxLevel} · EXP {skill.exp}/{skill.maxExp} · 技能点 {skill.skillPoints}
-          </p>
-        </div>
-        <button onClick={onDbl} className="ml-auto w-7 h-7 rounded-lg flex items-center justify-center hover:bg-amber-50"
-          title="回到中心"><Maximize2 size={12} style={{ color: '#B8A898' }} /></button>
-        <span className="text-[10px] hidden sm:inline" style={{ color: '#D0C5B5' }}>
-          {Math.round(zoom * 100)}%
-        </span>
-      </div>
-
-      {/* 技能树画布 —— 填满剩余空间 */}
-      <div
-        className="flex-1 w-full min-h-0 flex items-center justify-center overflow-hidden rounded-b-2xl"
+        className="flex-1 w-full min-h-0 flex items-center justify-center overflow-hidden rounded-2xl"
         style={{
           background: `linear-gradient(170deg, ${BG1} 0%, ${BG2} 50%, #EDE3D5 100%)`,
           border: '1.5px solid #E8DFD3',
-          borderTop: 'none',
         }}
       >
         <div
