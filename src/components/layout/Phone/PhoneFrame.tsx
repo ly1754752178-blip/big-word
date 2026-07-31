@@ -33,18 +33,27 @@ export function PhoneFrame({ expanded, onHeadClick, children }: PhoneFrameProps)
       >
         {/* 左侧按键 */}
         <div
-          className="absolute -left-[3px] top-[92px] w-[3px] h-7 rounded-l-sm"
-          style={{ background: 'linear-gradient(180deg, #d1d1d6 0%, #9e9ea4 50%, #d1d1d6 100%)' }}
+          className="absolute -left-1 top-[92px] w-1 h-8 rounded-l-md"
+          style={{
+            background: 'linear-gradient(180deg, #e2e2e8 0%, #8e8e93 30%, #8e8e93 70%, #e2e2e8 100%)',
+            boxShadow: '-1px 0 2px rgba(0,0,0,0.3)',
+          }}
         />
         <div
-          className="absolute -left-[3px] top-[138px] w-[3px] h-12 rounded-l-sm"
-          style={{ background: 'linear-gradient(180deg, #d1d1d6 0%, #9e9ea4 50%, #d1d1d6 100%)' }}
+          className="absolute -left-1 top-[142px] w-1 h-14 rounded-l-md"
+          style={{
+            background: 'linear-gradient(180deg, #e2e2e8 0%, #8e8e93 30%, #8e8e93 70%, #e2e2e8 100%)',
+            boxShadow: '-1px 0 2px rgba(0,0,0,0.3)',
+          }}
         />
 
         {/* 右侧电源键 */}
         <div
-          className="absolute -right-[3px] top-[124px] w-[3px] h-16 rounded-r-sm"
-          style={{ background: 'linear-gradient(180deg, #d1d1d6 0%, #9e9ea4 50%, #d1d1d6 100%)' }}
+          className="absolute -right-1 top-[128px] w-1 h-20 rounded-r-md"
+          style={{
+            background: 'linear-gradient(180deg, #e2e2e8 0%, #8e8e93 30%, #8e8e93 70%, #e2e2e8 100%)',
+            boxShadow: '1px 0 2px rgba(0,0,0,0.3)',
+          }}
         />
 
         {/* 金属边框外壳 */}
@@ -55,8 +64,8 @@ export function PhoneFrame({ expanded, onHeadClick, children }: PhoneFrameProps)
               linear-gradient(145deg, #f2f2f7 0%, #c8c8d0 18%, #e8e8ed 35%, #b0b0b8 55%, #f0f0f5 78%, #d0d0d8 100%)
             `,
             boxShadow: `
-              inset 0 0 0 1px rgba(255,255,255,0.7),
-              inset 0 0 12px rgba(0,0,0,0.15),
+              inset 0 0 0 1px rgba(0,0,0,0.18),
+              inset 0 0 14px rgba(0,0,0,0.18),
               0 -8px 36px rgba(0,0,0,0.45),
               0 0 0 1px rgba(0,0,0,0.25)
             `,
