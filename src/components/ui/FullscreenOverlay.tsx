@@ -153,7 +153,7 @@ export function FullscreenOverlay({
                 <X className="w-5 h-5 text-slate-500" />
               </button>
             </div>
-            <div ref={scrollRef} className={cn('flex-1 min-h-0 overflow-hidden', contentClassName)}>
+            <div ref={scrollRef} className={cn('flex-1 min-h-0 overflow-hidden', fullBleed && 'pt-16', contentClassName)}>
               <div className="relative z-10 h-full">{children}</div>
             </div>
           </motion.div>
