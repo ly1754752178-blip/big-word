@@ -4,15 +4,17 @@ export type SkillCategory = 'daily' | 'work' | 'special';
 export type FinanceTab = 'expenses' | 'virtual' | 'fixed';
 export type CalendarTab = 'calendar' | 'world' | 'nearby';
 export type PhoneAppId =
-  | 'news'
-  | 'schedule'
-  | 'messages'
-  | 'travel'
-  | 'mail'
-  | 'gallery'
-  | 'chat'
-  | 'sns'
-  | 'wallet';
+  | 'line'
+  | 'x'
+  | 'instagram'
+  | 'paypay'
+  | 'google-maps'
+  | 'yahoo-japan'
+  | 'timetree'
+  | 'gmail'
+  | 'settings'
+  | 'youtube'
+  | 'tiktok';
 
 /** 全屏浮层视图类型：左侧六个模块 + 关系网/叙事历史 + 生活系统 */
 export type OverlayViewType =
