@@ -328,19 +328,20 @@ export function PhoneSettingsApp() {
             ) : (
               <div className="w-8 h-8 rounded-lg bg-[#FAF6F1] border border-slate-200" />
             )}
-            {/* 用 label 包裹触发文件选择，比 ref+js 更可靠 */}
-            <label
-              className="px-2.5 py-1 text-[11px] font-medium rounded-lg text-white cursor-pointer transition-colors hover:opacity-90"
+            {/* 按钮 + 文件input覆盖层：最可靠的触发方式 */}
+            <button
+              type="button"
+              className="relative px-2.5 py-1 text-[11px] font-medium rounded-lg text-white transition-colors hover:opacity-90"
               style={{ backgroundColor: theme.accent }}
             >
               导入
               <input
                 type="file"
                 accept="image/*"
-                className="hidden"
+                className="absolute inset-0 opacity-0 cursor-pointer"
                 onChange={handleFileChange}
               />
-            </label>
+            </button>
             {wallpaper && (
               <button
                 type="button"
