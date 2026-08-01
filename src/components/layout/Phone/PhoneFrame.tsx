@@ -12,21 +12,27 @@ interface PhoneFrameProps {
 export function PhoneFrame({ expanded, onHeadClick, onCollapse, children, wallpaper }: PhoneFrameProps) {
   return (
     <motion.div
-      initial={{ y: '94%' }}
-      animate={{ y: expanded ? '0%' : '94%' }}
+      initial={false}
+      animate={{ y: expanded ? 0 : 550 }}
       transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-      onClick={!expanded ? onHeadClick : undefined}
       className="absolute bottom-0 left-0 right-0 z-50 mx-auto"
       style={{
         width: '304px',
         height: '592px',
-        cursor: expanded ? 'default' : 'pointer',
       }}
-      aria-label={expanded ? undefined : '打开手机'}
-      role={expanded ? undefined : 'button'}
-      tabIndex={expanded ? undefined : 0}
-      onKeyDown={!expanded ? (e) => { if (e.key === 'Enter') onHeadClick(); } : undefined}
     >
+      {/* 点击热区：覆盖手机顶部可见区域，在收起时拦截点击 */}
+      {!expanded && (
+        <div
+          onClick={onHeadClick}
+          className="absolute top-0 left-0 right-0 z-[100] cursor-pointer"
+          style={{ height: '55px' }}
+          aria-label="打开手机"
+          role="button"
+          tabIndex={0}
+          onKeyDown={(e) => { if (e.key === 'Enter') onHeadClick(); }}
+        />
+      )}
       {/* ── 左侧音量键 ── */}
       <div
         className="absolute -left-[6px] top-[100px] w-[6px] h-[28px] rounded-l-md"
@@ -107,16 +113,40 @@ export function PhoneFrame({ expanded, onHeadClick, onCollapse, children, wallpa
         >
           {/* Dynamic Island 刘海 —— 展开时点击此处可收起手机 */}
           <div className="absolute top-[10px] left-1/2 -translate-x-1/2 z-30">
-            <button
-              type="button"
-              onClick={expanded ? onCollapse : onHeadClick}
-              className="h-[26px] w-[82px] rounded-full flex items-center justify-center gap-2 cursor-pointer"
-              style={{
-                background: '#050505',
-                boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.06), 0 1px 3px rgba(0,0,0,0.5)',
-              }}
-              aria-label={expanded ? '收起手机' : '打开手机'}
-            >
+            {expanded ? (
+              <button
+                type="button"
+                onClick={onCollapse}
+                className="h-[26px] w-[82px] rounded-full flex items-center justify-center gap-2 cursor-pointer"
+                style={{
+                  background: '#050505',
+                  boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.06), 0 1px 3px rgba(0,0,0,0.5)',
+                }}
+                aria-label="收起手机"
+              >
+                <div
+                  className="w-[46px] h-[9px] rounded-full"
+                  style={{
+                    background: '#0d0d0d',
+                    boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.04)',
+                  }}
+                />
+                <div
+                  className="w-[7px] h-[7px] rounded-full"
+                  style={{
+                    background: 'radial-gradient(circle at 35% 30%, #1a1a22 0%, #080810 70%, #000 100%)',
+                    boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.06), 0 0 2px rgba(0,0,0,0.4)',
+                  }}
+                />
+              </button>
+            ) : (
+              <div
+                className="h-[26px] w-[82px] rounded-full flex items-center justify-center gap-2"
+                style={{
+                  background: '#050505',
+                  boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.06), 0 1px 3px rgba(0,0,0,0.5)',
+                }}
+              >
               <div
                 className="w-[46px] h-[9px] rounded-full"
                 style={{
@@ -131,7 +161,8 @@ export function PhoneFrame({ expanded, onHeadClick, onCollapse, children, wallpa
                   boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.06), 0 0 2px rgba(0,0,0,0.4)',
                 }}
               />
-            </button>
+            </div>
+            )}
           </div>
 
           {/* 屏幕显示区 */}
