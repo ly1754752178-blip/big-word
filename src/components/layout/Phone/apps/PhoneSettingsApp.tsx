@@ -115,9 +115,11 @@ function ColorSphere({ label, color, onChange }: { label: string; color: string;
 
 function WallpaperPicker({
   onBack,
+  primaryColor,
   accentColor,
 }: {
   onBack: () => void;
+  primaryColor: string;
   accentColor: string;
 }) {
   const { state, addWallpaper, setActiveWallpaper, removeWallpapers } = useGame();
@@ -159,7 +161,7 @@ function WallpaperPicker({
   };
 
   return (
-    <div className="min-h-full pb-6" style={{ backgroundColor: '#F2F0F5' }}>
+    <div className="min-h-full pb-6" style={{ backgroundColor: primaryColor + '20' }}>
       {/* 标题栏 */}
       <div className="flex items-center gap-3 px-1 pt-2 pb-4">
         <button type="button" onClick={onBack} className="w-7 h-7 rounded-full flex items-center justify-center bg-black/5 hover:bg-black/10">
@@ -262,7 +264,7 @@ export function PhoneSettingsApp() {
   // 主题色系调整子页面
   if (showTheme) {
     return (
-      <div className="min-h-full pb-6" style={{ backgroundColor: '#F2F0F5' }}>
+      <div className="min-h-full pb-6" style={{ backgroundColor: pc + '20' }}>
         <div className="flex items-center gap-3 px-1 pt-2 pb-4">
           <button type="button" onClick={() => setShowTheme(false)} className="w-7 h-7 rounded-full flex items-center justify-center bg-black/5 hover:bg-black/10">
             <ArrowLeft className="w-4 h-4 text-slate-700" />
@@ -280,11 +282,11 @@ export function PhoneSettingsApp() {
 
   // 壁纸管理子页面
   if (showWallpaper) {
-    return <WallpaperPicker onBack={() => setShowWallpaper(false)} accentColor={ac} />;
+    return <WallpaperPicker onBack={() => setShowWallpaper(false)} primaryColor={pc} accentColor={ac} />;
   }
 
   return (
-    <div className="min-h-full pb-6" style={{ backgroundColor: '#F2F0F5' }}>
+    <div className="min-h-full pb-6" style={{ backgroundColor: pc + '20' }}>
       <SectionLabel>外观</SectionLabel>
       <Card>
         <ArrowRow icon={ImageIcon} label="壁纸" detail={wallpaperDetail} onClick={() => setShowWallpaper(true)} />
