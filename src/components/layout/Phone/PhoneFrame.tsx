@@ -31,83 +31,138 @@ export function PhoneFrame({ expanded, onHeadClick, children }: PhoneFrameProps)
         className="absolute bottom-0 left-0 right-0 z-50 mx-auto"
         style={{ width: '304px', height: '592px' }}
       >
-        {/* 左侧按键 */}
+        {/* ── 左侧音量键 ── */}
+        {/* 音量+ 短键 */}
         <div
-          className="absolute -left-1 top-[92px] w-1 h-8 rounded-l-md"
+          className="absolute -left-[6px] top-[100px] w-[6px] h-[28px] rounded-l-md"
           style={{
-            background: 'linear-gradient(180deg, #e2e2e8 0%, #8e8e93 30%, #8e8e93 70%, #e2e2e8 100%)',
-            boxShadow: '-1px 0 2px rgba(0,0,0,0.3)',
+            background: 'linear-gradient(180deg, #4a4a4e 0%, #2a2a2e 30%, #1c1c1e 70%, #3a3a3e 100%)',
+            boxShadow: '-2px 1px 4px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.08)',
           }}
         />
+        {/* 音量- 长键 */}
         <div
-          className="absolute -left-1 top-[142px] w-1 h-14 rounded-l-md"
+          className="absolute -left-[6px] top-[140px] w-[6px] h-[48px] rounded-l-md"
           style={{
-            background: 'linear-gradient(180deg, #e2e2e8 0%, #8e8e93 30%, #8e8e93 70%, #e2e2e8 100%)',
-            boxShadow: '-1px 0 2px rgba(0,0,0,0.3)',
+            background: 'linear-gradient(180deg, #4a4a4e 0%, #2a2a2e 30%, #1c1c1e 70%, #3a3a3e 100%)',
+            boxShadow: '-2px 1px 4px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.08)',
+          }}
+        />
+        {/* 静音拨片 */}
+        <div
+          className="absolute -left-[6px] top-[84px] w-[6px] h-[14px] rounded-l-sm"
+          style={{
+            background: 'linear-gradient(180deg, #55555a 0%, #2a2a2e 50%, #3a3a3e 100%)',
+            boxShadow: '-2px 0 3px rgba(0,0,0,0.4)',
           }}
         />
 
-        {/* 右侧电源键 */}
+        {/* ── 右侧电源键 ── */}
         <div
-          className="absolute -right-1 top-[128px] w-1 h-20 rounded-r-md"
+          className="absolute -right-[6px] top-[124px] w-[6px] h-[64px] rounded-r-md"
           style={{
-            background: 'linear-gradient(180deg, #e2e2e8 0%, #8e8e93 30%, #8e8e93 70%, #e2e2e8 100%)',
-            boxShadow: '1px 0 2px rgba(0,0,0,0.3)',
+            background: 'linear-gradient(180deg, #4a4a4e 0%, #2a2a2e 30%, #1c1c1e 70%, #3a3a3e 100%)',
+            boxShadow: '2px 1px 4px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.08)',
           }}
         />
 
-        {/* 金属边框外壳 */}
+        {/* ── 深色钛金属外壳 ── */}
         <div
-          className="w-full h-full rounded-[48px] p-[8px] flex flex-col relative"
+          className="w-full h-full rounded-[48px] p-[4px] flex flex-col relative"
           style={{
             background: `
-              linear-gradient(145deg, #f2f2f7 0%, #c8c8d0 18%, #e8e8ed 35%, #b0b0b8 55%, #f0f0f5 78%, #d0d0d8 100%)
+              linear-gradient(160deg,
+                #48484d 0%,
+                #2c2c30 12%,
+                #3e3e42 25%,
+                #1a1a1d 42%,
+                #323236 58%,
+                #1e1e22 75%,
+                #38383c 88%,
+                #2a2a2e 100%
+              )
             `,
             boxShadow: `
-              inset 0 0 0 1px rgba(0,0,0,0.18),
-              inset 0 0 14px rgba(0,0,0,0.18),
-              0 -8px 36px rgba(0,0,0,0.45),
-              0 0 0 1px rgba(0,0,0,0.25)
+              inset 0 0 0 1px rgba(255,255,255,0.07),
+              inset 0 1px 3px rgba(255,255,255,0.04),
+              0 -6px 28px rgba(0,0,0,0.5),
+              0 0 0 1px rgba(0,0,0,0.35),
+              0 4px 12px rgba(0,0,0,0.3)
             `,
           }}
         >
-          {/* 天线带 */}
-          <div className="absolute top-[68px] -left-[1px] w-[2px] h-2 bg-[#9e9ea4]/50" />
-          <div className="absolute top-[68px] -right-[1px] w-[2px] h-2 bg-[#9e9ea4]/50" />
-
-          {/* 黑色前面板 */}
+          {/* 天线带 - 顶部 */}
           <div
-            className="flex-1 rounded-[40px] bg-[#0a0a0a] p-[10px] flex flex-col relative overflow-hidden"
-            style={{ boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.12)' }}
+            className="absolute top-3 left-[30px] w-5 h-[2px] rounded-full"
+            style={{ background: 'rgba(0,0,0,0.25)' }}
+          />
+          <div
+            className="absolute top-3 right-[30px] w-5 h-[2px] rounded-full"
+            style={{ background: 'rgba(0,0,0,0.25)' }}
+          />
+
+          {/* ── 黑色前面板 ── */}
+          <div
+            className="flex-1 rounded-[44px] p-[8px] flex flex-col relative overflow-hidden"
+            style={{
+              background: '#080808',
+              boxShadow: `
+                inset 0 0 0 1px rgba(255,255,255,0.06),
+                inset 0 0 8px rgba(0,0,0,0.5)
+              `,
+            }}
           >
-            {/* 刘海 / Dynamic Island */}
-            <div className="absolute top-3 left-1/2 -translate-x-1/2 z-30">
+            {/* Dynamic Island 刘海 */}
+            <div className="absolute top-[10px] left-1/2 -translate-x-1/2 z-30">
               <div
-                className="h-7 w-[88px] rounded-full bg-black flex items-center justify-center gap-2"
-                style={{ boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.08)' }}
+                className="h-[26px] w-[82px] rounded-full flex items-center justify-center gap-2"
+                style={{
+                  background: '#050505',
+                  boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.06), 0 1px 3px rgba(0,0,0,0.5)',
+                }}
               >
-                <div className="w-[52px] h-2.5 rounded-full bg-[#151515]" />
+                {/* 听筒槽 */}
                 <div
-                  className="w-1.5 h-1.5 rounded-full"
+                  className="w-[46px] h-[9px] rounded-full"
                   style={{
-                    background: 'radial-gradient(circle at 30% 30%, #2a2a35 0%, #0f0f15 100%)',
-                    boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.08)',
+                    background: '#0d0d0d',
+                    boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.04)',
+                  }}
+                />
+                {/* 前置摄像头 */}
+                <div
+                  className="w-[7px] h-[7px] rounded-full"
+                  style={{
+                    background: 'radial-gradient(circle at 35% 30%, #1a1a22 0%, #080810 70%, #000 100%)',
+                    boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.06), 0 0 2px rgba(0,0,0,0.4)',
                   }}
                 />
               </div>
             </div>
 
-            {/* 屏幕区域 */}
+            {/* 屏幕显示区 */}
             <div
-              className="flex-1 rounded-[34px] bg-[#FAF6F1] relative overflow-hidden"
-              style={{ boxShadow: 'inset 0 0 10px rgba(0,0,0,0.05)' }}
+              className="flex-1 rounded-[36px] relative overflow-hidden"
+              style={{
+                background: '#FAF6F1',
+                boxShadow: `
+                  inset 0 0 0 1px rgba(0,0,0,0.06),
+                  inset 0 0 16px rgba(0,0,0,0.04)
+                `,
+              }}
             >
               <div className="relative z-10 h-full">{children}</div>
             </div>
 
             {/* 底部 Home 指示条 */}
-            <div className="absolute bottom-2 left-1/2 -translate-x-1/2 z-30">
-              <div className="w-28 h-[5px] rounded-full bg-white/30" />
+            <div className="absolute bottom-[8px] left-1/2 -translate-x-1/2 z-30">
+              <div
+                className="w-[108px] h-[4px] rounded-full"
+                style={{
+                  background: 'rgba(255,255,255,0.20)',
+                  boxShadow: '0 1px 2px rgba(0,0,0,0.15)',
+                }}
+              />
             </div>
           </div>
         </div>
