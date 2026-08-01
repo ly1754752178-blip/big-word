@@ -18,7 +18,7 @@ export function Phone() {
     addAppToFolder,
     removeAppFromFolder,
   } = useGame();
-  const { phoneExpanded, activePhoneApp, phoneApps, phoneHomeLayout, time } = state;
+  const { phoneExpanded, activePhoneApp, phoneApps, phoneHomeLayout, time, accessibilityMode } = state;
   const [openFolderId, setOpenFolderId] = useState<string | null>(null);
 
   const activeApp = phoneApps.find((app) => app.id === activePhoneApp);
@@ -74,6 +74,7 @@ export function Phone() {
                   reorderPhoneHome={reorderPhoneHome}
                   createPhoneFolder={createPhoneFolder}
                   addAppToFolder={addAppToFolder}
+                  accessibilityMode={accessibilityMode}
                 />
                 {openFolder && (
                   <PhoneFolderView
@@ -82,6 +83,7 @@ export function Phone() {
                     onAppClick={handleFolderAppClick}
                     onClose={handleCloseFolder}
                     onRemoveApp={handleRemoveFromFolder}
+                    accessibilityMode={accessibilityMode}
                   />
                 )}
               </>

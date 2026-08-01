@@ -1,6 +1,7 @@
 import { useState, useRef, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import type { PhoneApp, PhoneAppId, PhoneHomeItem, PhoneHomeFolder } from '@/types';
+import { getAppDisplayName } from './PhoneAppScreen';
 
 interface PhoneAppGridProps {
   layout: PhoneHomeItem[];
@@ -10,6 +11,7 @@ interface PhoneAppGridProps {
   reorderPhoneHome: (fromIndex: number, toIndex: number) => void;
   createPhoneFolder: (sourceIndex: number, targetIndex: number, name?: string) => void;
   addAppToFolder: (appIndex: number, folderIndex: number) => void;
+  accessibilityMode: boolean;
 }
 
 const LONG_PRESS_MS = 420;
@@ -24,6 +26,7 @@ export function PhoneAppGrid({
   reorderPhoneHome,
   createPhoneFolder,
   addAppToFolder,
+  accessibilityMode,
 }: PhoneAppGridProps) {
   const [draggingIndex, setDraggingIndex] = useState<number | null>(null);
   const [dragPos, setDragPos] = useState<{ x: number; y: number } | null>(null);
@@ -203,7 +206,7 @@ export function PhoneAppGrid({
           <AppIcon app={getApp(item.appId)} />
         )}
         <span className="text-[10px] font-medium text-slate-700/90 text-center leading-tight max-w-full px-1 truncate">
-          {isFolder ? item.name : getApp(item.appId)?.name}
+          {isFolder ? item.name : (getApp(item.appId) ? getAppDisplayName(getApp(item.appId)!, accessibilityMode) : '')}
         </span>
       </motion.button>
     );

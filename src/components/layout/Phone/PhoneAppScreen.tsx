@@ -1,6 +1,26 @@
 import { useGame } from '@/hooks/useGameState';
-import type { PhoneAppId } from '@/types';
+import type { PhoneApp, PhoneAppId } from '@/types';
 import { ChatApp } from './apps/ChatApp';
+import { PhoneSettingsApp } from './apps/PhoneSettingsApp';
+
+/** 无障碍模式 APP 名称映射 */
+const ACCESSIBILITY_APP_NAMES: Partial<Record<PhoneAppId, string>> = {
+  line: '消息',
+  x: '动态',
+  instagram: '相册',
+  paypay: '钱包',
+  'google-maps': '地图导航',
+  'yahoo-japan': '新闻',
+  timetree: '日程',
+  gmail: '邮箱',
+};
+
+export function getAppDisplayName(app: PhoneApp, accessibilityMode: boolean): string {
+  if (accessibilityMode && ACCESSIBILITY_APP_NAMES[app.id]) {
+    return ACCESSIBILITY_APP_NAMES[app.id]!;
+  }
+  return app.name;
+}
 
 interface PhoneAppScreenProps {
   app: { id: PhoneAppId; name: string; icon: string; color: string; badge?: number };
@@ -14,6 +34,8 @@ export function PhoneAppScreen({ app, onBack }: PhoneAppScreenProps) {
     switch (app.id) {
       case 'line':
         return <ChatApp />;
+      case 'settings':
+        return <PhoneSettingsApp />;
       case 'yahoo-japan':
         return (
           <div className="space-y-3">

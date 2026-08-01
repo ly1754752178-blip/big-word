@@ -42,6 +42,7 @@ interface GameContextValue {
   createPhoneFolder: (sourceIndex: number, targetIndex: number, name?: string) => void;
   addAppToFolder: (appIndex: number, folderIndex: number) => void;
   removeAppFromFolder: (folderIndex: number, appId: PhoneAppId) => void;
+  toggleAccessibilityMode: () => void;
 }
 
 const GameContext = createContext<GameContextValue | null>(null);
@@ -75,7 +76,8 @@ type Action =
   | { type: 'REORDER_PHONE_HOME'; payload: { fromIndex: number; toIndex: number } }
   | { type: 'CREATE_PHONE_FOLDER'; payload: { sourceIndex: number; targetIndex: number; name?: string } }
   | { type: 'ADD_APP_TO_FOLDER'; payload: { appIndex: number; folderIndex: number } }
-  | { type: 'REMOVE_APP_FROM_FOLDER'; payload: { folderIndex: number; appId: PhoneAppId } };
+  | { type: 'REMOVE_APP_FROM_FOLDER'; payload: { folderIndex: number; appId: PhoneAppId } }
+  | { type: 'TOGGLE_ACCESSIBILITY_MODE' };
 
 const overlayTitles: Record<OverlayViewType, string> = {
   status: '个人状态',
@@ -307,6 +309,9 @@ function gameReducer(state: GameState, action: Action): GameState {
       }
       return { ...state, phoneHomeLayout: layout };
     }
+    case 'TOGGLE_ACCESSIBILITY_MODE': {
+      return { ...state, accessibilityMode: !state.accessibilityMode };
+    }
     default:
       return state;
   }
@@ -473,6 +478,7 @@ export function GameProvider({ children }: GameProviderProps) {
       dispatch({ type: 'ADD_APP_TO_FOLDER', payload: { appIndex, folderIndex } }),
     removeAppFromFolder: (folderIndex, appId) =>
       dispatch({ type: 'REMOVE_APP_FROM_FOLDER', payload: { folderIndex, appId } }),
+    toggleAccessibilityMode: () => dispatch({ type: 'TOGGLE_ACCESSIBILITY_MODE' }),
   };
 
   return <GameContext.Provider value={value}>{children}</GameContext.Provider>;

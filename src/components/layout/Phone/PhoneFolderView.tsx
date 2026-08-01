@@ -1,6 +1,7 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { PhoneApp, PhoneAppId, PhoneHomeFolder } from '@/types';
+import { getAppDisplayName } from './PhoneAppScreen';
 
 interface PhoneFolderViewProps {
   folder: PhoneHomeFolder;
@@ -8,6 +9,7 @@ interface PhoneFolderViewProps {
   onAppClick: (appId: PhoneAppId) => void;
   onClose: () => void;
   onRemoveApp: (appId: PhoneAppId) => void;
+  accessibilityMode: boolean;
 }
 
 const DRAG_OUT_THRESHOLD = 14;
@@ -18,6 +20,7 @@ export function PhoneFolderView({
   onAppClick,
   onClose,
   onRemoveApp,
+  accessibilityMode,
 }: PhoneFolderViewProps) {
   const folderApps = folder.appIds
     .map((id) => apps.find((a) => a.id === id))
@@ -173,7 +176,7 @@ export function PhoneFolderView({
                     />
                   </div>
                   <span className="text-[10px] font-medium text-slate-700/90 text-center leading-tight max-w-full px-1 truncate">
-                    {app.name}
+                    {getAppDisplayName(app, accessibilityMode)}
                   </span>
                 </motion.button>
               ))}

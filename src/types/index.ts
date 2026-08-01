@@ -415,6 +415,8 @@ export interface GameState {
   notifications: Notification[];
   phoneApps: PhoneApp[];
   phoneHomeLayout: PhoneHomeItem[];
+  /** 无障碍模式：切换后 APP 名称显示为中文 */
+  accessibilityMode: boolean;
   map: {
     center: { x: number; y: number };
     zoom: number;

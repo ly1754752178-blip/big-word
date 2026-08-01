@@ -1010,7 +1010,7 @@ export const mockGameState: GameState = {
     { id: 'yahoo-japan', name: 'Yahoo! JAPAN', icon: '/phone-icons/yahoo-japan.jpg', color: '#FF0033' },
     { id: 'timetree', name: 'TimeTree', icon: '/phone-icons/timetree.jpg', color: '#4BD1A7' },
     { id: 'gmail', name: 'Gmail', icon: '/phone-icons/gmail.jpg', color: '#EA4335' },
-    { id: 'settings', name: 'Settings', icon: '/phone-icons/settings.svg', color: '#8E8E93' },
+    { id: 'settings', name: '系统设置', icon: '/phone-icons/settings.svg', color: '#8E8E93' },
     { id: 'youtube', name: 'YouTube', icon: '/phone-icons/youtube.jpg', color: '#FF0000' },
     { id: 'tiktok', name: 'TikTok', icon: '/phone-icons/tiktok.jpg', color: '#000000' },
   ],
@@ -1027,6 +1027,7 @@ export const mockGameState: GameState = {
     { type: 'app', appId: 'youtube' },
     { type: 'app', appId: 'tiktok' },
   ],
+  accessibilityMode: false,
   map: {
     center: { x: 3500, y: -1200 },
     zoom: 1,
