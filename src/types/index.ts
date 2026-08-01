@@ -235,6 +235,20 @@ export interface PhoneApp {
   badge?: number;
 }
 
+/** 桌面上的单个 APP 项 */
+export type PhoneHomeApp = { type: 'app'; appId: PhoneAppId };
+
+/** 桌面上的 APP 文件夹 */
+export interface PhoneHomeFolder {
+  type: 'folder';
+  id: string;
+  name: string;
+  appIds: PhoneAppId[];
+}
+
+/** 桌面网格中的每一项，可能是单个 APP 或文件夹 */
+export type PhoneHomeItem = PhoneHomeApp | PhoneHomeFolder;
+
 export interface NarrativeOption {
   id: string;
   label: string;
@@ -400,6 +414,7 @@ export interface GameState {
   };
   notifications: Notification[];
   phoneApps: PhoneApp[];
+  phoneHomeLayout: PhoneHomeItem[];
   map: {
     center: { x: number; y: number };
     zoom: number;

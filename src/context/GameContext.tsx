@@ -7,6 +7,7 @@ import type {
   OverlayViewType,
   DateMark,
   InAppNotification,
+  PhoneHomeItem,
 } from '@/types';
 import { mockGameState } from '@/data/mockData';
 import { useLLM } from '@/hooks/useLLM';
@@ -37,6 +38,10 @@ interface GameContextValue {
   dismissNotification: (id: string) => void;
   clearNotifications: () => void;
   buyShopItem: (itemId: string) => void;
+  reorderPhoneHome: (fromIndex: number, toIndex: number) => void;
+  createPhoneFolder: (sourceIndex: number, targetIndex: number, name?: string) => void;
+  addAppToFolder: (appIndex: number, folderIndex: number) => void;
+  removeAppFromFolder: (folderIndex: number, appId: PhoneAppId) => void;
 }
 
 const GameContext = createContext<GameContextValue | null>(null);
@@ -66,7 +71,11 @@ type Action =
   | { type: 'ADD_IN_APP_NOTIFICATION'; payload: InAppNotification }
   | { type: 'DISMISS_IN_APP_NOTIFICATION'; payload: string }
   | { type: 'CLEAR_IN_APP_NOTIFICATIONS' }
-  | { type: 'BUY_SHOP_ITEM'; payload: string };
+  | { type: 'BUY_SHOP_ITEM'; payload: string }
+  | { type: 'REORDER_PHONE_HOME'; payload: { fromIndex: number; toIndex: number } }
+  | { type: 'CREATE_PHONE_FOLDER'; payload: { sourceIndex: number; targetIndex: number; name?: string } }
+  | { type: 'ADD_APP_TO_FOLDER'; payload: { appIndex: number; folderIndex: number } }
+  | { type: 'REMOVE_APP_FROM_FOLDER'; payload: { folderIndex: number; appId: PhoneAppId } };
 
 const overlayTitles: Record<OverlayViewType, string> = {
   status: '个人状态',
@@ -235,6 +244,69 @@ function gameReducer(state: GameState, action: Action): GameState {
         inventory: nextInventory,
       };
     }
+    case 'REORDER_PHONE_HOME': {
+      const { fromIndex, toIndex } = action.payload;
+      if (fromIndex === toIndex) return state;
+      const layout = [...state.phoneHomeLayout];
+      const [moved] = layout.splice(fromIndex, 1);
+      layout.splice(toIndex, 0, moved);
+      return { ...state, phoneHomeLayout: layout };
+    }
+    case 'CREATE_PHONE_FOLDER': {
+      const { sourceIndex, targetIndex, name = '文件夹' } = action.payload;
+      const source = state.phoneHomeLayout[sourceIndex];
+      const target = state.phoneHomeLayout[targetIndex];
+      if (!source || source.type !== 'app' || !target || target.type !== 'app') return state;
+      const layout = [...state.phoneHomeLayout];
+      const removedSource = layout.splice(sourceIndex, 1)[0];
+      const insertAt = sourceIndex < targetIndex ? targetIndex - 1 : targetIndex;
+      const removedTarget = layout.splice(insertAt, 1)[0];
+      if (removedSource.type !== 'app' || removedTarget.type !== 'app') return state;
+      const folder: PhoneHomeItem = {
+        type: 'folder',
+        id: `folder-${Date.now()}`,
+        name,
+        appIds: [removedSource.appId, removedTarget.appId],
+      };
+      layout.splice(insertAt, 0, folder);
+      return { ...state, phoneHomeLayout: layout };
+    }
+    case 'ADD_APP_TO_FOLDER': {
+      const { appIndex, folderIndex } = action.payload;
+      const appItem = state.phoneHomeLayout[appIndex];
+      const folder = state.phoneHomeLayout[folderIndex];
+      if (!appItem || appItem.type !== 'app' || !folder || folder.type !== 'folder') return state;
+      const layout = [...state.phoneHomeLayout];
+      layout.splice(appIndex, 1);
+      const adjustedFolderIndex = appIndex < folderIndex ? folderIndex - 1 : folderIndex;
+      const targetFolder = layout[adjustedFolderIndex];
+      if (!targetFolder || targetFolder.type !== 'folder') return state;
+      layout[adjustedFolderIndex] = {
+        ...targetFolder,
+        appIds: [...targetFolder.appIds, appItem.appId],
+      };
+      return { ...state, phoneHomeLayout: layout };
+    }
+    case 'REMOVE_APP_FROM_FOLDER': {
+      const { folderIndex, appId } = action.payload;
+      const folder = state.phoneHomeLayout[folderIndex];
+      if (!folder || folder.type !== 'folder') return state;
+      const layout = [...state.phoneHomeLayout];
+      const remainingIds = folder.appIds.filter((id) => id !== appId);
+      const removedApp: PhoneHomeItem = { type: 'app', appId };
+      if (remainingIds.length < 2) {
+        const replacements: PhoneHomeItem[] = remainingIds.map((id) => ({
+          type: 'app' as const,
+          appId: id,
+        }));
+        layout.splice(folderIndex, 1, ...replacements);
+        layout.splice(folderIndex + replacements.length, 0, removedApp);
+      } else {
+        layout[folderIndex] = { ...folder, appIds: remainingIds };
+        layout.splice(folderIndex + 1, 0, removedApp);
+      }
+      return { ...state, phoneHomeLayout: layout };
+    }
     default:
       return state;
   }
@@ -393,6 +465,14 @@ export function GameProvider({ children }: GameProviderProps) {
     dismissNotification: (id) => dispatch({ type: 'DISMISS_IN_APP_NOTIFICATION', payload: id }),
     clearNotifications: () => dispatch({ type: 'CLEAR_IN_APP_NOTIFICATIONS' }),
     buyShopItem: (itemId) => dispatch({ type: 'BUY_SHOP_ITEM', payload: itemId }),
+    reorderPhoneHome: (fromIndex, toIndex) =>
+      dispatch({ type: 'REORDER_PHONE_HOME', payload: { fromIndex, toIndex } }),
+    createPhoneFolder: (sourceIndex, targetIndex, name) =>
+      dispatch({ type: 'CREATE_PHONE_FOLDER', payload: { sourceIndex, targetIndex, name } }),
+    addAppToFolder: (appIndex, folderIndex) =>
+      dispatch({ type: 'ADD_APP_TO_FOLDER', payload: { appIndex, folderIndex } }),
+    removeAppFromFolder: (folderIndex, appId) =>
+      dispatch({ type: 'REMOVE_APP_FROM_FOLDER', payload: { folderIndex, appId } }),
   };
 
   return <GameContext.Provider value={value}>{children}</GameContext.Provider>;
