@@ -284,17 +284,33 @@ export function PhoneSettingsApp() {
   const [mediaVolume, setMediaVolume] = useState(50);
   const [showThemePicker, setShowThemePicker] = useState(false);
 
-  const handleFileChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      const file = e.target.files?.[0];
-      if (!file) return;
+  const processFile = useCallback(
+    (file: File) => {
       const reader = new FileReader();
       reader.onload = () => setWallpaper(reader.result as string);
       reader.readAsDataURL(file);
-      e.target.value = '';
     },
     [setWallpaper]
   );
+
+  const handleWallpaperClick = useCallback(async () => {
+    // 优先使用 File System Access API（无需 DOM input 元素）
+    if ('showOpenFilePicker' in window) {
+      try {
+        const [handle] = await (window as any).showOpenFilePicker({
+          types: [{ description: '图片', accept: { 'image/*': ['.png', '.jpg', '.jpeg', '.gif', '.webp'] } }],
+        });
+        const file = await handle.getFile();
+        processFile(file);
+      } catch {
+        // 用户取消
+      }
+      return;
+    }
+    // 回退：触发隐藏的原生 file input
+    const input = document.getElementById('wallpaper-file-input') as HTMLInputElement | null;
+    if (input) input.click();
+  }, [processFile]);
 
   // 主题选择子页面
   if (showThemePicker) {
@@ -314,23 +330,6 @@ export function PhoneSettingsApp() {
       <SectionLabel color={theme.sectionText}>外观</SectionLabel>
       <Card bg={theme.cardBg}>
         {/* 壁纸 */}
-        <style>{`
-          .wallpaper-file-input::file-selector-button {
-            background-color: ${theme.accent};
-            color: white;
-            border: none;
-            padding: 5px 12px;
-            border-radius: 8px;
-            font-size: 11px;
-            font-weight: 500;
-            cursor: pointer;
-            margin-right: 8px;
-            transition: opacity 0.15s;
-          }
-          .wallpaper-file-input::file-selector-button:hover {
-            opacity: 0.85;
-          }
-        `}</style>
         <div className="px-4 py-3">
           <div className="flex items-center gap-3 mb-2">
             <ImageIcon className="w-[18px] h-[18px] text-slate-500 shrink-0" />
@@ -345,12 +344,26 @@ export function PhoneSettingsApp() {
             ) : (
               <div className="w-10 h-10 rounded-xl bg-[#FAF6F1] border border-slate-200 shrink-0" />
             )}
+            {/* 回退用的隐藏 file input（仅在 showOpenFilePicker 不可用时触发） */}
             <input
+              id="wallpaper-file-input"
               type="file"
               accept="image/*"
-              onChange={handleFileChange}
-              className="wallpaper-file-input flex-1 min-w-0 text-[11px] text-slate-500 cursor-pointer"
+              className="hidden"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) processFile(file);
+                e.target.value = '';
+              }}
             />
+            <button
+              type="button"
+              onClick={handleWallpaperClick}
+              className="px-2.5 py-1 text-[11px] font-medium rounded-lg text-white transition-colors hover:opacity-90"
+              style={{ backgroundColor: theme.accent }}
+            >
+              导入
+            </button>
             {wallpaper && (
               <button
                 type="button"
