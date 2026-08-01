@@ -1028,7 +1028,7 @@ export const mockGameState: GameState = {
     { type: 'app', appId: 'tiktok' },
   ],
   accessibilityMode: false,
-  wallpaper: null,
+  wallpaper: (typeof localStorage !== 'undefined' && localStorage.getItem('phone-wallpaper')) || null,
   phoneTheme: 'modern',
   map: {
     center: { x: 3500, y: -1200 },
