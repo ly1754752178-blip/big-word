@@ -293,20 +293,14 @@ export function PhoneSettingsApp() {
     [setWallpaper]
   );
 
-  const handleWallpaperClick = useCallback(() => {
-    console.log('[wallpaper] 导入按钮被点击');
-    const input = document.getElementById('wallpaper-file-input') as HTMLInputElement | null;
-    console.log('[wallpaper] file input found:', !!input);
-    if (input) {
-      input.onchange = (e) => {
-        const file = (e.target as HTMLInputElement).files?.[0];
-        console.log('[wallpaper] file selected:', file?.name);
-        if (file) processFile(file);
-      };
-      input.click();
-      console.log('[wallpaper] input.click() called');
-    }
-  }, [processFile]);
+  const handleFileChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0];
+      if (file) processFile(file);
+      e.target.value = '';
+    },
+    [processFile]
+  );
 
   // 主题选择子页面
   if (showThemePicker) {
@@ -340,26 +334,21 @@ export function PhoneSettingsApp() {
             ) : (
               <div className="w-10 h-10 rounded-xl bg-[#FAF6F1] border border-slate-200 shrink-0" />
             )}
-            {/* 屏幕外 file input（display:none 会阻止某些浏览器的 .click()） */}
+            {/* file input 置于屏幕外，由下方 label 通过 htmlFor 原生触发 */}
             <input
               id="wallpaper-file-input"
               type="file"
               accept="image/*"
               style={{ position: 'absolute', left: '-9999px', top: 0 }}
-              onChange={(e) => {
-                const file = e.target.files?.[0];
-                if (file) processFile(file);
-                e.target.value = '';
-              }}
+              onChange={handleFileChange}
             />
-            <button
-              type="button"
-              onClick={handleWallpaperClick}
-              className="px-2.5 py-1 text-[11px] font-medium rounded-lg text-white transition-colors hover:opacity-90"
+            <label
+              htmlFor="wallpaper-file-input"
+              className="px-2.5 py-1 text-[11px] font-medium rounded-lg text-white cursor-pointer transition-colors hover:opacity-90"
               style={{ backgroundColor: theme.accent }}
             >
               导入
-            </button>
+            </label>
             {wallpaper && (
               <button
                 type="button"
