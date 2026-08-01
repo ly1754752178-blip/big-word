@@ -417,6 +417,8 @@ export interface GameState {
   phoneHomeLayout: PhoneHomeItem[];
   /** 无障碍模式：切换后 APP 名称显示为中文 */
   accessibilityMode: boolean;
+  /** 手机桌面壁纸（base64 data URL，null 为默认） */
+  wallpaper: string | null;
   map: {
     center: { x: number; y: number };
     zoom: number;

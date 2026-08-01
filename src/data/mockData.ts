@@ -1028,6 +1028,7 @@ export const mockGameState: GameState = {
     { type: 'app', appId: 'tiktok' },
   ],
   accessibilityMode: false,
+  wallpaper: null,
   map: {
     center: { x: 3500, y: -1200 },
     zoom: 1,

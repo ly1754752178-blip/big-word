@@ -18,7 +18,7 @@ export function Phone() {
     addAppToFolder,
     removeAppFromFolder,
   } = useGame();
-  const { phoneExpanded, activePhoneApp, phoneApps, phoneHomeLayout, time, accessibilityMode } = state;
+  const { phoneExpanded, activePhoneApp, phoneApps, phoneHomeLayout, time, accessibilityMode, wallpaper } = state;
   const [openFolderId, setOpenFolderId] = useState<string | null>(null);
 
   const activeApp = phoneApps.find((app) => app.id === activePhoneApp);
@@ -47,7 +47,7 @@ export function Phone() {
   };
 
   return (
-    <PhoneFrame expanded={phoneExpanded} onHeadClick={expandPhone}>
+    <PhoneFrame expanded={phoneExpanded} onHeadClick={expandPhone} wallpaper={wallpaper}>
       {phoneExpanded && (
         <div className="flex flex-col h-full">
           {/* 状态栏 */}

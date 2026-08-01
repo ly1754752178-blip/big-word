@@ -5,21 +5,50 @@ interface PhoneFrameProps {
   expanded: boolean;
   onHeadClick: () => void;
   children: ReactNode;
+  wallpaper?: string | null;
 }
 
-export function PhoneFrame({ expanded, onHeadClick, children }: PhoneFrameProps) {
+export function PhoneFrame({ expanded, onHeadClick, children, wallpaper }: PhoneFrameProps) {
   return (
     <>
-      {/* 收起状态：底部横条 */}
+      {/* 收起状态：手机顶部从右下角露出一小截（约1/5） */}
       {!expanded && (
         <motion.button
           type="button"
           onClick={onHeadClick}
-          className="absolute bottom-0 left-1/2 -translate-x-1/2 z-50 h-10 flex items-center justify-center cursor-pointer"
-          style={{ width: '288px' }}
+          initial={{ y: 0 }}
+          whileHover={{ y: -12 }}
+          className="absolute bottom-0 right-0 z-50 cursor-pointer overflow-hidden"
+          style={{
+            width: '288px',
+            height: '140px',
+            transform: 'translateY(42px)',
+            borderRadius: '48px 48px 0 0',
+            background: 'linear-gradient(160deg, #48484d 0%, #2c2c30 12%, #3e3e42 25%, #1a1a1d 42%, #323236 58%, #1e1e22 75%, #38383c 88%, #2a2a2e 100%)',
+            boxShadow: '0 -4px 20px rgba(0,0,0,0.5), 0 0 0 1px rgba(0,0,0,0.3), inset 0 0 0 1px rgba(255,255,255,0.06)',
+          }}
           aria-label="打开手机"
         >
-          <div className="w-20 h-1 rounded-full bg-white/30" />
+          {/* 内部暗色前面板 —— 模拟手机顶部 */}
+          <div
+            className="absolute inset-x-[4px] top-[4px] bottom-0 rounded-t-[44px]"
+            style={{ background: '#080808' }}
+          >
+            {/* Dynamic Island 露出 */}
+            <div className="absolute top-[12px] left-1/2 -translate-x-1/2">
+              <div
+                className="h-[22px] w-[72px] rounded-full flex items-center justify-center gap-1.5"
+                style={{ background: '#050505', boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.05)' }}
+              >
+                <div className="w-[40px] h-[7px] rounded-full bg-[#0d0d0d]" />
+                <div className="w-[6px] h-[6px] rounded-full bg-[#0a0a10]" />
+              </div>
+            </div>
+            {/* 底部指示条 */}
+            <div className="absolute bottom-[10px] left-1/2 -translate-x-1/2">
+              <div className="w-16 h-[3px] rounded-full bg-white/20" />
+            </div>
+          </div>
         </motion.button>
       )}
 
@@ -144,11 +173,12 @@ export function PhoneFrame({ expanded, onHeadClick, children }: PhoneFrameProps)
             <div
               className="flex-1 rounded-[36px] relative overflow-hidden"
               style={{
-                background: '#FAF6F1',
-                boxShadow: `
-                  inset 0 0 0 1px rgba(0,0,0,0.06),
-                  inset 0 0 16px rgba(0,0,0,0.04)
-                `,
+                background: wallpaper
+                  ? `url(${wallpaper}) center/cover no-repeat`
+                  : '#FAF6F1',
+                boxShadow: wallpaper
+                  ? 'inset 0 0 0 1px rgba(0,0,0,0.08), inset 0 0 32px rgba(0,0,0,0.15)'
+                  : 'inset 0 0 0 1px rgba(0,0,0,0.06), inset 0 0 16px rgba(0,0,0,0.04)',
               }}
             >
               <div className="relative z-10 h-full">{children}</div>
