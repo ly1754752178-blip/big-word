@@ -227,9 +227,6 @@ export interface Region {
   color: string;
 }
 
-/** 手机主题 */
-export type PhoneTheme = 'vinyl' | 'modern' | 'school' | 'starry';
-
 export interface PhoneApp {
   id: PhoneAppId;
   name: string;
@@ -420,10 +417,14 @@ export interface GameState {
   phoneHomeLayout: PhoneHomeItem[];
   /** 无障碍模式：切换后 APP 名称显示为中文 */
   accessibilityMode: boolean;
-  /** 手机桌面壁纸（base64 data URL，null 为默认） */
-  wallpaper: string | null;
-  /** 手机主题色系 */
-  phoneTheme: PhoneTheme;
+  /** 壁纸方案库（base64 data URL 数组） */
+  wallpapers: string[];
+  /** 当前使用的壁纸索引，-1 为默认 */
+  activeWallpaperIndex: number;
+  /** 主题主色 (hex) */
+  primaryColor: string;
+  /** 主题强调色 (hex) */
+  accentColor: string;
   map: {
     center: { x: number; y: number };
     zoom: number;

@@ -8,7 +8,6 @@ import type {
   DateMark,
   InAppNotification,
   PhoneHomeItem,
-  PhoneTheme,
 } from '@/types';
 import { mockGameState } from '@/data/mockData';
 import { useLLM } from '@/hooks/useLLM';
@@ -44,8 +43,11 @@ interface GameContextValue {
   addAppToFolder: (appIndex: number, folderIndex: number) => void;
   removeAppFromFolder: (folderIndex: number, appId: PhoneAppId) => void;
   toggleAccessibilityMode: () => void;
-  setWallpaper: (dataUrl: string | null) => void;
-  setPhoneTheme: (theme: PhoneTheme) => void;
+  addWallpaper: (dataUrl: string) => void;
+  setActiveWallpaper: (index: number) => void;
+  removeWallpapers: (indices: number[]) => void;
+  setPrimaryColor: (color: string) => void;
+  setAccentColor: (color: string) => void;
 }
 
 const GameContext = createContext<GameContextValue | null>(null);
@@ -81,8 +83,11 @@ type Action =
   | { type: 'ADD_APP_TO_FOLDER'; payload: { appIndex: number; folderIndex: number } }
   | { type: 'REMOVE_APP_FROM_FOLDER'; payload: { folderIndex: number; appId: PhoneAppId } }
   | { type: 'TOGGLE_ACCESSIBILITY_MODE' }
-  | { type: 'SET_WALLPAPER'; payload: string | null }
-  | { type: 'SET_PHONE_THEME'; payload: PhoneTheme };
+  | { type: 'ADD_WALLPAPER'; payload: string }
+  | { type: 'SET_ACTIVE_WALLPAPER'; payload: number }
+  | { type: 'REMOVE_WALLPAPERS'; payload: number[] }
+  | { type: 'SET_PRIMARY_COLOR'; payload: string }
+  | { type: 'SET_ACCENT_COLOR'; payload: string };
 
 const overlayTitles: Record<OverlayViewType, string> = {
   status: '个人状态',
@@ -317,11 +322,34 @@ function gameReducer(state: GameState, action: Action): GameState {
     case 'TOGGLE_ACCESSIBILITY_MODE': {
       return { ...state, accessibilityMode: !state.accessibilityMode };
     }
-    case 'SET_WALLPAPER': {
-      return { ...state, wallpaper: action.payload };
+    case 'ADD_WALLPAPER': {
+      const wps = [...state.wallpapers, action.payload];
+      try { localStorage.setItem('phone-wallpapers', JSON.stringify(wps)); } catch { /* quota */ }
+      const idx = wps.length - 1;
+      try { localStorage.setItem('phone-active-wallpaper', String(idx)); } catch { /* */ }
+      return { ...state, wallpapers: wps, activeWallpaperIndex: idx };
     }
-    case 'SET_PHONE_THEME': {
-      return { ...state, phoneTheme: action.payload };
+    case 'SET_ACTIVE_WALLPAPER': {
+      try { localStorage.setItem('phone-active-wallpaper', String(action.payload)); } catch { /* */ }
+      return { ...state, activeWallpaperIndex: action.payload };
+    }
+    case 'REMOVE_WALLPAPERS': {
+      const set = new Set(action.payload);
+      const filtered = state.wallpapers.filter((_, i) => !set.has(i));
+      try { localStorage.setItem('phone-wallpapers', JSON.stringify(filtered)); } catch { /* */ }
+      let newIdx = state.activeWallpaperIndex;
+      if (set.has(newIdx)) newIdx = -1;
+      else { let removed = 0; for (const ri of action.payload) if (ri < newIdx) removed++; newIdx -= removed; }
+      try { localStorage.setItem('phone-active-wallpaper', String(newIdx)); } catch { /* */ }
+      return { ...state, wallpapers: filtered, activeWallpaperIndex: newIdx };
+    }
+    case 'SET_PRIMARY_COLOR': {
+      try { localStorage.setItem('phone-primary-color', action.payload); } catch { /* */ }
+      return { ...state, primaryColor: action.payload };
+    }
+    case 'SET_ACCENT_COLOR': {
+      try { localStorage.setItem('phone-accent-color', action.payload); } catch { /* */ }
+      return { ...state, accentColor: action.payload };
     }
     default:
       return state;
@@ -490,8 +518,11 @@ export function GameProvider({ children }: GameProviderProps) {
     removeAppFromFolder: (folderIndex, appId) =>
       dispatch({ type: 'REMOVE_APP_FROM_FOLDER', payload: { folderIndex, appId } }),
     toggleAccessibilityMode: () => dispatch({ type: 'TOGGLE_ACCESSIBILITY_MODE' }),
-    setWallpaper: (dataUrl) => dispatch({ type: 'SET_WALLPAPER', payload: dataUrl }),
-    setPhoneTheme: (theme) => dispatch({ type: 'SET_PHONE_THEME', payload: theme }),
+    addWallpaper: (dataUrl) => dispatch({ type: 'ADD_WALLPAPER', payload: dataUrl }),
+    setActiveWallpaper: (index) => dispatch({ type: 'SET_ACTIVE_WALLPAPER', payload: index }),
+    removeWallpapers: (indices) => dispatch({ type: 'REMOVE_WALLPAPERS', payload: indices }),
+    setPrimaryColor: (color) => dispatch({ type: 'SET_PRIMARY_COLOR', payload: color }),
+    setAccentColor: (color) => dispatch({ type: 'SET_ACCENT_COLOR', payload: color }),
   };
 
   return <GameContext.Provider value={value}>{children}</GameContext.Provider>;

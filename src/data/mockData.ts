@@ -1028,8 +1028,10 @@ export const mockGameState: GameState = {
     { type: 'app', appId: 'tiktok' },
   ],
   accessibilityMode: false,
-  wallpaper: (typeof localStorage !== 'undefined' && localStorage.getItem('phone-wallpaper')) || null,
-  phoneTheme: 'modern',
+  wallpapers: (() => { try { const raw = localStorage.getItem('phone-wallpapers'); return raw ? JSON.parse(raw) : []; } catch { return []; } })(),
+  activeWallpaperIndex: (() => { try { return parseInt(localStorage.getItem('phone-active-wallpaper') || '-1', 10); } catch { return -1; } })(),
+  primaryColor: (typeof localStorage !== 'undefined' && localStorage.getItem('phone-primary-color')) || '#3B82F6',
+  accentColor: (typeof localStorage !== 'undefined' && localStorage.getItem('phone-accent-color')) || '#10B981',
   map: {
     center: { x: 3500, y: -1200 },
     zoom: 1,
