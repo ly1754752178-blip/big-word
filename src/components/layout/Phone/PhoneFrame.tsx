@@ -13,20 +13,21 @@ export function PhoneFrame({ expanded, onHeadClick, children, wallpaper }: Phone
     <>
       {/* 收起状态：手机顶部从右下角露出一小截（约1/5） */}
       {!expanded && (
-        <motion.button
+        <button
           type="button"
           onClick={onHeadClick}
-          initial={{ y: 0 }}
-          whileHover={{ y: -12 }}
-          className="absolute bottom-0 right-0 z-50 cursor-pointer overflow-hidden"
+          className="absolute bottom-0 right-0 z-50 cursor-pointer overflow-hidden group"
           style={{
             width: '288px',
-            height: '140px',
+            height: '138px',
             transform: 'translateY(42px)',
             borderRadius: '48px 48px 0 0',
             background: 'linear-gradient(160deg, #48484d 0%, #2c2c30 12%, #3e3e42 25%, #1a1a1d 42%, #323236 58%, #1e1e22 75%, #38383c 88%, #2a2a2e 100%)',
-            boxShadow: '0 -4px 20px rgba(0,0,0,0.5), 0 0 0 1px rgba(0,0,0,0.3), inset 0 0 0 1px rgba(255,255,255,0.06)',
+            boxShadow: '0 -4px 20px rgba(0,0,0,0.55), 0 0 0 1px rgba(0,0,0,0.35), inset 0 0 0 1px rgba(255,255,255,0.06)',
+            transition: 'transform 0.25s ease-out',
           }}
+          onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.transform = 'translateY(32px)'; }}
+          onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.transform = 'translateY(42px)'; }}
           aria-label="打开手机"
         >
           {/* 内部暗色前面板 —— 模拟手机顶部 */}
@@ -49,7 +50,7 @@ export function PhoneFrame({ expanded, onHeadClick, children, wallpaper }: Phone
               <div className="w-16 h-[3px] rounded-full bg-white/20" />
             </div>
           </div>
-        </motion.button>
+        </button>
       )}
 
       {/* 完整手机 */}
