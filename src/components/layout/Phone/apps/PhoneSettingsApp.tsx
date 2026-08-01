@@ -284,10 +284,9 @@ export function PhoneSettingsApp() {
   const [mediaVolume, setMediaVolume] = useState(50);
   const [showThemePicker, setShowThemePicker] = useState(false);
 
-  const handleFileChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      const file = e.target.files?.[0];
-      if (!file) return;
+  const processImageFile = useCallback(
+    (file: File) => {
+      if (!file.type.startsWith('image/')) return;
       const reader = new FileReader();
       reader.onload = () => {
         const dataUrl = reader.result as string;
@@ -297,6 +296,34 @@ export function PhoneSettingsApp() {
       reader.readAsDataURL(file);
     },
     [setWallpaper]
+  );
+
+  const handleFileChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0];
+      if (file) processImageFile(file);
+    },
+    [processImageFile]
+  );
+
+  const handleDrop = useCallback(
+    (e: React.DragEvent) => {
+      e.preventDefault();
+      const file = e.dataTransfer.files?.[0];
+      if (file) processImageFile(file);
+    },
+    [processImageFile]
+  );
+
+  const handlePaste = useCallback(
+    (e: React.ClipboardEvent) => {
+      const file = e.clipboardData?.files?.[0];
+      if (file) {
+        e.preventDefault();
+        processImageFile(file);
+      }
+    },
+    [processImageFile]
   );
 
   // 主题选择子页面
@@ -344,10 +371,23 @@ export function PhoneSettingsApp() {
               </button>
             )}
           </div>
+          {/* 拖放区域 (同时响应粘贴) */}
           <div
-            className="w-full h-20 rounded-xl border border-slate-200 mb-3 bg-cover bg-center"
-            style={wallpaper ? { backgroundImage: `url(${wallpaper})` } : { backgroundColor: '#FAF6F1' }}
-          />
+            className="w-full h-24 rounded-xl border-2 border-dashed mb-3 bg-cover bg-center flex items-center justify-center transition-colors"
+            style={{
+              borderColor: theme.accent + '55',
+              backgroundImage: wallpaper ? `url(${wallpaper})` : undefined,
+              backgroundColor: wallpaper ? undefined : theme.cardBg,
+            }}
+            onDragOver={(e) => e.preventDefault()}
+            onDrop={handleDrop}
+            tabIndex={0}
+            onPaste={handlePaste}
+          >
+            {!wallpaper && (
+              <span className="text-[11px] text-slate-400">拖放图片到此处 或 Ctrl+V 粘贴</span>
+            )}
+          </div>
           <input
             type="file"
             accept="image/*"
