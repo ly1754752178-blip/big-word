@@ -167,12 +167,12 @@ export function PhoneFolderView({
                   className="flex flex-col items-center gap-1 outline-none"
                   style={{ touchAction: 'none', opacity: draggingAppId === app.id ? 0.4 : 1 }}
                 >
-                  <div className="relative w-14 h-14 rounded-[22%] overflow-hidden shadow-sm" style={app.id === 'tiktok' ? { backgroundColor: '#000000' } : undefined}>
+                  <div className={`relative w-14 h-14 rounded-[22%] overflow-hidden shadow-sm ${app.id === 'tiktok' ? 'bg-black' : ''}`}>
                     <img
                       src={app.icon}
                       alt={app.name}
-                      className={`w-full h-full object-cover scale-110`}
-                      style={app.id === 'tiktok' ? { mixBlendMode: 'lighten' as any } : undefined}
+                      className="w-full h-full object-cover scale-110"
+                      style={app.id === 'tiktok' ? { mixBlendMode: 'multiply', filter: 'contrast(1.1)' } : undefined}
                       draggable={false}
                     />
                   </div>

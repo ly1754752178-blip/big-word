@@ -40,7 +40,10 @@ export function Phone() {
   };
 
   // 壁纸仅在主屏幕（无APP打开）时显示
-  const wallpaper = (activeWallpaperIndex >= 0 && !activeApp) ? wallpapers[activeWallpaperIndex] : null;
+  const hasCustomWallpaper = activeWallpaperIndex >= 0;
+  const wallpaper = (hasCustomWallpaper && !activeApp) ? wallpapers[activeWallpaperIndex] : null;
+  // 无壁纸时用主色调作为屏幕背景，有APP时也用主色调
+  const screenBg = !activeApp ? (wallpaper ? undefined : primaryColor) : primaryColor;
 
   return (
     <PhoneFrame
@@ -48,13 +51,13 @@ export function Phone() {
       onHeadClick={expandPhone}
       onCollapse={collapsePhone}
       wallpaper={wallpaper}
-      screenBg={primaryColor + '10'}   // 淡色背景
+      screenBg={screenBg}
     >
       <div className="flex flex-col h-full">
         {/* 状态栏 */}
         <div
           className="flex items-center justify-between px-5 pt-3 pb-1 shrink-0 z-20 rounded-t-[36px]"
-          style={{ backgroundColor: primaryColor + '18', color: '#1e293b' }}
+          style={{ backgroundColor: primaryColor + '30', color: '#1e293b' }}
         >
           <span className="text-xs font-semibold tracking-tight">
             {String(time.hour).padStart(2, '0')}:{String(time.minute).padStart(2, '0')}

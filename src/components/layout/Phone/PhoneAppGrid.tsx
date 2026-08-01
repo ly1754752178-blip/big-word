@@ -240,12 +240,12 @@ function AppIcon({ app }: { app?: PhoneApp }) {
   if (!app) return <div className="w-14 h-14 rounded-[22%] bg-slate-200" />;
   const isTikTok = app.id === 'tiktok';
   return (
-    <div className="relative w-14 h-14 rounded-[22%] overflow-hidden shadow-sm" style={isTikTok ? { backgroundColor: '#000000' } : undefined}>
+    <div className={`relative w-14 h-14 rounded-[22%] overflow-hidden shadow-sm ${isTikTok ? 'bg-black' : ''}`}>
       <img
         src={app.icon}
         alt={app.name}
-        className={`w-full h-full object-cover scale-110 ${isTikTok ? 'mix-blend-mode-lighten' : ''}`}
-        style={isTikTok ? { mixBlendMode: 'lighten' as any } : undefined}
+        className="w-full h-full object-cover scale-110"
+        style={isTikTok ? { mixBlendMode: 'multiply', filter: 'contrast(1.1)' } : undefined}
         draggable={false}
       />
       {app.badge && app.badge > 0 && (
