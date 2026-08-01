@@ -303,6 +303,28 @@ export function PhoneSettingsApp() {
     [processFile]
   );
 
+  // 预设壁纸
+  const presets = [
+    { name: '默认', color: '#FAF6F1' },
+    { name: '樱花', color: '#FFE4E6' },
+    { name: '夜空', color: '#1e1b4b' },
+    { name: '森林', color: '#d1fae5' },
+    { name: '海洋', color: '#dbeafe' },
+    { name: '日落', color: '#fef3c7' },
+  ];
+
+  const applyPreset = useCallback((color: string) => {
+    const canvas = document.createElement('canvas');
+    canvas.width = 300; canvas.height = 600;
+    const ctx = canvas.getContext('2d')!;
+    const g = ctx.createLinearGradient(0, 0, 300, 600);
+    g.addColorStop(0, color);
+    g.addColorStop(1, color === '#FAF6F1' ? '#f0e6d3' : color + '88');
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, 300, 600);
+    setWallpaper(canvas.toDataURL('image/png'));
+  }, [setWallpaper]);
+
   // 主题选择子页面
   if (showThemePicker) {
     return (
@@ -322,47 +344,59 @@ export function PhoneSettingsApp() {
       <Card bg={theme.cardBg}>
         {/* 壁纸 */}
         <div className="px-4 py-3">
-          <div className="flex items-center gap-3 mb-2">
+          <div className="flex items-center gap-3 mb-3">
             <ImageIcon className="w-[18px] h-[18px] text-slate-500 shrink-0" />
             <span className="text-[13px] text-slate-800">壁纸</span>
-          </div>
-          <div className="flex items-center gap-2">
-            {wallpaper ? (
-              <div
-                className="w-10 h-10 rounded-xl bg-cover bg-center border border-slate-200 shrink-0"
-                style={{ backgroundImage: `url(${wallpaper})` }}
-              />
-            ) : (
-              <div className="w-10 h-10 rounded-xl bg-[#FAF6F1] border border-slate-200 shrink-0" />
-            )}
-            {/* file input 通过 Portal 渲染到 body，脱离手机 DOM 层级 */}
-            {createPortal(
-              <input
-                id="wallpaper-file-input"
-                type="file"
-                accept="image/*"
-                style={{ position: 'absolute', left: '-9999px', top: 0 }}
-                onChange={handleFileChange}
-              />,
-              document.body
-            )}
-            <label
-              htmlFor="wallpaper-file-input"
-              className="px-2.5 py-1 text-[11px] font-medium rounded-lg text-white cursor-pointer transition-colors hover:opacity-90"
-              style={{ backgroundColor: theme.accent }}
-            >
-              导入
-            </label>
             {wallpaper && (
               <button
                 type="button"
                 onClick={() => setWallpaper(null)}
-                className="px-2.5 py-1 text-[11px] font-medium rounded-lg bg-rose-50 text-rose-500 hover:bg-rose-100 transition-colors shrink-0"
+                className="ml-auto px-2 py-0.5 text-[10px] font-medium rounded-md bg-rose-50 text-rose-500"
               >
-                清除
+                恢复默认
               </button>
             )}
           </div>
+          {/* 预览 */}
+          <div
+            className="w-full h-20 rounded-xl border border-slate-200 mb-3 bg-cover bg-center"
+            style={wallpaper ? { backgroundImage: `url(${wallpaper})` } : { backgroundColor: '#FAF6F1' }}
+          />
+          {/* 预设色块 */}
+          <p className="text-[10px] text-slate-400 mb-1.5">预设壁纸</p>
+          <div className="flex gap-2 flex-wrap mb-3">
+            {presets.map((p) => (
+              <button
+                key={p.name}
+                type="button"
+                onClick={() => applyPreset(p.color)}
+                className="w-8 h-8 rounded-full border-2 transition-all hover:scale-110"
+                style={{
+                  backgroundColor: p.color,
+                  borderColor: p.color === '#FAF6F1' && !wallpaper ? theme.accent : '#e2e8f0',
+                }}
+                title={p.name}
+              />
+            ))}
+          </div>
+          {/* 文件导入 (Portal 到 body，脱离手机 DOM) */}
+          {createPortal(
+            <input
+              id="wallpaper-file-input"
+              type="file"
+              accept="image/*"
+              style={{ position: 'absolute', left: '-9999px', top: 0 }}
+              onChange={handleFileChange}
+            />,
+            document.body
+          )}
+          <label
+            htmlFor="wallpaper-file-input"
+            className="inline-block px-3 py-1.5 text-[11px] font-medium rounded-lg text-white cursor-pointer"
+            style={{ backgroundColor: theme.accent }}
+          >
+            从文件导入…
+          </label>
         </div>
         <Divider />
         {/* 主题 —— 点击进入子页面选择 */}
