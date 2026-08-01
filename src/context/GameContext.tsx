@@ -8,6 +8,7 @@ import type {
   DateMark,
   InAppNotification,
   PhoneHomeItem,
+  PhoneTheme,
 } from '@/types';
 import { mockGameState } from '@/data/mockData';
 import { useLLM } from '@/hooks/useLLM';
@@ -44,6 +45,7 @@ interface GameContextValue {
   removeAppFromFolder: (folderIndex: number, appId: PhoneAppId) => void;
   toggleAccessibilityMode: () => void;
   setWallpaper: (dataUrl: string | null) => void;
+  setPhoneTheme: (theme: PhoneTheme) => void;
 }
 
 const GameContext = createContext<GameContextValue | null>(null);
@@ -79,7 +81,8 @@ type Action =
   | { type: 'ADD_APP_TO_FOLDER'; payload: { appIndex: number; folderIndex: number } }
   | { type: 'REMOVE_APP_FROM_FOLDER'; payload: { folderIndex: number; appId: PhoneAppId } }
   | { type: 'TOGGLE_ACCESSIBILITY_MODE' }
-  | { type: 'SET_WALLPAPER'; payload: string | null };
+  | { type: 'SET_WALLPAPER'; payload: string | null }
+  | { type: 'SET_PHONE_THEME'; payload: PhoneTheme };
 
 const overlayTitles: Record<OverlayViewType, string> = {
   status: '个人状态',
@@ -317,6 +320,9 @@ function gameReducer(state: GameState, action: Action): GameState {
     case 'SET_WALLPAPER': {
       return { ...state, wallpaper: action.payload };
     }
+    case 'SET_PHONE_THEME': {
+      return { ...state, phoneTheme: action.payload };
+    }
     default:
       return state;
   }
@@ -485,6 +491,7 @@ export function GameProvider({ children }: GameProviderProps) {
       dispatch({ type: 'REMOVE_APP_FROM_FOLDER', payload: { folderIndex, appId } }),
     toggleAccessibilityMode: () => dispatch({ type: 'TOGGLE_ACCESSIBILITY_MODE' }),
     setWallpaper: (dataUrl) => dispatch({ type: 'SET_WALLPAPER', payload: dataUrl }),
+    setPhoneTheme: (theme) => dispatch({ type: 'SET_PHONE_THEME', payload: theme }),
   };
 
   return <GameContext.Provider value={value}>{children}</GameContext.Provider>;

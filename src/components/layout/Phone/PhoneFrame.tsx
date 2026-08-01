@@ -4,15 +4,16 @@ import { motion } from 'framer-motion';
 interface PhoneFrameProps {
   expanded: boolean;
   onHeadClick: () => void;
+  onCollapse?: () => void;
   children: ReactNode;
   wallpaper?: string | null;
 }
 
-export function PhoneFrame({ expanded, onHeadClick, children, wallpaper }: PhoneFrameProps) {
+export function PhoneFrame({ expanded, onHeadClick, onCollapse, children, wallpaper }: PhoneFrameProps) {
   return (
     <motion.div
-      initial={{ y: '88%' }}
-      animate={{ y: expanded ? '0%' : '88%' }}
+      initial={{ y: '94%' }}
+      animate={{ y: expanded ? '0%' : '94%' }}
       transition={{ type: 'spring', damping: 25, stiffness: 200 }}
       onClick={!expanded ? onHeadClick : undefined}
       className="absolute bottom-0 left-0 right-0 z-50 mx-auto"
@@ -104,14 +105,17 @@ export function PhoneFrame({ expanded, onHeadClick, children, wallpaper }: Phone
             `,
           }}
         >
-          {/* Dynamic Island 刘海 */}
+          {/* Dynamic Island 刘海 —— 展开时点击此处可收起手机 */}
           <div className="absolute top-[10px] left-1/2 -translate-x-1/2 z-30">
-            <div
-              className="h-[26px] w-[82px] rounded-full flex items-center justify-center gap-2"
+            <button
+              type="button"
+              onClick={expanded ? onCollapse : onHeadClick}
+              className="h-[26px] w-[82px] rounded-full flex items-center justify-center gap-2 cursor-pointer"
               style={{
                 background: '#050505',
                 boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.06), 0 1px 3px rgba(0,0,0,0.5)',
               }}
+              aria-label={expanded ? '收起手机' : '打开手机'}
             >
               <div
                 className="w-[46px] h-[9px] rounded-full"
@@ -127,7 +131,7 @@ export function PhoneFrame({ expanded, onHeadClick, children, wallpaper }: Phone
                   boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.06), 0 0 2px rgba(0,0,0,0.4)',
                 }}
               />
-            </div>
+            </button>
           </div>
 
           {/* 屏幕显示区 */}

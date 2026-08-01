@@ -1029,6 +1029,7 @@ export const mockGameState: GameState = {
   ],
   accessibilityMode: false,
   wallpaper: null,
+  phoneTheme: 'modern',
   map: {
     center: { x: 3500, y: -1200 },
     zoom: 1,

@@ -227,6 +227,9 @@ export interface Region {
   color: string;
 }
 
+/** 手机主题 */
+export type PhoneTheme = 'vinyl' | 'modern' | 'school' | 'starry';
+
 export interface PhoneApp {
   id: PhoneAppId;
   name: string;
@@ -419,6 +422,8 @@ export interface GameState {
   accessibilityMode: boolean;
   /** 手机桌面壁纸（base64 data URL，null 为默认） */
   wallpaper: string | null;
+  /** 手机主题色系 */
+  phoneTheme: PhoneTheme;
   map: {
     center: { x: number; y: number };
     zoom: number;
