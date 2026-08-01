@@ -314,39 +314,48 @@ export function PhoneSettingsApp() {
       <SectionLabel color={theme.sectionText}>外观</SectionLabel>
       <Card bg={theme.cardBg}>
         {/* 壁纸 */}
-        <div className="flex items-center justify-between px-4 py-3">
-          <div className="flex items-center gap-3 min-w-0">
+        <style>{`
+          .wallpaper-file-input::file-selector-button {
+            background-color: ${theme.accent};
+            color: white;
+            border: none;
+            padding: 5px 12px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 500;
+            cursor: pointer;
+            margin-right: 8px;
+            transition: opacity 0.15s;
+          }
+          .wallpaper-file-input::file-selector-button:hover {
+            opacity: 0.85;
+          }
+        `}</style>
+        <div className="px-4 py-3">
+          <div className="flex items-center gap-3 mb-2">
             <ImageIcon className="w-[18px] h-[18px] text-slate-500 shrink-0" />
             <span className="text-[13px] text-slate-800">壁纸</span>
           </div>
-          <div className="flex items-center gap-2 shrink-0">
+          <div className="flex items-center gap-2">
             {wallpaper ? (
               <div
-                className="w-8 h-8 rounded-lg bg-cover bg-center border border-slate-200"
+                className="w-10 h-10 rounded-xl bg-cover bg-center border border-slate-200 shrink-0"
                 style={{ backgroundImage: `url(${wallpaper})` }}
               />
             ) : (
-              <div className="w-8 h-8 rounded-lg bg-[#FAF6F1] border border-slate-200" />
+              <div className="w-10 h-10 rounded-xl bg-[#FAF6F1] border border-slate-200 shrink-0" />
             )}
-            {/* 按钮 + 文件input覆盖层：最可靠的触发方式 */}
-            <button
-              type="button"
-              className="relative px-2.5 py-1 text-[11px] font-medium rounded-lg text-white transition-colors hover:opacity-90"
-              style={{ backgroundColor: theme.accent }}
-            >
-              导入
-              <input
-                type="file"
-                accept="image/*"
-                className="absolute inset-0 opacity-0 cursor-pointer"
-                onChange={handleFileChange}
-              />
-            </button>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleFileChange}
+              className="wallpaper-file-input flex-1 min-w-0 text-[11px] text-slate-500 cursor-pointer"
+            />
             {wallpaper && (
               <button
                 type="button"
                 onClick={() => setWallpaper(null)}
-                className="px-2.5 py-1 text-[11px] font-medium rounded-lg bg-rose-50 text-rose-500 hover:bg-rose-100 transition-colors"
+                className="px-2.5 py-1 text-[11px] font-medium rounded-lg bg-rose-50 text-rose-500 hover:bg-rose-100 transition-colors shrink-0"
               >
                 清除
               </button>
