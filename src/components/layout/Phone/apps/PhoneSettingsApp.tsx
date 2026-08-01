@@ -293,23 +293,19 @@ export function PhoneSettingsApp() {
     [setWallpaper]
   );
 
-  const handleWallpaperClick = useCallback(async () => {
-    // 优先使用 File System Access API（无需 DOM input 元素）
-    if ('showOpenFilePicker' in window) {
-      try {
-        const [handle] = await (window as any).showOpenFilePicker({
-          types: [{ description: '图片', accept: { 'image/*': ['.png', '.jpg', '.jpeg', '.gif', '.webp'] } }],
-        });
-        const file = await handle.getFile();
-        processFile(file);
-      } catch {
-        // 用户取消
-      }
-      return;
-    }
-    // 回退：触发隐藏的原生 file input
+  const handleWallpaperClick = useCallback(() => {
+    console.log('[wallpaper] 导入按钮被点击');
     const input = document.getElementById('wallpaper-file-input') as HTMLInputElement | null;
-    if (input) input.click();
+    console.log('[wallpaper] file input found:', !!input);
+    if (input) {
+      input.onchange = (e) => {
+        const file = (e.target as HTMLInputElement).files?.[0];
+        console.log('[wallpaper] file selected:', file?.name);
+        if (file) processFile(file);
+      };
+      input.click();
+      console.log('[wallpaper] input.click() called');
+    }
   }, [processFile]);
 
   // 主题选择子页面
@@ -344,12 +340,12 @@ export function PhoneSettingsApp() {
             ) : (
               <div className="w-10 h-10 rounded-xl bg-[#FAF6F1] border border-slate-200 shrink-0" />
             )}
-            {/* 回退用的隐藏 file input（仅在 showOpenFilePicker 不可用时触发） */}
+            {/* 屏幕外 file input（display:none 会阻止某些浏览器的 .click()） */}
             <input
               id="wallpaper-file-input"
               type="file"
               accept="image/*"
-              className="hidden"
+              style={{ position: 'absolute', left: '-9999px', top: 0 }}
               onChange={(e) => {
                 const file = e.target.files?.[0];
                 if (file) processFile(file);
