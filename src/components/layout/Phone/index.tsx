@@ -48,19 +48,19 @@ export function Phone() {
 
   return (
     <PhoneFrame expanded={phoneExpanded} onHeadClick={expandPhone} wallpaper={wallpaper}>
-      {phoneExpanded && (
-        <div className="flex flex-col h-full">
-          {/* 状态栏 */}
-          <div className="flex items-center justify-between px-5 pt-3 pb-1 shrink-0 z-20">
-            <span className="text-xs font-semibold text-slate-800 tracking-tight">
-              {String(time.hour).padStart(2, '0')}:{String(time.minute).padStart(2, '0')}
-            </span>
-            <div className="flex items-center gap-1.5 text-slate-800">
-              <Wifi className="w-3.5 h-3.5" />
-              <Battery className="w-3.5 h-3.5" />
-            </div>
+      <div className="flex flex-col h-full">
+        {/* 状态栏 —— 始终可见，收起时正是这一行露出屏幕 */}
+        <div className="flex items-center justify-between px-5 pt-3 pb-1 shrink-0 z-20">
+          <span className="text-xs font-semibold text-slate-800 tracking-tight">
+            {String(time.hour).padStart(2, '0')}:{String(time.minute).padStart(2, '0')}
+          </span>
+          <div className="flex items-center gap-1.5 text-slate-800">
+            <Wifi className="w-3.5 h-3.5" />
+            <Battery className="w-3.5 h-3.5" />
           </div>
+        </div>
 
+        {phoneExpanded && (
           <div className="flex-1 overflow-y-auto relative">
             {activeApp ? (
               <PhoneAppScreen app={activeApp} onBack={closePhoneApp} />
@@ -89,8 +89,8 @@ export function Phone() {
               </>
             )}
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </PhoneFrame>
   );
 }
