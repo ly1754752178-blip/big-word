@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import { useGame } from '@/hooks/useGameState';
 import type { PhoneTheme } from '@/types';
 import {
@@ -334,14 +335,17 @@ export function PhoneSettingsApp() {
             ) : (
               <div className="w-10 h-10 rounded-xl bg-[#FAF6F1] border border-slate-200 shrink-0" />
             )}
-            {/* file input 置于屏幕外，由下方 label 通过 htmlFor 原生触发 */}
-            <input
-              id="wallpaper-file-input"
-              type="file"
-              accept="image/*"
-              style={{ position: 'absolute', left: '-9999px', top: 0 }}
-              onChange={handleFileChange}
-            />
+            {/* file input 通过 Portal 渲染到 body，脱离手机 DOM 层级 */}
+            {createPortal(
+              <input
+                id="wallpaper-file-input"
+                type="file"
+                accept="image/*"
+                style={{ position: 'absolute', left: '-9999px', top: 0 }}
+                onChange={handleFileChange}
+              />,
+              document.body
+            )}
             <label
               htmlFor="wallpaper-file-input"
               className="px-2.5 py-1 text-[11px] font-medium rounded-lg text-white cursor-pointer transition-colors hover:opacity-90"
