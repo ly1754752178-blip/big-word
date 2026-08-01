@@ -7,9 +7,11 @@ interface PhoneFrameProps {
   onCollapse?: () => void;
   children: ReactNode;
   wallpaper?: string | null;
+  /** 主题默认屏幕背景色（无壁纸时使用） */
+  screenBg?: string;
 }
 
-export function PhoneFrame({ expanded, onHeadClick, onCollapse, children, wallpaper }: PhoneFrameProps) {
+export function PhoneFrame({ expanded, onHeadClick, onCollapse, children, wallpaper, screenBg }: PhoneFrameProps) {
   return (
     <motion.div
       initial={false}
@@ -171,7 +173,7 @@ export function PhoneFrame({ expanded, onHeadClick, onCollapse, children, wallpa
             style={{
               background: wallpaper
                 ? `url(${wallpaper}) center/cover no-repeat`
-                : '#FAF6F1',
+                : (screenBg || '#FAF6F1'),
               boxShadow: wallpaper
                 ? 'inset 0 0 0 1px rgba(0,0,0,0.08), inset 0 0 32px rgba(0,0,0,0.15)'
                 : 'inset 0 0 0 1px rgba(0,0,0,0.06), inset 0 0 16px rgba(0,0,0,0.04)',

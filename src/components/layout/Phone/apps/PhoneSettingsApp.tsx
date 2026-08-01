@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import { useGame } from '@/hooks/useGameState';
 import type { PhoneTheme } from '@/types';
 import {
@@ -9,13 +9,14 @@ import {
   Globe,
   Info,
   Accessibility,
-  Image,
+  ImageIcon,
   ChevronRight,
   Palette,
   Check,
+  ArrowLeft,
 } from 'lucide-react';
 
-/* ─────────── 主题定义 ─────────── */
+/* ─────────── 主题定义（导出供外部使用） ─────────── */
 
 export interface ThemeConfig {
   name: string;
@@ -30,7 +31,7 @@ export interface ThemeConfig {
   sectionText: string;
 }
 
-const THEMES: Record<PhoneTheme, ThemeConfig> = {
+export const THEMES: Record<PhoneTheme, ThemeConfig> = {
   vinyl: {
     name: '黑胶会员',
     desc: '复古黑胶唱片的温暖质感',
@@ -116,12 +117,14 @@ function ArrowRow({
   icon: Icon,
   label,
   detail,
+  onClick,
 }: {
   icon?: React.ComponentType<{ className?: string }>;
   label: string;
   detail: string;
+  onClick?: () => void;
 }) {
-  return (
+  const content = (
     <div className="flex items-center justify-between px-4 py-3">
       <div className="flex items-center gap-3 min-w-0">
         {Icon && <Icon className="w-[18px] h-[18px] text-slate-500 shrink-0" />}
@@ -133,6 +136,14 @@ function ArrowRow({
       </div>
     </div>
   );
+  if (onClick) {
+    return (
+      <button type="button" onClick={onClick} className="w-full text-left">
+        {content}
+      </button>
+    );
+  }
+  return content;
 }
 
 function ToggleRow({
@@ -197,7 +208,69 @@ function Divider() {
   return <div className="h-px bg-slate-100 mx-4" />;
 }
 
-/* ─────────── 主组件 ─────────── */
+/* ─────────── 主题选择子页面 ─────────── */
+
+function ThemePicker({
+  current,
+  onSelect,
+  onBack,
+  theme,
+}: {
+  current: PhoneTheme;
+  onSelect: (t: PhoneTheme) => void;
+  onBack: () => void;
+  theme: ThemeConfig;
+}) {
+  return (
+    <div className="min-h-full pb-6" style={{ backgroundColor: theme.pageBg }}>
+      {/* 标题栏 */}
+      <div className="flex items-center gap-3 px-1 pt-2 pb-4">
+        <button
+          type="button"
+          onClick={onBack}
+          className="w-7 h-7 rounded-full flex items-center justify-center bg-black/5 hover:bg-black/10 transition-colors"
+        >
+          <ArrowLeft className="w-4 h-4 text-slate-700" />
+        </button>
+        <span className="text-base font-bold text-slate-800">选择主题</span>
+      </div>
+
+      <div className="space-y-3">
+        {(Object.entries(THEMES) as [PhoneTheme, ThemeConfig][]).map(([key, t]) => (
+          <button
+            key={key}
+            type="button"
+            onClick={() => onSelect(key)}
+            className="w-full flex items-center gap-4 p-4 rounded-2xl text-left transition-all"
+            style={{
+              backgroundColor: t.cardBg,
+              border: current === key ? `2px solid ${t.accent}` : '2px solid transparent',
+            }}
+          >
+            {/* 色块预览 */}
+            <div className="flex gap-1.5 shrink-0">
+              <div className="w-7 h-7 rounded-full border border-white/20" style={{ backgroundColor: t.accent }} />
+              <div className="w-7 h-7 rounded-full border border-slate-200" style={{ backgroundColor: t.pageBg }} />
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2">
+                <span className="text-[14px] font-semibold text-slate-800">{t.name}</span>
+                {current === key && (
+                  <div className="w-4 h-4 rounded-full flex items-center justify-center" style={{ backgroundColor: t.accent }}>
+                    <Check className="w-3 h-3 text-white" />
+                  </div>
+                )}
+              </div>
+              <p className="text-[11px] text-slate-500 mt-0.5">{t.desc}</p>
+            </div>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/* ─────────── 主设置列表 ─────────── */
 
 export function PhoneSettingsApp() {
   const { state, toggleAccessibilityMode, setWallpaper, setPhoneTheme } = useGame();
@@ -209,12 +282,7 @@ export function PhoneSettingsApp() {
   const [mobileData, setMobileData] = useState(true);
   const [brightness, setBrightness] = useState(70);
   const [mediaVolume, setMediaVolume] = useState(50);
-
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
-  const handleWallpaperImport = useCallback(() => {
-    fileInputRef.current?.click();
-  }, []);
+  const [showThemePicker, setShowThemePicker] = useState(false);
 
   const handleFileChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -228,6 +296,18 @@ export function PhoneSettingsApp() {
     [setWallpaper]
   );
 
+  // 主题选择子页面
+  if (showThemePicker) {
+    return (
+      <ThemePicker
+        current={phoneTheme}
+        onSelect={(t) => { setPhoneTheme(t); setShowThemePicker(false); }}
+        onBack={() => setShowThemePicker(false)}
+        theme={theme}
+      />
+    );
+  }
+
   return (
     <div className="min-h-full pb-6" style={{ backgroundColor: theme.pageBg }}>
       {/* ═══ 外观 ═══ */}
@@ -236,7 +316,7 @@ export function PhoneSettingsApp() {
         {/* 壁纸 */}
         <div className="flex items-center justify-between px-4 py-3">
           <div className="flex items-center gap-3 min-w-0">
-            <Image className="w-[18px] h-[18px] text-slate-500 shrink-0" />
+            <ImageIcon className="w-[18px] h-[18px] text-slate-500 shrink-0" />
             <span className="text-[13px] text-slate-800">壁纸</span>
           </div>
           <div className="flex items-center gap-2 shrink-0">
@@ -248,21 +328,19 @@ export function PhoneSettingsApp() {
             ) : (
               <div className="w-8 h-8 rounded-lg bg-[#FAF6F1] border border-slate-200" />
             )}
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/*"
-              className="hidden"
-              onChange={handleFileChange}
-            />
-            <button
-              type="button"
-              onClick={handleWallpaperImport}
-              className="px-2.5 py-1 text-[11px] font-medium rounded-lg text-white transition-colors"
+            {/* 用 label 包裹触发文件选择，比 ref+js 更可靠 */}
+            <label
+              className="px-2.5 py-1 text-[11px] font-medium rounded-lg text-white cursor-pointer transition-colors hover:opacity-90"
               style={{ backgroundColor: theme.accent }}
             >
               导入
-            </button>
+              <input
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleFileChange}
+              />
+            </label>
             {wallpaper && (
               <button
                 type="button"
@@ -275,44 +353,13 @@ export function PhoneSettingsApp() {
           </div>
         </div>
         <Divider />
-        {/* 主题 */}
-        <div className="px-4 py-3">
-          <div className="flex items-center gap-3 mb-3">
-            <Palette className="w-[18px] h-[18px] text-slate-500 shrink-0" />
-            <span className="text-[13px] text-slate-800">主题</span>
-          </div>
-          <div className="grid grid-cols-2 gap-2">
-            {(Object.entries(THEMES) as [PhoneTheme, ThemeConfig][]).map(([key, t]) => (
-              <button
-                key={key}
-                type="button"
-                onClick={() => setPhoneTheme(key)}
-                className="relative flex flex-col items-center gap-1 p-3 rounded-xl border-2 transition-all text-left"
-                style={{
-                  borderColor: phoneTheme === key ? theme.accent : 'transparent',
-                  backgroundColor: phoneTheme === key ? `${theme.accent}10` : 'rgba(0,0,0,0.03)',
-                }}
-              >
-                {phoneTheme === key && (
-                  <div
-                    className="absolute top-1.5 right-1.5 w-4 h-4 rounded-full flex items-center justify-center"
-                    style={{ backgroundColor: theme.accent }}
-                  >
-                    <Check className="w-3 h-3 text-white" />
-                  </div>
-                )}
-                {/* 主题色块预览 */}
-                <div className="flex gap-1">
-                  <div className="w-6 h-6 rounded-full" style={{ backgroundColor: t.accent }} />
-                  <div className="w-6 h-6 rounded-full" style={{ backgroundColor: t.cardBg, border: '1px solid #e2e8f0' }} />
-                  <div className="w-6 h-6 rounded-full" style={{ backgroundColor: t.pageBg, border: '1px solid #e2e8f0' }} />
-                </div>
-                <span className="text-[11px] font-semibold text-slate-800">{t.name}</span>
-                <span className="text-[9px] text-slate-400 leading-tight text-center">{t.desc}</span>
-              </button>
-            ))}
-          </div>
-        </div>
+        {/* 主题 —— 点击进入子页面选择 */}
+        <ArrowRow
+          icon={Palette}
+          label="主题"
+          detail={theme.name}
+          onClick={() => setShowThemePicker(true)}
+        />
       </Card>
 
       {/* ═══ 网络与通信 ═══ */}
