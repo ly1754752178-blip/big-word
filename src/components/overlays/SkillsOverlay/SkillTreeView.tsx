@@ -36,9 +36,9 @@ export function SkillTreeView({ skill, color }: Props) {
   const [zoom, setZoom] = useState(1);
   const [pan, setPan] = useState({ x: 0, y: 0 });
   const [drag, setDrag] = useState(false);
+  const [containerSize, setContainerSize] = useState({ w: 0, h: 0 });
   const dr = useRef({ sx: 0, sy: 0, px: 0, py: 0 });
   const canvasRef = useRef<HTMLDivElement>(null);
-  const containerSizeRef = useRef({ w: 620, h: 620 });
   const panTarget = useRef<{ x: number; y: number } | null>(null);
   const animFrame = useRef<number>(0);
   const zoomRef = useRef(zoom);
@@ -62,7 +62,7 @@ export function SkillTreeView({ skill, color }: Props) {
     const el = canvasRef.current;
     if (!el) return;
     const ro = new ResizeObserver(entries => {
-      for (const e of entries) containerSizeRef.current = { w: e.contentRect.width, h: e.contentRect.height };
+      for (const e of entries) setContainerSize({ w: e.contentRect.width, h: e.contentRect.height });
     });
     ro.observe(el);
     return () => ro.disconnect();
@@ -78,13 +78,13 @@ export function SkillTreeView({ skill, color }: Props) {
   // ── 聚焦 ──
   const panTo = useCallback((tx: number, ty: number) => {
     const canvas = canvasRef.current;
-    const { w } = containerSizeRef.current;
+    const { w } = containerSize;
     const unitPx = w / V;
     const zoom = zoomRef.current;
-    if (!canvas) {
+    if (!canvas || !w) {
       panTarget.current = {
         x: w * 0.5 - tx * unitPx * zoom,
-        y: containerSizeRef.current.h * 0.5 - ty * unitPx * zoom,
+        y: containerSize.h * 0.5 - ty * unitPx * zoom,
       };
       return;
     }
@@ -101,7 +101,7 @@ export function SkillTreeView({ skill, color }: Props) {
       x: cx - rect.left - tx * unitPx * zoom,
       y: cy - rect.top - ty * unitPx * zoom,
     };
-  }, []);
+  }, [containerSize]);
 
   useEffect(() => {
     if (!panTarget.current) return;
@@ -162,21 +162,31 @@ export function SkillTreeView({ skill, color }: Props) {
       });
     }
     setSelId(prev => (prev === node.id ? null : node.id));
-    if (node.pos) panTo(node.pos.x, node.pos.y);
-  }, [skill.nodes, panTo]);
+  }, [skill.nodes]);
 
   // ── 初始视图自适应：让所有节点完整可见并居中 ──
   useEffect(() => {
-    const rect = canvasRef.current?.getBoundingClientRect();
-    const w = rect?.width || containerSizeRef.current.w;
-    const h = rect?.height || containerSizeRef.current.h;
-    if (!w || !h) return;
+    const canvas = canvasRef.current;
+    const rect = canvas?.getBoundingClientRect();
+    const w = rect?.width || containerSize.w || 0;
+    const h = rect?.height || containerSize.h || 0;
+    if (!w || !h || !rect) return;
 
     const bw = bounds.maxX - bounds.minX;
     const bh = bounds.maxY - bounds.minY;
     if (bw <= 0 || bh <= 0) return;
 
-    const pad = 22; // 边距，避免节点贴边
+    // 以画布在视口中的可视区域为基准进行适配（弹窗可能超出视口）
+    const vLeft = Math.max(0, rect.left);
+    const vRight = Math.min(window.innerWidth, rect.right);
+    const vTop = Math.max(0, rect.top);
+    const vBottom = Math.min(window.innerHeight, rect.bottom);
+    const visibleW = Math.max(1, vRight - vLeft);
+    const visibleH = Math.max(1, vBottom - vTop);
+
+    const pad = 28; // 边距，避免节点贴边
+    const panelReserve = 292; // 右上角玻璃面板宽度预留（w-64 + right-4 + 缓冲）
+    const fitW = Math.max(1, visibleW - panelReserve);
     const cx = (bounds.minX + bounds.maxX) / 2;
     const cy = (bounds.minY + bounds.maxY) / 2;
 
@@ -184,20 +194,20 @@ export function SkillTreeView({ skill, color }: Props) {
     // 整体缩放系数 zoom 在 CSS transform 中作为 scale(zoom) 使用。
     const unitPx = w / V;
     const targetZoom = Math.min(
-      w / (bw * unitPx + pad * 2),
-      h / (bh * unitPx + pad * 2)
+      fitW / (bw * unitPx + pad * 2),
+      visibleH / (bh * unitPx + pad * 2)
     );
 
     const timer = setTimeout(() => {
       setZoom(targetZoom);
-      // translate 在 scale 之前应用，因此以 viewBox 单位直接偏移即可
+      // 让树中心对齐到可视区域中心（坐标相对于画布自身），并向左偏移避开右侧面板
       setPan({
-        x: w * 0.5 - cx * unitPx * targetZoom,
-        y: h * 0.5 - cy * unitPx * targetZoom,
+        x: vLeft - rect.left + fitW * 0.5 - cx * unitPx * targetZoom,
+        y: vTop - rect.top + visibleH * 0.5 - cy * unitPx * targetZoom,
       });
     }, 80);
     return () => clearTimeout(timer);
-  }, [bounds]);
+  }, [bounds, containerSize.w, containerSize.h]);
 
   // ── 渲染 ──
   return (

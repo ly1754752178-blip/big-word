@@ -28,7 +28,7 @@ const CY = 100;
 // 每一层到父节点的距离
 const LEVEL_DISTANCES = [0, 38, 28, 22, 18, 15, 13, 12];
 // 小型放射中心子节点到父节点的紧凑距离
-const MINI_RADIAL_DISTANCE = 16;
+const MINI_RADIAL_DISTANCE = 20;
 // 节点半径按层级（与 SkillTreeView.tsx 保持一致）
 const RADIUS_BY_DEPTH = [5.5, 4.2, 3.2, 2.2];
 // 字体大小按层级（与 SkillTreeView.tsx 保持一致）
@@ -102,14 +102,17 @@ export function generateSnowflakeLayout(
   function updateBounds(bounds: Bounds, node: SkillNode, pos: Point, depth: number): Bounds {
     const r = getNodeRadius(depth);
     const fontSize = getFontSize(depth);
+    const levelFontSize = depth === 0 ? 1.4 : depth === 1 ? 1.2 : 1.0;
     // 粗略估算文字标签宽度（中文字符按正方形估算，并留一定边距）
-    const labelWidth = node.name.length * fontSize * 1.2;
-    const labelHeight = fontSize * 2 + 1.2; // 名称 + 等级两行
+    const labelWidth = node.name.length * fontSize * 1.25;
+    // 标签位于节点下方：名称在 r+2.8，等级在 r+4.5
+    const labelBottom = r + 4.5 + levelFontSize;
+    const labelTop = -r; // 节点圆顶上缘
     return {
       minX: Math.min(bounds.minX, pos.x - r - labelWidth / 2),
       maxX: Math.max(bounds.maxX, pos.x + r + labelWidth / 2),
-      minY: Math.min(bounds.minY, pos.y - r),
-      maxY: Math.max(bounds.maxY, pos.y + r + labelHeight),
+      minY: Math.min(bounds.minY, pos.y + labelTop),
+      maxY: Math.max(bounds.maxY, pos.y + labelBottom),
     };
   }
 
@@ -150,12 +153,12 @@ export function generateSnowflakeLayout(
             : (i - (children.length - 1) / 2) * (spread / Math.max(1, children.length - 1));
         childDirection = direction + offset;
       } else {
-        // 小型放射中心：子节点围绕父节点紧凑均匀分布
+        // 小型放射中心：子节点在父节点外侧半圆均匀分布，形成紧凑花簇
         childDist = MINI_RADIAL_DISTANCE;
-        const miniSpread = Math.min(childSectorSize * 0.9, Math.PI / 2);
-        const offset =
-          (i - (children.length - 1) / 2) * (miniSpread / Math.max(1, children.length - 1));
-        childDirection = direction + offset;
+        const span = Math.PI; // 半圆，朝向远离父节点的方向
+        const step = span / Math.max(1, children.length);
+        const start = direction - span / 2 + step / 2;
+        childDirection = start + i * step;
       }
 
       const childPos = {
