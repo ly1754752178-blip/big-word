@@ -111,17 +111,6 @@ export function TavernLobby({ onEnterGame, skipOrb = false }: TavernLobbyProps) 
         )}
       </AnimatePresence>
 
-      {/* 背景暗角与氛围遮罩 */}
-      <div
-        style={{
-          position: 'fixed',
-          inset: 0,
-          zIndex: 1,
-          pointerEvents: 'none',
-          background: 'linear-gradient(to top, rgba(60,45,35,0.55) 0%, rgba(60,45,35,0.15) 40%, rgba(0,0,0,0) 100%)',
-        }}
-      />
-
       {/* 主内容层 */}
       <AnimatePresence>
         {!showOrb && (
