@@ -69,6 +69,22 @@ describe('generateSnowflakeLayout', () => {
     }
   });
 
+  it('bounds include node radius and label width', () => {
+    const nodes = [
+      makeNode('A'),
+      makeNode('B1', ['A']),
+      makeNode('B2', ['A']),
+    ];
+    const { bounds } = generateSnowflakeLayout(nodes, new Set());
+    // 根节点半径 5.5，名称 "A" 很短
+    expect(bounds.minX).toBeLessThan(100);
+    expect(bounds.maxX).toBeGreaterThan(100);
+    expect(bounds.minY).toBeLessThan(100);
+    expect(bounds.maxY).toBeGreaterThan(100);
+    // B 节点在左右两侧，bounds 应该比仅含中心点更宽
+    expect(bounds.maxX - bounds.minX).toBeGreaterThan(20);
+  });
+
   it('collapses whole subtree when ancestor collapses', () => {
     const nodes = [
       makeNode('A'),

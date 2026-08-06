@@ -29,6 +29,18 @@ const CY = 100;
 const LEVEL_DISTANCES = [0, 38, 28, 22, 18, 15, 13, 12];
 // 小型放射中心子节点到父节点的紧凑距离
 const MINI_RADIAL_DISTANCE = 16;
+// 节点半径按层级（与 SkillTreeView.tsx 保持一致）
+const RADIUS_BY_DEPTH = [5.5, 4.2, 3.2, 2.2];
+// 字体大小按层级（与 SkillTreeView.tsx 保持一致）
+const FONT_SIZE_BY_DEPTH = [2.4, 2.0, 1.8, 1.5];
+
+function getNodeRadius(depth: number): number {
+  return RADIUS_BY_DEPTH[Math.min(depth, RADIUS_BY_DEPTH.length - 1)];
+}
+
+function getFontSize(depth: number): number {
+  return FONT_SIZE_BY_DEPTH[Math.min(depth, FONT_SIZE_BY_DEPTH.length - 1)];
+}
 
 function getVisibleChildren(nodeId: string, all: SkillNode[], expandedIds: Set<string>, byId: Map<string, SkillNode>): SkillNode[] {
   const children = all.filter(n => n.parentIds?.[0] === nodeId);
@@ -82,18 +94,22 @@ export function generateSnowflakeLayout(
   }
 
   const result: LayoutNode[] = [];
-  const labelHeight = 6; // 预留文字标签高度
 
   function record(node: SkillNode, pos: Point, depth: number) {
     result.push({ ...node, pos, depth });
   }
 
-  function updateBounds(bounds: Bounds, pos: Point): Bounds {
+  function updateBounds(bounds: Bounds, node: SkillNode, pos: Point, depth: number): Bounds {
+    const r = getNodeRadius(depth);
+    const fontSize = getFontSize(depth);
+    // 粗略估算文字标签宽度（中文字符按正方形估算，并留一定边距）
+    const labelWidth = node.name.length * fontSize * 1.2;
+    const labelHeight = fontSize * 2 + 1.2; // 名称 + 等级两行
     return {
-      minX: Math.min(bounds.minX, pos.x),
-      maxX: Math.max(bounds.maxX, pos.x),
-      minY: Math.min(bounds.minY, pos.y),
-      maxY: Math.max(bounds.maxY, pos.y + labelHeight),
+      minX: Math.min(bounds.minX, pos.x - r - labelWidth / 2),
+      maxX: Math.max(bounds.maxX, pos.x + r + labelWidth / 2),
+      minY: Math.min(bounds.minY, pos.y - r),
+      maxY: Math.max(bounds.maxY, pos.y + r + labelHeight),
     };
   }
 
@@ -107,7 +123,7 @@ export function generateSnowflakeLayout(
   ): Bounds {
     const depth = computeDepth(node, byId);
     record(node, pos, depth);
-    let nextBounds = updateBounds(bounds, pos);
+    let nextBounds = updateBounds(bounds, node, pos, depth);
 
     const children = getVisibleChildren(node.id, nodes, expandedIds, byId);
     if (children.length === 0) return nextBounds;
@@ -157,7 +173,7 @@ export function generateSnowflakeLayout(
   const rootChildren = getVisibleChildren(root.id, nodes, expandedIds, byId);
   const rootAngles = distributeRootChildren(rootChildren.length);
 
-  let bounds = updateBounds(emptyBounds(), { x: CX, y: CY });
+  let bounds = updateBounds(emptyBounds(), root, { x: CX, y: CY }, 0);
   record(root, { x: CX, y: CY }, 0);
 
   rootChildren.forEach((child, i) => {
