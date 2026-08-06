@@ -146,16 +146,32 @@ export function SkillTreeView({ skill, color }: Props) {
     if (hasChildren) {
       setExpandedIds(prev => {
         const next = new Set(prev);
-        if (next.has(node.id)) {
-          // 收起该节点及其所有后代
-          const toRemove = new Set<string>();
-          const collect = (id: string) => {
-            toRemove.add(id);
-            skill.nodes.filter(n => n.parentIds?.[0] === id).forEach(child => collect(child.id));
+
+        // 辅助：递归收起某个节点及其所有后代
+        const collectSubtree = (id: string) => {
+          const ids = new Set<string>();
+          const collect = (targetId: string) => {
+            ids.add(targetId);
+            skill.nodes.filter(n => n.parentIds?.[0] === targetId).forEach(child => collect(child.id));
           };
-          collect(node.id);
-          for (const id of toRemove) next.delete(id);
+          collect(id);
+          return ids;
+        };
+
+        if (next.has(node.id)) {
+          // 再次点击：收起该节点及其所有后代
+          for (const id of collectSubtree(node.id)) next.delete(id);
         } else {
+          // 展开前：先收起同父节点下的其他已展开兄弟及其整棵子树
+          const parentId = node.parentIds?.[0];
+          if (parentId) {
+            const siblings = skill.nodes.filter(n => n.parentIds?.[0] === parentId);
+            for (const sibling of siblings) {
+              if (sibling.id !== node.id && next.has(sibling.id)) {
+                for (const id of collectSubtree(sibling.id)) next.delete(id);
+              }
+            }
+          }
           next.add(node.id);
         }
         return next;
