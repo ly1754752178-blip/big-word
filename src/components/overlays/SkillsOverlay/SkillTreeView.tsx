@@ -3,85 +3,16 @@
  */
 import { useState, useCallback, useEffect, useRef, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import type { SkillTree, SkillNode } from '@/types';
+import type { SkillTree } from '@/types';
+import { generateSnowflakeLayout, type LayoutNode } from '@/lib/skillTreeLayout';
 import { SkillNodeDetail } from './SkillNodeDetail';
 
 const V = 200, CX = 100, CY = 100;
 const ROOT_R = 5.5, MAJOR_R = 4.2, CHILD_R = 3.2, LEAF_W = 2.2;
-const ORBIT_R = 26;
 
 const BG1 = '#FDF8F2', BG2 = '#F5EDE0';
 const PAPER_LINE = 'rgba(180,160,140,0.2)';
 const INK = '#8B7355';
-
-function branchPath(parent: { x: number; y: number }, children: { x: number; y: number }[]): string[] {
-  if (children.length === 0) return [];
-  if (children.length === 1) {
-    return [`M${parent.x},${parent.y} L${children[0].x},${children[0].y}`];
-  }
-  // 以子节点平均位置计算分叉方向
-  const cx = children.reduce((s, c) => s + c.x, 0) / children.length;
-  const cy = children.reduce((s, c) => s + c.y, 0) / children.length;
-  const dx = cx - parent.x;
-  const dy = cy - parent.y;
-  const dist = Math.sqrt(dx * dx + dy * dy) || 1;
-  // 分叉点比例：让主干与分支都有足够长度，避免挤成一团
-  const ratio = Math.min(0.5, Math.max(0.18, dist * 0.018));
-  const forkX = parent.x + dx * ratio;
-  const forkY = parent.y + dy * ratio;
-  const paths: string[] = [];
-  // 主干
-  paths.push(`M${parent.x},${parent.y} L${forkX},${forkY}`);
-  // 分支到每个子节点
-  for (const c of children) {
-    paths.push(`M${forkX},${forkY} L${c.x},${c.y}`);
-  }
-  return paths;
-}
-
-function childPos(p: { x: number; y: number }, idx: number, total: number) {
-  const dx = p.x - CX, dy = p.y - CY, dist = Math.sqrt(dx * dx + dy * dy) || 1;
-  const dxn = dx / dist, dyn = dy / dist;
-  const px = -dyn, py = dxn;
-  const arc = Math.min(1.6, total * 0.22);
-  const t = total <= 1 ? 0.5 : idx / (total - 1);
-  const angle = (t - 0.5) * arc;
-  const rd = idx % 2 === 0 ? ORBIT_R : ORBIT_R * 1.35;
-  return {
-    x: +(p.x + dxn * rd + px * Math.sin(angle) * 30).toFixed(1),
-    y: +(p.y + dyn * rd + py * Math.sin(angle) * 30).toFixed(1),
-  };
-}
-
-function isVis(n: SkillNode, all: SkillNode[], expId: string | null): boolean {
-  if (!n.parentIds?.length) return true;
-  for (const pid of n.parentIds) {
-    const p = all.find(an => an.id === pid);
-    if (p?.isMajor) return expId === pid;
-  }
-  return true;
-}
-
-// 计算包含文字标签在内的节点真实边界框（单位：viewBox 坐标）
-function computeNodeBounds(nodes: NodeWithPos[]) {
-  let minX = V, maxX = 0, minY = V, maxY = 0;
-  for (const n of nodes) {
-    if (!n.pos) continue;
-    const isR = n.depth === 0;
-    const isM = !!n.isMajor && !isR;
-    const isLeaf = n.depth >= 3;
-    const r = isR ? ROOT_R : isM ? MAJOR_R : isLeaf ? LEAF_W : CHILD_R;
-    // 节点圆本身
-    minX = Math.min(minX, n.pos.x - r);
-    maxX = Math.max(maxX, n.pos.x + r);
-    minY = Math.min(minY, n.pos.y - r);
-    maxY = Math.max(maxY, n.pos.y + r);
-    // 下方两行文字大致高度
-    const fontH = isR ? 2.4 : isM ? 2.0 : isLeaf ? 1.5 : 1.8;
-    maxY = Math.max(maxY, n.pos.y + r + 2.8 + fontH + 1.2);
-  }
-  return { minX: Math.max(0, minX), maxX: Math.min(V, maxX), minY: Math.max(0, minY), maxY: Math.min(V, maxY) };
-}
 
 const nodePalette = [
   { fill: '#FDE8D0', stroke: '#E8A87C' },
@@ -99,11 +30,9 @@ interface Props {
   color: string;
 }
 
-type NodeWithPos = SkillNode & { pos?: { x: number; y: number } | null; depth: number; paletteIdx: number };
-
 export function SkillTreeView({ skill, color }: Props) {
   const [selId, setSelId] = useState<string | null>(null);
-  const [expId, setExpId] = useState<string | null>(null);
+  const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
   const [zoom, setZoom] = useState(1);
   const [pan, setPan] = useState({ x: 0, y: 0 });
   const [drag, setDrag] = useState(false);
@@ -140,41 +69,9 @@ export function SkillTreeView({ skill, color }: Props) {
   }, []);
 
   // ── 节点 ──
-  const nodes: NodeWithPos[] = useMemo(() => {
-    const raw = skill.nodes.map((n, i) => ({ ...n, depth: 0, paletteIdx: i % nodePalette.length }));
-    const byId = new Map(raw.map(n => [n.id, n]));
-    const calcDepth = (n: NodeWithPos): number => {
-      if (!n.parentIds?.length) return 0;
-      let max = 0;
-      for (const pid of n.parentIds) { const p = byId.get(pid); if (p) max = Math.max(max, calcDepth(p) + 1); }
-      return max;
-    };
-    for (const n of raw) n.depth = calcDepth(n);
-    const res: NodeWithPos[] = raw.map(n => ({ ...n, pos: n.position as { x: number; y: number } | null }));
-    const root = res.find(n => !n.parentIds?.length);
-    if (root && !root.pos) root.pos = { x: CX, y: CY };
-    const majors = res.filter(n => n.isMajor && n.depth <= 2);
-    majors.forEach((n, i) => {
-      if (!n.pos) {
-        const angle = (Math.PI * 2 * i) / Math.max(1, majors.length) - Math.PI / 2;
-        n.pos = { x: +(CX + Math.cos(angle) * 60).toFixed(1), y: +(CY + Math.sin(angle) * 60).toFixed(1) };
-      }
-    });
-    for (const n of res) {
-      if (n.pos || !n.parentIds?.length) continue;
-      const p = res.find(pn => pn.id === n.parentIds![0]);
-      if (!p?.pos) continue;
-      const sibs = res.filter(s => s.parentIds?.includes(p.id) && !s.isMajor);
-      n.pos = childPos(p.pos, sibs.findIndex(s => s.id === n.id), sibs.length);
-    }
-    return res;
-  }, [skill.nodes]);
-
-  const visibleIds = useMemo(() => {
-    const s = new Set<string>();
-    for (const n of nodes) if (isVis(n, nodes, expId)) s.add(n.id);
-    return s;
-  }, [nodes, expId]);
+  const { nodes, bounds } = useMemo(() => {
+    return generateSnowflakeLayout(skill.nodes, expandedIds);
+  }, [skill.nodes, expandedIds]);
 
   const selNode = useMemo(() => nodes.find(n => n.id === selId) ?? null, [nodes, selId]);
 
@@ -244,11 +141,29 @@ export function SkillTreeView({ skill, color }: Props) {
     if (root?.pos) panTo(root.pos.x, root.pos.y);
   }, [nodes, panTo]);
 
-  const onSelect = useCallback((node: NodeWithPos) => {
-    if (node.isMajor) setExpId(p => p === node.id ? null : node.id);
-    setSelId(p => p === node.id ? null : node.id);
+  const onSelect = useCallback((node: LayoutNode) => {
+    const hasChildren = skill.nodes.some(n => n.parentIds?.[0] === node.id);
+    if (hasChildren) {
+      setExpandedIds(prev => {
+        const next = new Set(prev);
+        if (next.has(node.id)) {
+          // 收起该节点及其所有后代
+          const toRemove = new Set<string>();
+          const collect = (id: string) => {
+            toRemove.add(id);
+            skill.nodes.filter(n => n.parentIds?.[0] === id).forEach(child => collect(child.id));
+          };
+          collect(node.id);
+          for (const id of toRemove) next.delete(id);
+        } else {
+          next.add(node.id);
+        }
+        return next;
+      });
+    }
+    setSelId(prev => (prev === node.id ? null : node.id));
     if (node.pos) panTo(node.pos.x, node.pos.y);
-  }, [panTo]);
+  }, [skill.nodes, panTo]);
 
   // ── 初始视图自适应：让所有节点完整可见并居中 ──
   useEffect(() => {
@@ -257,14 +172,13 @@ export function SkillTreeView({ skill, color }: Props) {
     const h = rect?.height || containerSizeRef.current.h;
     if (!w || !h) return;
 
-    const { minX, maxX, minY, maxY } = computeNodeBounds(nodes);
-    const bw = maxX - minX;
-    const bh = maxY - minY;
+    const bw = bounds.maxX - bounds.minX;
+    const bh = bounds.maxY - bounds.minY;
     if (bw <= 0 || bh <= 0) return;
 
     const pad = 22; // 边距，避免节点贴边
-    const cx = (minX + maxX) / 2;
-    const cy = (minY + maxY) / 2;
+    const cx = (bounds.minX + bounds.maxX) / 2;
+    const cy = (bounds.minY + bounds.maxY) / 2;
 
     // SVG 已由浏览器按 viewBox 0 0 200 200 缩放到容器（w × h），即 1 viewBox 单位 = w/200 px。
     // 整体缩放系数 zoom 在 CSS transform 中作为 scale(zoom) 使用。
@@ -283,7 +197,7 @@ export function SkillTreeView({ skill, color }: Props) {
       });
     }, 80);
     return () => clearTimeout(timer);
-  }, [nodes]);
+  }, [bounds]);
 
   const selPopup = useMemo(() => {
     if (!selNode?.pos) return null;
@@ -346,49 +260,42 @@ export function SkillTreeView({ skill, color }: Props) {
                 stroke="rgba(180,160,140,0.1)" strokeWidth="0.2" strokeDasharray="1 5" />
             ))}
 
-            {/* 连线：直线 + 分叉 */}
+            {/* 连线：单一直线 */}
             <g>
-              {(() => {
-                const groups = new Map<string, { parent: NodeWithPos; children: NodeWithPos[] }>();
-                for (const n of nodes) {
-                  if (!n.pos || !n.parentIds?.length || !visibleIds.has(n.id)) continue;
-                  const pid = n.parentIds[0];
-                  const p = nodes.find(pn => pn.id === pid);
-                  if (!p?.pos || !visibleIds.has(p.id)) continue;
-                  const entry = groups.get(pid);
-                  if (entry) entry.children.push(n);
-                  else groups.set(pid, { parent: p, children: [n] });
-                }
-                return Array.from(groups.entries()).map(([pid, { parent, children }]) => {
-                  const lit = children.every(c => c.unlocked && parent.unlocked);
-                  const paths = branchPath(parent.pos!, children.map(c => c.pos!));
-                  return (
-                    <g key={`branch-${pid}`}>
-                      {paths.map((d, i) => (
-                        <path key={`${pid}-${i}`} d={d} fill="none"
-                          stroke={lit ? INK : 'rgba(180,160,140,0.25)'}
-                          strokeWidth={lit ? '0.6' : '0.3'}
-                          strokeDasharray={lit ? undefined : '2 4'}
-                          strokeLinecap="round" strokeLinejoin="round" />
-                      ))}
-                    </g>
-                  );
-                });
-              })()}
+              {nodes.map(node => {
+                if (!node.parentIds?.length) return null;
+                const parent = nodes.find(n => n.id === node.parentIds?.[0]);
+                if (!parent?.pos || !node.pos) return null;
+                const lit = node.unlocked && parent.unlocked;
+                return (
+                  <line
+                    key={`line-${node.id}`}
+                    x1={parent.pos.x}
+                    y1={parent.pos.y}
+                    x2={node.pos.x}
+                    y2={node.pos.y}
+                    stroke={lit ? INK : 'rgba(180,160,140,0.25)'}
+                    strokeWidth={lit ? '0.6' : '0.3'}
+                    strokeDasharray={lit ? undefined : '2 4'}
+                    strokeLinecap="round"
+                  />
+                );
+              })}
             </g>
 
             {/* 节点 */}
             <g>
-              {nodes.map(node => {
-                if (!node.pos || !visibleIds.has(node.id)) return null;
+              {nodes.map((node, i) => {
+                if (!node.pos) return null;
                 const { x, y } = node.pos;
                 const isR = node.depth === 0;
-                const isM = !!node.isMajor && !isR;
-                const isLeaf = node.depth >= 3;
-                const r = isR ? ROOT_R : isM ? MAJOR_R : isLeaf ? LEAF_W : CHILD_R;
+                const r = isR ? ROOT_R : node.depth === 1 ? MAJOR_R : node.depth === 2 ? CHILD_R : LEAF_W;
+                const fontSize = isR ? 2.4 : node.depth === 1 ? 2.0 : node.depth === 2 ? 1.8 : 1.5;
+                const fontWeight = isR || node.depth === 1 ? 700 : 500;
+                const levelFontSize = isR ? 1.4 : node.depth === 1 ? 1.2 : 1.0;
                 const sel = node.id === selId;
-                const exp = node.id === expId;
-                const pal = nodePalette[node.paletteIdx];
+                const exp = expandedIds.has(node.id);
+                const pal = nodePalette[i % nodePalette.length];
                 const nFill = node.unlocked ? pal.fill : '#F5F0EB';
                 const nStroke = node.unlocked ? pal.stroke : '#CCC0B5';
 
@@ -422,15 +329,15 @@ export function SkillTreeView({ skill, color }: Props) {
                       <text y="0.6" textAnchor="middle" fontSize="3.5" fill="#D4A853" className="pointer-events-none">✦</text>
                     )}
                     <text y={r + 2.8} textAnchor="middle"
-                      fontSize={isR ? 2.4 : isM ? 2.0 : isLeaf ? 1.5 : 1.8}
+                      fontSize={fontSize}
                       fill={node.unlocked ? '#5D4037' : '#A89880'}
-                      fontWeight={isR || isM ? 700 : 500}
+                      fontWeight={fontWeight}
                       className="pointer-events-none select-none"
                       style={{ fontFamily: '"Noto Serif SC","PingFang SC","Microsoft YaHei",serif' }}>
                       {node.name}
                     </text>
                     <text y={r + 4.5} textAnchor="middle"
-                      fontSize={isR ? 1.4 : isM ? 1.2 : 1.0}
+                      fontSize={levelFontSize}
                       fill={node.unlocked ? '#8D6E63' : '#B8A898'}
                       className="pointer-events-none select-none">
                       Lv.{node.level}/{node.maxLevel}
