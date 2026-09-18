@@ -1,0 +1,45 @@
+import type { SkillTree } from '@/types';
+
+export const cleaningSkillTree: SkillTree = {
+  id: 'sd2',
+  name: '打扫',
+  icon: 'broom',
+  category: 'daily',
+  level: 2,
+  maxLevel: 10,
+  exp: 180,
+  maxExp: 800,
+  skillPoints: 1,
+  nodes: [
+    {
+      id: 'sdn4',
+      name: '快速整理',
+      description: '整理速度提升，房间整洁度下降减缓',
+      level: 1,
+      maxLevel: 3,
+      unlocked: true,
+      icon: 'archive',
+      parentIds: [],
+    },
+    {
+      id: 'sdn5',
+      name: '除菌达人',
+      description: '清洁效果提升，健康状态少量恢复',
+      level: 0,
+      maxLevel: 3,
+      unlocked: false,
+      icon: 'sparkles',
+      parentIds: ['sdn4'],
+    },
+    {
+      id: 'sdn7',
+      name: '收纳术',
+      description: '物品管理效率提升，购物事件更容易找到折扣',
+      level: 0,
+      maxLevel: 3,
+      unlocked: false,
+      icon: 'box',
+      parentIds: ['sdn4'],
+    },
+  ],
+};

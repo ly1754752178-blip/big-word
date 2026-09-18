@@ -4,15 +4,32 @@ export type SkillCategory = 'daily' | 'work' | 'special';
 export type FinanceTab = 'expenses' | 'virtual' | 'fixed';
 export type CalendarTab = 'calendar' | 'world' | 'nearby';
 export type PhoneAppId =
-  | 'news'
-  | 'schedule'
-  | 'messages'
-  | 'travel'
-  | 'mail'
-  | 'gallery'
-  | 'chat'
-  | 'sns'
-  | 'wallet';
+  | 'line'
+  | 'x'
+  | 'instagram'
+  | 'paypay'
+  | 'google-maps'
+  | 'yahoo-japan'
+  | 'timetree'
+  | 'gmail'
+  | 'settings'
+  | 'youtube'
+  | 'tiktok';
+
+/** 手机 UI 风格（五种预设，仅作用于顶部状态栏 + 系统设置界面） */
+export type PhoneUiStyleId = 'classic' | 'dark' | 'sakura' | 'mint' | 'neon';
+
+/** 当前壁纸来源：默认（数字图随机）/ 内置（非数字图手动选）/ 自定义（玩家导入） */
+export type WallpaperKind = 'default' | 'builtin' | 'custom';
+
+/** 玩家导入的自定义壁纸（存于 IndexedDB，blobUrl 为会话级对象 URL） */
+export interface CustomWallpaper {
+  id: string;
+  fileName: string;
+  mimeType: string;
+  createdAt: number;
+  blobUrl: string;
+}
 
 /** 全屏浮层视图类型：左侧六个模块 + 关系网/叙事历史 + 生活系统 */
 export type OverlayViewType =
@@ -64,7 +81,6 @@ export interface PlayerStatus {
 
 export interface PlayerBodyState {
   label: string;
-  fatigue: number;
   mood: string;
   conditions: string[];
   description: string;
@@ -139,6 +155,11 @@ export interface SkillTree {
   nodes: SkillNode[];
 }
 
+export interface CategoryExp {
+  exp: number;
+  maxExp: number;
+}
+
 export interface Relation {
   id: string;
   name: string;
@@ -211,6 +232,43 @@ export interface MapMarker {
   description: string;
 }
 
+/** 真实地理坐标 */
+export interface LatLon {
+  lat: number;
+  lon: number;
+}
+
+/** 玩家选定的目的地（含反查出的地名） */
+export interface Destination extends LatLon {
+  name: string;
+}
+
+/** 出行方式（transit=电车） */
+export type TravelMode = 'walking' | 'driving' | 'cycling' | 'transit';
+
+/** 路线中的一段（步行/驾车/骑行/电车） */
+export interface RouteLeg {
+  mode: 'walking' | 'driving' | 'cycling' | 'train';
+  fromName: string;
+  toName: string;
+  /** 电车线路名（仅 train 腿） */
+  line?: string;
+  distanceMeters: number;
+  durationSeconds: number;
+}
+
+/** 路线结果 */
+export interface RouteResult {
+  mode: TravelMode;
+  distanceMeters: number;
+  durationSeconds: number;
+  /** GeoJSON LineString 坐标（[lon, lat][]），供地图画线 */
+  geometry: [number, number][];
+  legs: RouteLeg[];
+  /** 人类可读摘要，供 UI 与 LLM 使用 */
+  summary: string;
+}
+
 export interface Region {
   id: string;
   name: string;
@@ -228,6 +286,20 @@ export interface PhoneApp {
   color: string;
   badge?: number;
 }
+
+/** 桌面上的单个 APP 项 */
+export type PhoneHomeApp = { type: 'app'; appId: PhoneAppId };
+
+/** 桌面上的 APP 文件夹 */
+export interface PhoneHomeFolder {
+  type: 'folder';
+  id: string;
+  name: string;
+  appIds: PhoneAppId[];
+}
+
+/** 桌面网格中的每一项，可能是单个 APP 或文件夹 */
+export type PhoneHomeItem = PhoneHomeApp | PhoneHomeFolder;
 
 export interface NarrativeOption {
   id: string;
@@ -373,6 +445,8 @@ export interface GameState {
     work: SkillTree[];
     special: SkillTree[];
   };
+  /** 分类泛用经验值：满后可转换为该分类下任意技能树的技能点 */
+  categoryExp: Record<SkillCategory, CategoryExp>;
   relationships: {
     list: Relation[];
     network: NetworkNode[];
@@ -392,6 +466,23 @@ export interface GameState {
   };
   notifications: Notification[];
   phoneApps: PhoneApp[];
+  phoneHomeLayout: PhoneHomeItem[];
+  /** 无障碍模式：切换后 APP 名称显示为中文 */
+  accessibilityMode: boolean;
+  /** 当前手机 UI 风格 */
+  phoneUiStyle: PhoneUiStyleId;
+  /** 当前壁纸来源 */
+  wallpaperKind: WallpaperKind;
+  /** 壁纸键：builtin=文件名，custom=IndexedDB 记录 id，default 恒为空字符串 */
+  wallpaperKey: string;
+  /** 本次进入游戏随机抽到的默认壁纸文件名（会话级，不持久化） */
+  rolledDefaultWallpaper: string | null;
+  /** 玩家导入的自定义壁纸列表（含会话级 blobUrl） */
+  customWallpapers: CustomWallpaper[];
+  /** bizhi 目录：数字命名的默认壁纸文件名 */
+  bizhiDefaults: string[];
+  /** bizhi 目录：非数字命名的内置壁纸文件名 */
+  bizhiBuiltins: string[];
   map: {
     center: { x: number; y: number };
     zoom: number;
@@ -410,6 +501,12 @@ export interface GameState {
   activePhoneApp: PhoneAppId | null;
   detailView: DetailViewState | null;
   selectedMarkerId: string | null;
+  /** 玩家当前真实坐标 */
+  playerPosition: LatLon;
+  /** 玩家选定的目的地（未选定为 null） */
+  destination: Destination | null;
+  /** 当前已计算的路线（未计算为 null） */
+  route: RouteResult | null;
   /** 玩家自定义日历标记，key 为 YYYY-MM-DD */
   dateMarks: Record<string, DateMark>;
 

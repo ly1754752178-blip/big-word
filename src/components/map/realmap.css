@@ -1,0 +1,69 @@
+/* 真实地图（MapLibre）与自定义标记样式 */
+.realmap {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  background: #ededed;
+  border-radius: inherit;
+  overflow: hidden;
+}
+
+/* 玩家标记：天空蓝圆点 + 呼吸环 */
+.realmap-player {
+  position: relative;
+  width: 24px;
+  height: 24px;
+}
+.realmap-player__pulse {
+  position: absolute;
+  inset: 2px;
+  border-radius: 9999px;
+  background: rgba(14, 165, 233, 0.35);
+  animation: realmap-pulse 2s ease-out infinite;
+}
+.realmap-player__dot {
+  position: absolute;
+  inset: 6px;
+  border-radius: 9999px;
+  background: #0ea5e9;
+  border: 2px solid #fff;
+  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.4);
+}
+@keyframes realmap-pulse {
+  0% {
+    transform: scale(0.5);
+    opacity: 0.9;
+  }
+  100% {
+    transform: scale(1.7);
+    opacity: 0;
+  }
+}
+
+/* 目的地标记：珊瑚色定位点 */
+.realmap-dest {
+  position: relative;
+  width: 24px;
+  height: 24px;
+}
+.realmap-dest__dot {
+  position: absolute;
+  inset: 4px;
+  border-radius: 50% 50% 50% 0;
+  transform: rotate(-45deg);
+  background: #f43f5e;
+  border: 2px solid #fff;
+  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.4);
+}
+
+/* MapLibre 控件的圆角统一 */
+.realmap .maplibregl-ctrl-group {
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(30, 41, 59, 0.12);
+}
+
+/* 把右上角的缩放/罗盘控件下移，给齿轮按钮让位 */
+.realmap .maplibregl-ctrl-top-right {
+  top: 56px;
+}

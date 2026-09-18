@@ -1,4 +1,10 @@
 import type { GameState } from '@/types';
+import {
+  cookingSkillTree,
+  cleaningSkillTree,
+  programmingSkillTree,
+  magicSkillTree,
+} from './skills';
 
 const characters: GameState['characters'] = [
   {
@@ -335,7 +341,7 @@ const shopItems: GameState['shopItems'] = [
     name: '桌面小台灯',
     category: 'furniture',
     price: 3200,
-    effect: '夜间学习时减少疲劳积累',
+    effect: '夜间学习时保持专注',
     description: '暖色光，可三段调光。',
     icon: 'lamp',
   },
@@ -485,8 +491,7 @@ export const mockGameState: GameState = {
       health: 82,
     },
     bodyState: {
-      label: '略显疲惫',
-      fatigue: 42,
+      label: '状态普通',
       mood: '平静',
       conditions: ['轻微睡眠不足', '运动后肌肉酸痛'],
       description: '昨晚熬夜看书，今天上课时有些走神。',
@@ -535,237 +540,14 @@ export const mockGameState: GameState = {
     },
   ],
   skills: {
-    daily: [
-      {
-        id: 'sd1',
-        name: '料理',
-        icon: 'utensils-crossed',
-        category: 'daily',
-        level: 3,
-        maxLevel: 10,
-        exp: 340,
-        maxExp: 1000,
-        skillPoints: 2,
-        nodes: [
-          // ── 根节点（画布中心 80,80）──
-          { id: 'ck-root', name: '厨艺', description: '料理技能的核心', level: 1, maxLevel: 3, unlocked: true, icon: 'chef-hat', parentIds: [], position: { x: 80, y: 80 } },
-          // ── 7 个大技能（环形 r=38）──
-          { id: 'ck-m1', name: '食材处理', description: '掌握各类食材的处理方法', level: 0, maxLevel: 1, unlocked: false, icon: 'box', parentIds: ['ck-root'], position: { x: 80, y: 42 }, isMajor: true },
-          { id: 'ck-m2', name: '刀工', description: '精进切割技法', level: 0, maxLevel: 1, unlocked: false, icon: 'box', parentIds: ['ck-root'], position: { x: 109.7, y: 56.3 }, isMajor: true },
-          { id: 'ck-m3', name: '火候', description: '掌控温度与火力', level: 0, maxLevel: 1, unlocked: false, icon: 'box', parentIds: ['ck-root'], position: { x: 117, y: 88.5 }, isMajor: true },
-          { id: 'ck-m4', name: '调味', description: '平衡五味', level: 0, maxLevel: 1, unlocked: false, icon: 'box', parentIds: ['ck-root'], position: { x: 96.5, y: 114.2 }, isMajor: true },
-          { id: 'ck-m5', name: '烹饪工艺', description: '精通多种烹饪技法', level: 0, maxLevel: 1, unlocked: false, icon: 'box', parentIds: ['ck-root'], position: { x: 63.5, y: 114.2 }, isMajor: true },
-          { id: 'ck-m6', name: '口感与成品', description: '追求完美口感', level: 0, maxLevel: 1, unlocked: false, icon: 'box', parentIds: ['ck-root'], position: { x: 43, y: 88.5 }, isMajor: true },
-          { id: 'ck-m7', name: '面点与主食', description: '面食与主食制作', level: 0, maxLevel: 1, unlocked: false, icon: 'box', parentIds: ['ck-root'], position: { x: 50.3, y: 56.3 }, isMajor: true },
-          // ── 子节点（位置由运行时根据父节点自动计算）──
-          { id: 'ck-m1-1', name: '食材识别', description: '辨别食材新鲜度与品质', level: 0, maxLevel: 3, unlocked: false, icon: 'eye', parentIds: ['ck-m1'] },
-          { id: 'ck-m1-2', name: '清洗处理', description: '正确清洗各类食材', level: 0, maxLevel: 3, unlocked: false, icon: 'soup', parentIds: ['ck-m1'] },
-          { id: 'ck-m1-3', name: '去皮处理', description: '高效去皮不浪费', level: 0, maxLevel: 3, unlocked: false, icon: 'archive', parentIds: ['ck-m1'] },
-          { id: 'ck-m1-4', name: '去骨处理', description: '掌握鱼禽去骨技巧', level: 0, maxLevel: 3, unlocked: false, icon: 'pen-tool', parentIds: ['ck-m1'] },
-          { id: 'ck-m1-5', name: '去腥处理', description: '去除食材腥膻味', level: 0, maxLevel: 3, unlocked: false, icon: 'sparkles', parentIds: ['ck-m1'] },
-          { id: 'ck-m1-6', name: '食材预处理', description: '腌制、焯水等预处理', level: 0, maxLevel: 3, unlocked: false, icon: 'cookie', parentIds: ['ck-m1'] },
-          // ── 2. 刀工 ──
-          { id: 'ck-m2-1', name: '持刀姿势', description: '正确的握刀与站姿', level: 0, maxLevel: 3, unlocked: false, icon: 'star', parentIds: ['ck-m2'] },
-          { id: 'ck-m2-2', name: '切片技法', description: '均匀切片', level: 0, maxLevel: 3, unlocked: false, icon: 'layout', parentIds: ['ck-m2'] },
-          { id: 'ck-m2-3', name: '切丝技法', description: '粗细均匀的切丝', level: 0, maxLevel: 3, unlocked: false, icon: 'layout', parentIds: ['ck-m2'] },
-          { id: 'ck-m2-4', name: '切丁技法', description: '大小一致的切丁', level: 0, maxLevel: 3, unlocked: false, icon: 'component', parentIds: ['ck-m2'] },
-          { id: 'ck-m2-5', name: '切块技法', description: '滚刀切块技巧', level: 0, maxLevel: 3, unlocked: false, icon: 'box', parentIds: ['ck-m2'] },
-          { id: 'ck-m2-6', name: '改刀处理', description: '根据菜品需求改刀', level: 0, maxLevel: 3, unlocked: false, icon: 'pen-tool', parentIds: ['ck-m2'] },
-          // ── 3. 火候 ──
-          { id: 'ck-m3-1', name: '预热控制', description: '锅具预热温度判断', level: 0, maxLevel: 3, unlocked: false, icon: 'lamp', parentIds: ['ck-m3'] },
-          { id: 'ck-m3-2', name: '油温判断', description: '不同油温的识别', level: 0, maxLevel: 3, unlocked: false, icon: 'eye', parentIds: ['ck-m3'] },
-          { id: 'ck-m3-3', name: '水温判断', description: '不同水温的应用', level: 0, maxLevel: 3, unlocked: false, icon: 'coffee', parentIds: ['ck-m3'] },
-          { id: 'ck-m3-4', name: '火候切换', description: '文火/中火/武火灵活切换', level: 0, maxLevel: 3, unlocked: false, icon: 'sparkles', parentIds: ['ck-m3'] },
-          { id: 'ck-m3-5', name: '收汁控制', description: '汤汁浓缩技巧', level: 0, maxLevel: 3, unlocked: false, icon: 'soup', parentIds: ['ck-m3'] },
-          { id: 'ck-m3-6', name: '熟度判断', description: '判断食材熟度', level: 0, maxLevel: 3, unlocked: false, icon: 'eye', parentIds: ['ck-m3'] },
-          // ── 4. 调味 ──
-          { id: 'ck-m4-1', name: '咸度控制', description: '盐分精准把控', level: 0, maxLevel: 3, unlocked: false, icon: 'coffee', parentIds: ['ck-m4'] },
-          { id: 'ck-m4-2', name: '酸甜平衡', description: '酸甜味型搭配', level: 0, maxLevel: 3, unlocked: false, icon: 'cookie', parentIds: ['ck-m4'] },
-          { id: 'ck-m4-3', name: '鲜味提取', description: '提取食材鲜味', level: 0, maxLevel: 3, unlocked: false, icon: 'sparkles', parentIds: ['ck-m4'] },
-          { id: 'ck-m4-4', name: '辣味控制', description: '辣度层次掌控', level: 0, maxLevel: 3, unlocked: false, icon: 'wand-2', parentIds: ['ck-m4'] },
-          { id: 'ck-m4-5', name: '香气叠加', description: '多种香料配合', level: 0, maxLevel: 3, unlocked: false, icon: 'music', parentIds: ['ck-m4'] },
-          { id: 'ck-m4-6', name: '味型平衡', description: '综合调味和谐', level: 0, maxLevel: 3, unlocked: false, icon: 'star', parentIds: ['ck-m4'] },
-          // ── 5. 烹饪工艺 ──
-          { id: 'ck-m5-1', name: '炒制工艺', description: '翻炒技巧', level: 0, maxLevel: 3, unlocked: false, icon: 'sparkles', parentIds: ['ck-m5'] },
-          { id: 'ck-m5-2', name: '煎制工艺', description: '平煎技巧', level: 0, maxLevel: 3, unlocked: false, icon: 'component', parentIds: ['ck-m5'] },
-          { id: 'ck-m5-3', name: '炸制工艺', description: '油炸技巧', level: 0, maxLevel: 3, unlocked: false, icon: 'chef-hat', parentIds: ['ck-m5'] },
-          { id: 'ck-m5-4', name: '蒸制工艺', description: '蒸制技巧', level: 0, maxLevel: 3, unlocked: false, icon: 'coffee', parentIds: ['ck-m5'] },
-          { id: 'ck-m5-5', name: '煮制工艺', description: '煮制技巧', level: 0, maxLevel: 3, unlocked: false, icon: 'soup', parentIds: ['ck-m5'] },
-          { id: 'ck-m5-6', name: '炖制工艺', description: '慢炖技巧', level: 0, maxLevel: 3, unlocked: false, icon: 'box', parentIds: ['ck-m5'] },
-          { id: 'ck-m5-7', name: '焖制工艺', description: '焖煮技巧', level: 0, maxLevel: 3, unlocked: false, icon: 'archive', parentIds: ['ck-m5'] },
-          { id: 'ck-m5-8', name: '烤制工艺', description: '烘烤技巧', level: 0, maxLevel: 3, unlocked: false, icon: 'lamp', parentIds: ['ck-m5'] },
-          // ── 6. 口感与成品 ──
-          { id: 'ck-m6-1', name: '保持嫩度', description: '锁住食材水分', level: 0, maxLevel: 3, unlocked: false, icon: 'clover', parentIds: ['ck-m6'] },
-          { id: 'ck-m6-2', name: '保持脆感', description: '维持食材脆度', level: 0, maxLevel: 3, unlocked: false, icon: 'star', parentIds: ['ck-m6'] },
-          { id: 'ck-m6-3', name: '增加软糯感', description: '创造软糯口感', level: 0, maxLevel: 3, unlocked: false, icon: 'cookie', parentIds: ['ck-m6'] },
-          { id: 'ck-m6-4', name: '控制滑润感', description: '调试滑润度', level: 0, maxLevel: 3, unlocked: false, icon: 'soup', parentIds: ['ck-m6'] },
-          { id: 'ck-m6-5', name: '控制酥脆度', description: '油炸/烘烤酥脆', level: 0, maxLevel: 3, unlocked: false, icon: 'component', parentIds: ['ck-m6'] },
-          { id: 'ck-m6-6', name: '控制浓稠度', description: '汤汁/酱汁浓稠', level: 0, maxLevel: 3, unlocked: false, icon: 'palette', parentIds: ['ck-m6'] },
-          { id: 'ck-m6-7', name: '成品一致性', description: '每次出品保持一致', level: 0, maxLevel: 3, unlocked: false, icon: 'layout', parentIds: ['ck-m6'] },
-          // ── 7. 面点与主食 ──
-          { id: 'ck-m7-1', name: '和面技巧', description: '面粉与水比例把控', level: 0, maxLevel: 3, unlocked: false, icon: 'cookie', parentIds: ['ck-m7'] },
-          { id: 'ck-m7-2', name: '揉面技巧', description: '面团揉制手法', level: 0, maxLevel: 3, unlocked: false, icon: 'archive', parentIds: ['ck-m7'] },
-          { id: 'ck-m7-3', name: '醒面控制', description: '控制醒面时间', level: 0, maxLevel: 3, unlocked: false, icon: 'clock', parentIds: ['ck-m7'] },
-          { id: 'ck-m7-4', name: '发酵控制', description: '酵母发酵调控', level: 0, maxLevel: 3, unlocked: false, icon: 'sparkles', parentIds: ['ck-m7'] },
-          { id: 'ck-m7-5', name: '擀制技巧', description: '擀面杖使用技巧', level: 0, maxLevel: 3, unlocked: false, icon: 'pen-tool', parentIds: ['ck-m7'] },
-          { id: 'ck-m7-6', name: '面团成型', description: '各类面点造型', level: 0, maxLevel: 3, unlocked: false, icon: 'star', parentIds: ['ck-m7'] },
-          { id: 'ck-m7-7', name: '蒸制与烘烤控制', description: '面点最终加热', level: 0, maxLevel: 3, unlocked: false, icon: 'lamp', parentIds: ['ck-m7'] },
-        ],
-      },
-      {
-        id: 'sd2',
-        name: '打扫',
-        icon: 'broom',
-        category: 'daily',
-        level: 2,
-        maxLevel: 10,
-        exp: 180,
-        maxExp: 800,
-        skillPoints: 1,
-        nodes: [
-          {
-            id: 'sdn4',
-            name: '快速整理',
-            description: '整理速度提升，房间整洁度下降减缓',
-            level: 1,
-            maxLevel: 3,
-            unlocked: true,
-            icon: 'archive',
-            parentIds: [],
-            position: { x: 50, y: 50 },
-          },
-          {
-            id: 'sdn5',
-            name: '除菌达人',
-            description: '清洁效果提升，健康状态少量恢复',
-            level: 0,
-            maxLevel: 3,
-            unlocked: false,
-            icon: 'sparkles',
-            parentIds: ['sdn4'],
-            position: { x: 30, y: 35 },
-          },
-          {
-            id: 'sdn7',
-            name: '收纳术',
-            description: '物品管理效率提升，购物事件更容易找到折扣',
-            level: 0,
-            maxLevel: 3,
-            unlocked: false,
-            icon: 'box',
-            parentIds: ['sdn4'],
-            position: { x: 70, y: 35 },
-          },
-        ],
-      },
-    ],
-    work: [
-      {
-        id: 'sw1',
-        name: '编程',
-        icon: 'code',
-        category: 'work',
-        level: 4,
-        maxLevel: 10,
-        exp: 1200,
-        maxExp: 2500,
-        skillPoints: 3,
-        nodes: [
-          {
-            id: 'swn1',
-            name: '前端基础',
-            description: '掌握 HTML/CSS/JS，可接简单网页委托',
-            level: 3,
-            maxLevel: 3,
-            unlocked: true,
-            icon: 'layout',
-            parentIds: [],
-            position: { x: 50, y: 50 },
-          },
-          {
-            id: 'swn2',
-            name: 'React 进阶',
-            description: '熟练使用 React，可开发复杂交互应用',
-            level: 1,
-            maxLevel: 3,
-            unlocked: true,
-            icon: 'component',
-            parentIds: ['swn1'],
-            position: { x: 30, y: 30 },
-          },
-          {
-            id: 'swn4',
-            name: 'UI 设计',
-            description: '提升界面审美，作品更容易获得好评',
-            level: 0,
-            maxLevel: 3,
-            unlocked: false,
-            icon: 'palette',
-            parentIds: ['swn1'],
-            position: { x: 70, y: 30 },
-          },
-          {
-            id: 'swn3',
-            name: '系统设计',
-            description: '设计复杂系统架构，兼职收入大幅提升',
-            level: 0,
-            maxLevel: 3,
-            unlocked: false,
-            icon: 'network',
-            parentIds: ['swn2'],
-            position: { x: 30, y: 72 },
-          },
-        ],
-      },
-    ],
-    special: [
-      {
-        id: 'ss1',
-        name: '魔术',
-        icon: 'wand-2',
-        category: 'special',
-        level: 1,
-        maxLevel: 10,
-        exp: 50,
-        maxExp: 500,
-        skillPoints: 0,
-        nodes: [
-          {
-            id: 'ssn1',
-            name: '扑克戏法',
-            description: '基础纸牌魔术，可在聚会中表演增加好感',
-            level: 1,
-            maxLevel: 3,
-            unlocked: true,
-            icon: 'clover',
-            parentIds: [],
-            position: { x: 50, y: 50 },
-          },
-          {
-            id: 'ssn2',
-            name: '读心术',
-            description: '猜测观众选择，社交事件有特殊选项',
-            level: 0,
-            maxLevel: 3,
-            unlocked: false,
-            icon: 'eye',
-            parentIds: ['ssn1'],
-            position: { x: 25, y: 40 },
-          },
-          {
-            id: 'ssn3',
-            name: '消失术',
-            description: '让小物件凭空消失，表演效果大幅提升',
-            level: 0,
-            maxLevel: 3,
-            unlocked: false,
-            icon: 'sparkles',
-            parentIds: ['ssn1'],
-            position: { x: 75, y: 40 },
-          },
-        ],
-      },
-    ],
+    daily: [cookingSkillTree, cleaningSkillTree],
+    work: [programmingSkillTree],
+    special: [magicSkillTree],
+  },
+  categoryExp: {
+    daily: { exp: 340, maxExp: 1000 },
+    work: { exp: 520, maxExp: 1000 },
+    special: { exp: 120, maxExp: 1000 },
   },
   relationships: {
     list: [
@@ -908,17 +690,17 @@ export const mockGameState: GameState = {
     ],
 
     assets: [
-      // 💵 流动资金
+      // 流动资金
       { id: 'a1', name: '银行账户', value: 128500, icon: 'credit-card', description: '主要用于生活费与储蓄', category: 'liquid' as const },
       { id: 'a2', name: '電子マネー', value: 2500, icon: 'smartphone', description: 'Suica・PayPay 日常の支払い用', category: 'liquid' as const },
-      // 🚗 动产资产
+      // 动产资产
       { id: 'a3', name: '笔记本电脑', value: 85000, icon: 'laptop', description: '用于学习与兼职编程', category: 'movable' as const },
       { id: 'a4', name: '二手自行车', value: 8000, icon: 'bike', description: '上下学代步工具', category: 'movable' as const },
       { id: 'a5', name: '智能手机', value: 5000, icon: 'smartphone', description: '日常通讯与社交', category: 'movable' as const },
-      // 📈 金融资产
+      // 金融资产
       { id: 'a6', name: '基金定投', value: 10000, icon: 'trending-up', description: '每月定投沪深300指数基金', category: 'financial' as const },
       { id: 'a7', name: '便利店积分', value: 450, icon: 'coins', description: '可兑换小礼品', category: 'financial' as const },
-      // 💼 经营资产（初期暂无）
+      // 经营资产（初期暂无）
     ],
   },
   calendar: {
@@ -998,16 +780,56 @@ export const mockGameState: GameState = {
     },
   ],
   phoneApps: [
-    { id: 'news', name: '新闻', icon: 'newspaper', color: '#E88D4F', badge: 3 },
-    { id: 'schedule', name: '日程', icon: 'calendar-days', color: '#5BA8A0' },
-    { id: 'messages', name: '消息', icon: 'message-circle', color: '#6BBF73', badge: 1 },
-    { id: 'travel', name: '旅行', icon: 'map-pin', color: '#F5C542' },
-    { id: 'mail', name: '邮件', icon: 'mail', color: '#7D6E5E', badge: 5 },
-    { id: 'gallery', name: '相册', icon: 'image', color: '#C77D9E' },
-    { id: 'chat', name: '聊天', icon: 'message-square', color: '#38BDF8' },
-    { id: 'sns', name: '动态', icon: 'heart', color: '#F43F5E' },
-    { id: 'wallet', name: '钱包', icon: 'wallet', color: '#22C55E' },
+    { id: 'line', name: 'LINE', icon: '/phone-icons/line.jpg', color: '#06C755' },
+    { id: 'x', name: 'X', icon: '/phone-icons/x.jpg', color: '#000000' },
+    { id: 'instagram', name: 'Instagram', icon: '/phone-icons/instagram.jpg', color: '#E4405F' },
+    { id: 'paypay', name: 'PayPay', icon: '/phone-icons/paypay.jpg', color: '#FF0033' },
+    { id: 'google-maps', name: 'Google Maps', icon: '/phone-icons/google-maps.jpg', color: '#4285F4' },
+    { id: 'yahoo-japan', name: 'Yahoo! JAPAN', icon: '/phone-icons/yahoo-japan.jpg', color: '#FF0033' },
+    { id: 'timetree', name: 'TimeTree', icon: '/phone-icons/timetree.jpg', color: '#4BD1A7' },
+    { id: 'gmail', name: 'Gmail', icon: '/phone-icons/gmail.jpg', color: '#EA4335' },
+    { id: 'settings', name: '系统设置', icon: '/phone-icons/settings.svg', color: '#8E8E93' },
+    { id: 'youtube', name: 'YouTube', icon: '/phone-icons/youtube.jpg', color: '#FF0000' },
+    { id: 'tiktok', name: 'TikTok', icon: '/phone-icons/tiktok.jpg', color: '#000000' },
   ],
+  phoneHomeLayout: [
+    { type: 'app', appId: 'line' },
+    { type: 'app', appId: 'x' },
+    { type: 'app', appId: 'instagram' },
+    { type: 'app', appId: 'paypay' },
+    { type: 'app', appId: 'google-maps' },
+    { type: 'app', appId: 'yahoo-japan' },
+    { type: 'app', appId: 'timetree' },
+    { type: 'app', appId: 'gmail' },
+    { type: 'app', appId: 'settings' },
+    { type: 'app', appId: 'youtube' },
+    { type: 'app', appId: 'tiktok' },
+  ],
+  accessibilityMode: false,
+  phoneUiStyle: (() => {
+    const v = localStorage.getItem('phone-ui-style');
+    if (v === 'dark' || v === 'sakura' || v === 'mint' || v === 'neon') return v;
+    return 'classic';
+  })(),
+  wallpaperKind: (() => {
+    try {
+      const parsed = JSON.parse(localStorage.getItem('phone-active-wallpaper') || '');
+      if (parsed && (parsed.kind === 'default' || parsed.kind === 'builtin' || parsed.kind === 'custom')) {
+        return parsed.kind;
+      }
+    } catch { /* 旧格式或缺失，回退默认 */ }
+    return 'default';
+  })(),
+  wallpaperKey: (() => {
+    try {
+      const parsed = JSON.parse(localStorage.getItem('phone-active-wallpaper') || '');
+      return typeof parsed?.key === 'string' ? parsed.key : '';
+    } catch { return ''; }
+  })(),
+  rolledDefaultWallpaper: null,
+  customWallpapers: [],
+  bizhiDefaults: [],
+  bizhiBuiltins: [],
   map: {
     center: { x: 3500, y: -1200 },
     zoom: 1,
@@ -1110,6 +932,10 @@ export const mockGameState: GameState = {
   activePhoneApp: null,
   detailView: null,
   selectedMarkerId: null,
+  // 真实地理坐标（默认：东京·涩谷）
+  playerPosition: { lat: 35.658, lon: 139.7016 },
+  destination: null,
+  route: null,
   dateMarks: {
     '2026-07-07': { date: '2026-07-07', note: '电车月票充值日', mark: 'important' },
     '2026-07-10': { date: '2026-07-10', note: '学园祭准备会议', mark: 'anniversary' },

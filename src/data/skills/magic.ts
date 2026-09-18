@@ -1,0 +1,45 @@
+import type { SkillTree } from '@/types';
+
+export const magicSkillTree: SkillTree = {
+  id: 'ss1',
+  name: '魔术',
+  icon: 'wand-2',
+  category: 'special',
+  level: 1,
+  maxLevel: 10,
+  exp: 50,
+  maxExp: 500,
+  skillPoints: 0,
+  nodes: [
+    {
+      id: 'ssn1',
+      name: '扑克戏法',
+      description: '基础纸牌魔术，可在聚会中表演增加好感',
+      level: 1,
+      maxLevel: 3,
+      unlocked: true,
+      icon: 'clover',
+      parentIds: [],
+    },
+    {
+      id: 'ssn2',
+      name: '读心术',
+      description: '猜测观众选择，社交事件有特殊选项',
+      level: 0,
+      maxLevel: 3,
+      unlocked: false,
+      icon: 'eye',
+      parentIds: ['ssn1'],
+    },
+    {
+      id: 'ssn3',
+      name: '消失术',
+      description: '让小物件凭空消失，表演效果大幅提升',
+      level: 0,
+      maxLevel: 3,
+      unlocked: false,
+      icon: 'sparkles',
+      parentIds: ['ssn1'],
+    },
+  ],
+};

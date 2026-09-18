@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { Info, CheckCircle2, AlertTriangle, XCircle, X } from 'lucide-react';
 import { motion } from 'framer-motion';
 import type { InAppNotification } from '@/types';
@@ -23,22 +23,52 @@ interface InAppNotificationProps {
 }
 
 export function InAppNotification({ notification, onClose }: InAppNotificationProps) {
-  const { type, title, message, duration = 4000 } = notification;
+  const { id, type, title, message, duration = 4000 } = notification;
   const Icon = iconMap[type];
+  const remainingRef = useRef(duration);
+  const startTimeRef = useRef(Date.now());
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     if (duration <= 0) return;
-    const timer = setTimeout(onClose, duration);
-    return () => clearTimeout(timer);
+    remainingRef.current = duration;
+    startTimeRef.current = Date.now();
+    timerRef.current = setTimeout(onClose, duration);
+    return () => {
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+        timerRef.current = null;
+      }
+    };
   }, [duration, onClose]);
+
+  const handleMouseEnter = () => {
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
+      timerRef.current = null;
+      const elapsed = Date.now() - startTimeRef.current;
+      remainingRef.current = Math.max(0, remainingRef.current - elapsed);
+    }
+  };
+
+  const handleMouseLeave = () => {
+    startTimeRef.current = Date.now();
+    if (remainingRef.current > 0) {
+      timerRef.current = setTimeout(onClose, remainingRef.current);
+    }
+  };
 
   return (
     <motion.div
+      id={`notification-${id}`}
       initial={{ opacity: 0, x: 40, scale: 0.96 }}
       animate={{ opacity: 1, x: 0, scale: 1 }}
       exit={{ opacity: 0, x: 40, scale: 0.96 }}
       className="w-80 rounded-2xl bg-white border border-slate-100 shadow-soft-lg overflow-hidden"
       role="alert"
+      aria-live="polite"
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
     >
       <div className="flex items-start gap-3 p-4">
         <div className={`w-9 h-9 rounded-xl ${colorMap[type]} bg-opacity-15 flex items-center justify-center shrink-0`}
@@ -50,6 +80,7 @@ export function InAppNotification({ notification, onClose }: InAppNotificationPr
           {message && <p className="text-xs text-slate-500 mt-0.5 leading-relaxed">{message}</p>}
         </div>
         <button
+          id={`notification-close-${id}`}
           type="button"
           onClick={onClose}
           className="w-6 h-6 rounded-full hover:bg-slate-100 flex items-center justify-center text-slate-400 transition-colors"

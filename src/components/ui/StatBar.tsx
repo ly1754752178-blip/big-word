@@ -1,4 +1,5 @@
 interface StatBarProps {
+  id?: string;
   label: string;
   value: number;
   max?: number;
@@ -6,11 +7,11 @@ interface StatBarProps {
   icon?: React.ReactNode;
 }
 
-export function StatBar({ label, value, max = 100, color = '#0EA5E9', icon }: StatBarProps) {
+export function StatBar({ id, label, value, max = 100, color = '#0EA5E9', icon }: StatBarProps) {
   const percentage = Math.min(100, Math.max(0, (value / max) * 100));
 
   return (
-    <div className="space-y-1">
+    <div id={id} className="space-y-1">
       <div className="flex justify-between text-xs">
         <div className="flex items-center gap-1.5 text-slate-500">
           {icon && <span className="text-slate-400">{icon}</span>}

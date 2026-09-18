@@ -41,7 +41,7 @@ export function SkyOrb({ onClick }: SkyOrbProps) {
   const Icon = palette.icon;
 
   return (
-    <div className="anime-orb-frame" onClick={onClick} style={onClick ? { cursor: 'pointer' } : undefined}>
+    <div className={`anime-orb-frame ${onClick ? '' : 'pointer-events-none'}`} onClick={onClick} style={onClick ? { cursor: 'pointer' } : undefined}>
       <div className="relative w-[86px] h-[86px] anime-orb">
         {/* 赛璐璐硬切渐变天空 */}
         <div
@@ -75,7 +75,7 @@ export function SkyOrb({ onClick }: SkyOrbProps) {
         </div>
 
         {/* 时间文字 */}
-        <div className="absolute inset-0 z-[3] flex flex-col items-center justify-center">
+        <div className="absolute inset-0 z-[3] flex flex-col items-center justify-center pointer-events-none">
           <Icon className="w-[19px] h-[19px] text-white drop-shadow-md mb-0.5" />
           <span className="font-number text-base font-bold text-white drop-shadow-md">
             {String(time.hour).padStart(2, '0')}:{String(time.minute).padStart(2, '0')}

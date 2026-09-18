@@ -1,4 +1,5 @@
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import { Play, Pause, SkipBack, SkipForward, Volume2, VolumeX } from 'lucide-react';
 
 // 动态扫描 public/videos/shipinbeijing 下所有 .mp4 和 .mp3 文件
@@ -10,6 +11,11 @@ const audioGlob = import.meta.glob('/public/videos/shipinbeijing/*.mp3', {
   eager: true, query: '?url', import: 'default',
 }) as Record<string, string>;
 
+// 同名封面图（jpg / png）
+const imageGlob = import.meta.glob('/public/videos/shipinbeijing/*.{jpg,jpeg,png}', {
+  eager: true, query: '?url', import: 'default',
+}) as Record<string, string>;
+
 // 视频-音频配对
 interface TrackPair {
   videoUrl: string;
@@ -17,14 +23,14 @@ interface TrackPair {
   name: string; // 文件名（不含扩展名），用于显示和配对
 }
 
+// 从 glob key 提取纯文件名（不含路径和扩展名）
+function extractName(path: string): string {
+  const fileName = path.split('/').pop() ?? '';
+  return fileName.replace(/\.[^/.]+$/, '');
+}
+
 // 构建视频-音频配对列表：文件名相同的 .mp4 和 .mp3 组成一对
 function buildTrackPairs(): TrackPair[] {
-  // 从 glob key 提取纯文件名（不含路径和扩展名）
-  const extractName = (path: string): string => {
-    const fileName = path.split('/').pop() ?? '';
-    return fileName.replace(/\.[^/.]+$/, '');
-  };
-
   // 建立 "文件名 → 音频URL" 映射
   const audioMap = new Map<string, string>();
   for (const [path, url] of Object.entries(audioGlob)) {
@@ -45,6 +51,17 @@ function buildTrackPairs(): TrackPair[] {
 
   return pairs;
 }
+
+// 建立 "文件名 → 封面图 URL" 映射
+function buildImageMap(): Map<string, string> {
+  const map = new Map<string, string>();
+  for (const [path, url] of Object.entries(imageGlob)) {
+    map.set(extractName(path), url);
+  }
+  return map;
+}
+
+const imageMap = buildImageMap();
 
 // Fisher-Yates 洗牌算法
 function shuffle<T>(arr: T[]): T[] {
@@ -81,6 +98,7 @@ export function VideoBackground() {
   const [isMuted, setIsMuted] = useState(persistentMuted);
   const [volume, setVolume] = useState(0.5);
   const [opacity, setOpacity] = useState(1);
+  const [coverUrl, setCoverUrl] = useState<string | null>(null);
 
   const tracksRef = useRef<TrackPair[]>([]);
   const idxRef = useRef(0);
@@ -109,7 +127,7 @@ export function VideoBackground() {
   }, []);
 
   // ---- 切换视频+音频：渐出 → 换源 → 渐入 ----
-  const switchTrack = useCallback((nextIdx: number) => {
+  const switchTrack = (nextIdx: number) => {
     const v = videoRef.current;
     const a = audioRef.current;
     if (!v || !a || switching.current) return;
@@ -143,7 +161,7 @@ export function VideoBackground() {
         switching.current = false;
       }, 200);
     }, 800);
-  }, []);
+  };
 
   // ---- 下一首：遍历洗牌列表，播完一轮后重新洗牌 ----
   const goNextRef = useRef(() => {});
@@ -205,14 +223,14 @@ export function VideoBackground() {
   }, [tracks, currentIndex]);
 
   // ---- 视频播完 → 循环（视频始终循环，直到 MP3 结束驱动切换） ----
-  const handleVideoEnded = useCallback(() => {
+  const handleVideoEnded = () => {
     videoRef.current?.play();
-  }, []);
+  };
 
   // ---- MP3 播完 → 立刻切下一首（核心切换触发器） ----
-  const handleAudioEnded = useCallback(() => {
+  const handleAudioEnded = () => {
     goNextRef.current();
-  }, []);
+  };
 
   // ---- 光球点击：首次启动音频 + 解除静音 ----
   const unmuteRef = useRef(() => {
@@ -272,6 +290,16 @@ export function VideoBackground() {
   const currentTrack = tracks[currentIndex];
   const displayName = currentTrack ? decodeURIComponent(currentTrack.name) : '';
 
+  // ---- 根据当前曲目名匹配同名封面图 ----
+  useEffect(() => {
+    if (!currentTrack) {
+      setCoverUrl(null);
+      return;
+    }
+    const matched = imageMap.get(currentTrack.name);
+    setCoverUrl(matched ?? null);
+  }, [currentTrack]);
+
   return (
     <>
       {/* 视频层 */}
@@ -293,45 +321,111 @@ export function VideoBackground() {
         preload="auto"
         onEnded={handleAudioEnded}
       />
-      {/* 渐变遮罩 */}
-      <div style={{
-        position: 'fixed', inset: 0, zIndex: 1,
-        background: 'linear-gradient(to top, rgba(0,0,0,0.45) 0%, rgba(0,0,0,0.1) 50%, rgba(0,0,0,0) 100%)',
-        pointerEvents: 'none',
-      }} />
-      {/* 控件栏 */}
-      <div style={ctrlBar}>
-        <p style={ctrlTitle}>《{displayName}》</p>
-        <div style={ctrlRow}>
-          <button onClick={prevTrack} style={btn} title="上一曲"><SkipBack size={16} /></button>
-          <button onClick={togglePlay} style={btn} title={isPlaying ? '暂停' : '播放'}>
-            {isPlaying ? <Pause size={16} /> : <Play size={16} />}
-          </button>
-          <button onClick={nextTrack} style={btn} title="下一曲"><SkipForward size={16} /></button>
-        </div>
-        <div style={ctrlRow}>
-          <button onClick={toggleMute} style={btn} title={isMuted ? '取消静音' : '静音'}>
-            {isMuted ? <VolumeX size={14} /> : <Volume2 size={14} />}
-          </button>
-          <input type="range" min="0" max="1" step="0.05" value={isMuted ? 0 : volume}
-            onChange={handleVolume} style={{ width: 60, accentColor: 'white' }} />
-        </div>
+      {/* 播放器 */}
+      <div style={{ position: 'fixed', top: 24, right: 24, zIndex: 9999, pointerEvents: 'auto' }}>
+        <motion.div
+          className="gal-player"
+          style={{ minWidth: 280 }}
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 1.2, ease: 'easeOut' }}
+        >
+          {/* 左侧唱片封面 */}
+          <div className="gal-player-disc"
+            style={{
+              position: 'relative',
+              width: 92,
+              height: 92,
+              borderRadius: '50%',
+              flexShrink: 0,
+              background: `repeating-radial-gradient(
+                circle at 50% 50%,
+                #3A2E26 0px,
+                #3A2E26 2px,
+                #2A201A 3px,
+                #2A201A 5px
+              )`,
+              boxShadow: '0 4px 14px rgba(0,0,0,0.25), inset 0 0 0 1px rgba(255,255,255,0.08)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            {/* 唱片中心图片 */}
+            <div
+              style={{
+                width: 46,
+                height: 46,
+                borderRadius: '50%',
+                overflow: 'hidden',
+                background: '#F0E0D0',
+                border: '2px solid rgba(90,74,61,0.35)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              {coverUrl ? (
+                <img
+                  src={coverUrl}
+                  alt={displayName}
+                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                />
+              ) : (
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#C4A98C" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="2" y="2" width="20" height="20" rx="5" />
+                  <path d="M2 10l4-3 5 4 6-7 4 5" />
+                </svg>
+              )}
+            </div>
+            {/* 唱片高光 */}
+            <div
+              style={{
+                position: 'absolute',
+                inset: 0,
+                borderRadius: '50%',
+                background: 'linear-gradient(135deg, rgba(255,255,255,0.12) 0%, transparent 45%, transparent 60%, rgba(0,0,0,0.18) 100%)',
+                pointerEvents: 'none',
+              }}
+            />
+          </div>
+
+          {/* 右侧控制区 */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8, minWidth: 0, flex: 1 }}>
+            <span className="gal-player-title" title={displayName}>
+              {currentTrack ? `《${displayName}》` : '未在播放'}
+            </span>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <button type="button" className="gal-player-btn" onClick={prevTrack} title="上一曲">
+                <SkipBack size={14} />
+              </button>
+              <button type="button" className="gal-player-btn" onClick={togglePlay} title={isPlaying ? '暂停' : '播放'}>
+                {isPlaying ? <Pause size={16} /> : <Play size={16} style={{ marginLeft: 2 }} />}
+              </button>
+              <button type="button" className="gal-player-btn" onClick={nextTrack} title="下一曲">
+                <SkipForward size={14} />
+              </button>
+              <div style={{ width: 1, height: 18, background: 'rgba(200,175,155,0.4)', margin: '0 2px' }} />
+              <button type="button" className="gal-player-btn" onClick={toggleMute} title={isMuted ? '取消静音' : '静音'}>
+                {isMuted ? <VolumeX size={13} /> : <Volume2 size={13} />}
+              </button>
+            </div>
+
+            <input
+              type="range"
+              min="0"
+              max="1"
+              step="0.05"
+              value={isMuted ? 0 : volume}
+              onChange={handleVolume}
+              className="gal-player-volume"
+              aria-label="音量"
+            />
+          </div>
+        </motion.div>
       </div>
+
     </>
   );
 }
-
-const ctrlBar: React.CSSProperties = {
-  position: 'fixed', top: 20, right: 20, zIndex: 9999,
-  display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8,
-  padding: '12px 16px', borderRadius: 12,
-  background: 'rgba(0,0,0,0.35)', backdropFilter: 'blur(16px)',
-  WebkitBackdropFilter: 'blur(16px)', border: '1px solid rgba(255,255,255,0.2)',
-};
-const ctrlTitle: React.CSSProperties = { color: 'rgba(255,255,255,0.9)', fontSize: '0.8rem', margin: 0 };
-const ctrlRow: React.CSSProperties = { display: 'flex', alignItems: 'center', gap: 6 };
-const btn: React.CSSProperties = {
-  padding: 6, border: '1px solid rgba(255,255,255,0.2)',
-  background: 'rgba(255,255,255,0.1)', color: 'white', borderRadius: 6,
-  cursor: 'pointer', display: 'flex', alignItems: 'center',
-};

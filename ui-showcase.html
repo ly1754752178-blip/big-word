@@ -1,0 +1,1486 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>人生模拟器 · UI 美术效果展示</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-webfont@1.7.0/style.css" rel="stylesheet">
+
+  <!-- Tailwind CDN 配置：扩展项目自定义色板与字体 -->
+  <script>
+    window.tailwind = window.tailwind || {};
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            sky: { 50: '#F0F9FF', 100: '#E0F2FE', 300: '#7DD3FC', 500: '#0EA5E9' },
+            coral: { 50: '#FFF1F2', 100: '#FFE4E6', 300: '#FDA4AF', 500: '#F43F5E' },
+            mint: { 50: '#F0FDF4', 100: '#DCFCE7', 300: '#86EFAC', 500: '#22C55E' },
+            cream: { 50: '#FFFBEB', 100: '#FEF3C7', 300: '#FDE68A' },
+            lavender: { 50: '#F5F3FF', 100: '#EDE9FE', 300: '#C4B5FD', 500: '#8B5CF6' },
+            slate: { 50: '#F8FAFC', 100: '#F1F5F9', 200: '#E2E8F0', 300: '#CBD5E1', 400: '#94A3B8', 500: '#64748B', 600: '#475569', 700: '#334155', 800: '#1E293B', 900: '#0F172A' },
+            'bg-base': '#FAF6F1',
+            'bg-card': 'rgba(255, 253, 250, 0.78)',
+            'bg-card-raised': 'rgba(255, 253, 250, 0.85)',
+            'border-soft': 'rgba(218, 205, 190, 0.5)',
+            'text-primary': '#3D3229',
+            'text-secondary': '#7D6E5E',
+            'text-muted': '#9A8B7A',
+            'accent-sunset': '#E88D4F',
+            'accent-amber': '#F5C542',
+            'accent-teal': '#5BA8A0',
+            'accent-green': '#6BBF73',
+          },
+          fontFamily: {
+            body: ['"LXGW WenKai"', '"Noto Sans SC"', '"PingFang SC"', '"Microsoft YaHei"', 'sans-serif'],
+            heading: ['"HarmonyOS Sans SC"', '"PingFang SC"', '"Microsoft YaHei"', 'sans-serif'],
+            number: ['"JetBrains Mono"', '"DIN Alternate"', '"Helvetica Neue"', 'sans-serif'],
+          },
+          boxShadow: {
+            soft: '0 2px 12px rgba(30, 41, 59, 0.06)',
+            'soft-lg': '0 8px 30px rgba(30, 41, 59, 0.08)',
+            'glow-sky': '0 0 20px rgba(14, 165, 233, 0.25)',
+            'glow-coral': '0 0 20px rgba(244, 63, 94, 0.2)',
+          }
+        }
+      }
+    }
+  </script>
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <style>
+    /* ===== 基础变量 ===== */
+    :root {
+      --bg-base: #FAF6F1;
+      --bg-panel: #F5F0EA;
+      --bg-panel-right: #F3EEE7;
+      --bg-card: rgba(255, 253, 250, 0.78);
+      --bg-card-raised: rgba(255, 253, 250, 0.85);
+      --border-soft: rgba(218, 205, 190, 0.5);
+      --text-primary: #3D3229;
+      --text-secondary: #7D6E5E;
+      --text-muted: #9A8B7A;
+      --gold-primary: #C9A84C;
+      --gold-dark: #A0802E;
+      --gold-text: #E8D59A;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html {
+      font-family: 'LXGW WenKai', 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+      background: var(--bg-base);
+      color: var(--text-primary);
+      overflow-x: hidden;
+    }
+
+    body {
+      min-height: 100vh;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* 滚动条 */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(125, 110, 94, 0.3); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(125, 110, 94, 0.5); }
+
+    /* 玻璃卡片 */
+    .glass-card {
+      background: var(--bg-card-raised);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid var(--border-soft);
+      border-radius: 16px;
+      box-shadow: 0 2px 12px rgba(30, 41, 59, 0.06);
+    }
+    .card-coral { background: #FFF1F2; border-color: #FECDD3; }
+    .card-sky { background: #F0F9FF; border-color: #BAE6FD; }
+    .card-mint { background: #F0FDF4; border-color: #BBF7D0; }
+    .card-lavender { background: #F5F3FF; border-color: #DDD6FE; }
+    .card-cream { background: #FFFBEB; border-color: #FEF3C7; }
+
+    /* 按钮栏 */
+    .sidebar-btn {
+      width: 44px; height: 44px; border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.2s ease;
+      background: white;
+      color: #64748B;
+      box-shadow: 0 2px 12px rgba(30, 41, 59, 0.06);
+    }
+    .sidebar-btn:hover { background: #F0F9FF; color: #0EA5E9; }
+    .sidebar-btn.active {
+      background: #0EA5E9;
+      color: white;
+      transform: scale(1.05);
+      box-shadow: 0 0 20px rgba(14, 165, 233, 0.25);
+    }
+
+    /* 预览面板标题横栏 */
+    .preview-title {
+      margin: -12px -10px 12px -10px;
+      padding: 12px;
+      text-align: center;
+      font-weight: 700;
+      font-size: 16px;
+      letter-spacing: 0.05em;
+      border-bottom: 1px solid rgba(0,0,0,0.05);
+    }
+
+    /* 状态条 */
+    .stat-bar-bg { height: 8px; background: #F1F5F9; border-radius: 999px; overflow: hidden; }
+    .stat-bar-fill { height: 100%; border-radius: 999px; transition: width 0.5s ease; }
+
+    /* BGM 播放器 */
+    .bgm-player {
+      height: 64px;
+      display: flex; align-items: center; gap: 12px;
+      padding-left: 32px; padding-right: 16px;
+      background: rgba(18,15,10,0.72);
+      backdrop-filter: blur(14px) saturate(1.2);
+      -webkit-backdrop-filter: blur(14px) saturate(1.2);
+      clip-path: polygon(8% 0, 100% 0, 100% 100%, 0% 100%);
+      color: rgba(232,213,154,0.9);
+      position: relative;
+    }
+    .bgm-player::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent 0%, rgba(201,168,76,0.25) 20%, rgba(201,168,76,0.45) 50%, rgba(201,168,76,0.25) 80%, transparent 100%);
+      clip-path: polygon(8% 0, 100% 0, 100% 100%, 0% 100%);
+    }
+    .bgm-record {
+      width: 52px; height: 52px; border-radius: 50%;
+      background: radial-gradient(circle at 50% 50%, rgba(25,20,12,0.7) 0%, rgba(15,12,8,0.85) 60%, rgba(18,14,10,0.8) 100%);
+      box-shadow: 0 3px 14px rgba(0,0,0,0.55), inset 0 0 0 1px rgba(255,255,255,0.03);
+      position: relative;
+      display: flex; align-items: center; justify-content: center;
+      animation: spin 8s linear infinite;
+      animation-play-state: paused;
+    }
+    .bgm-record.playing { animation-play-state: running; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* 天色球 */
+    .anime-orb-frame {
+      padding: 5px; border-radius: 50%;
+      background: #FDFAF5;
+    }
+    .anime-orb {
+      position: relative; width: 86px; height: 86px; border-radius: 50%;
+      border: 2px solid rgba(255,255,255,0.55);
+      box-shadow: inset 0 -4px 12px rgba(0,0,0,0.12), inset 0 4px 12px rgba(255,255,255,0.35), 0 0 0 3px rgba(255,255,255,0.15), 0 4px 16px rgba(61,50,41,0.08);
+      overflow: hidden;
+    }
+    .anime-orb::before {
+      content: ''; position: absolute; inset: 0; border-radius: 50%;
+      background: linear-gradient(180deg, rgba(255,255,255,0.35) 0%, rgba(255,255,255,0) 40%);
+      pointer-events: none; z-index: 2;
+    }
+    .anime-orb::after {
+      content: ''; position: absolute; bottom: 0; left: -10%; right: -10%; height: 35%;
+      background: rgba(61,50,41,0.25); border-radius: 50% 50% 0 0;
+      filter: blur(1px); z-index: 1;
+    }
+
+    /* 手机 */
+    .phone-case {
+      background: #1C1C1E;
+      border-radius: 32px 32px 0 0;
+      box-shadow: 0 -4px 24px rgba(0,0,0,0.35);
+    }
+    .phone-screen {
+      background: #FAF6F1;
+      border-radius: 28px 28px 0 0;
+      color: #3D3229;
+    }
+
+    /* 地图纹理 */
+    .map-texture {
+      background-image:
+        radial-gradient(circle at 20% 30%, rgba(232,141,79,0.12) 0%, transparent 45%),
+        radial-gradient(circle at 80% 70%, rgba(91,168,160,0.12) 0%, transparent 45%),
+        url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.05'/%3E%3C/svg%3E");
+      background-size: auto, auto, 200px 200px;
+      background-repeat: no-repeat, no-repeat, repeat;
+    }
+
+    /* 隐藏未激活预览 */
+    .preview-panel { display: none; }
+    .preview-panel.active { display: block; }
+
+    /* 噪点纹理 */
+    .grain-overlay {
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      background-size: 200px 200px;
+      background-repeat: repeat;
+    }
+
+    /* 输入框 */
+    .narrative-input {
+      flex: 1;
+      border-radius: 9999px;
+      background: #FFFBEB;
+      border: 1px solid #FEF3C7;
+      padding: 0.625rem 1rem;
+      font-size: 0.875rem;
+      color: #334155;
+      outline: none;
+      transition: all 0.2s;
+    }
+    .narrative-input::placeholder { color: #94A3B8; }
+    .narrative-input:focus { box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.2); border-color: #BAE6FD; }
+
+    /* 范围滑块 */
+    input[type="range"] { -webkit-appearance: none; appearance: none; }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      background: var(--gold-primary);
+      cursor: pointer;
+      margin-top: -3px;
+    }
+    input[type="range"]::-webkit-slider-runnable-track {
+      height: 4px;
+      border-radius: 2px;
+    }
+
+    /* 移动端抽屉 */
+    #right-drawer {
+      position: fixed;
+      top: 64px; right: 0; bottom: 0;
+      width: 320px;
+      transform: translateX(100%);
+      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+      z-index: 50;
+    }
+    #right-drawer.open { transform: translateX(0); }
+    #right-drawer-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.3);
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.3s;
+      z-index: 45;
+    }
+    #right-drawer-overlay.open { opacity: 1; pointer-events: auto; }
+
+    @media (min-width: 1024px) {
+      #right-drawer { display: none; }
+      #right-drawer-overlay { display: none; }
+      .mobile-only { display: none !important; }
+    }
+
+    @media (max-width: 1023px) {
+      .desktop-only { display: none !important; }
+    }
+
+    @media (max-width: 767px) {
+      #right-drawer { width: 100%; top: 0; }
+      .phone-body-mobile { width: min(288px, calc(100vw - 32px)) !important; }
+      .anime-orb-frame { transform: scale(0.78); transform-origin: center bottom; }
+    }
+
+    /* BGM 播放器在窄桌面下自动收缩，避免顶出视口 */
+    .bgm-player {
+      flex-shrink: 1;
+      min-width: 0;
+      max-width: min(520px, 46vw);
+    }
+    #bgm-waveform, #bgm-volume { min-width: 0; }
+
+    @media (max-width: 1279px) and (min-width: 1024px) {
+      /* 小桌面下右侧面板与手机同比例收窄，保证不超出屏幕 */
+      #right-panel { width: 280px !important; }
+      #phone-head, #phone-body, .phone-body-mobile { width: 260px !important; }
+    }
+
+    @media (max-width: 1100px) {
+      .bgm-player { padding-left: 16px; padding-right: 12px; }
+      #bgm-waveform, #bgm-volume { display: none; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+  </style>
+</head>
+<body class="min-h-screen bg-bg-base text-text-primary font-body antialiased">
+
+  <!-- 背景装饰 -->
+  <div class="fixed inset-0 pointer-events-none overflow-hidden z-0">
+    <div class="absolute -top-40 -right-40 w-[600px] h-[600px] rounded-full bg-sky-200/30 blur-3xl"></div>
+    <div class="absolute top-1/2 -left-40 w-[500px] h-[500px] rounded-full bg-coral-200/30 blur-3xl"></div>
+    <div class="absolute -bottom-40 right-1/4 w-[450px] h-[450px] rounded-full bg-mint-200/30 blur-3xl"></div>
+    <div class="absolute inset-0 grain-overlay"></div>
+  </div>
+
+  <!-- 主容器 -->
+  <div class="relative z-10 flex flex-col h-screen">
+
+    <!-- 上栏 -->
+    <header class="relative h-16 pl-5 pr-0 flex items-center justify-between bg-[#FDFAF5] z-20 shadow-sm shrink-0 overflow-visible">
+      <!-- 左侧日期 -->
+      <div class="flex items-center gap-4 w-1/3 min-w-0 md:w-auto">
+        <button class="flex items-center gap-3 md:gap-4 text-left group cursor-pointer" aria-label="打开完整日历">
+          <div class="w-10 h-10 md:w-11 md:h-11 rounded-xl bg-cream-100 border border-cream-200 flex items-center justify-center overflow-hidden shrink-0">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#D97706" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/></svg>
+          </div>
+          <div class="flex flex-col min-w-0">
+            <div class="flex items-center gap-2 md:gap-3">
+              <span class="font-number text-lg md:text-xl font-semibold text-slate-800 whitespace-nowrap">2026 / 07 / 08</span>
+              <span class="px-2 py-0.5 md:px-3 md:py-1 rounded-full bg-sky-100 text-sky-600 text-[10px] md:text-xs font-medium">周三</span>
+            </div>
+            <div class="hidden md:flex items-center gap-2 mt-1.5">
+              <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-cream-100 text-amber-600 text-xs font-bold whitespace-nowrap border border-cream-200">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="#D97706" stroke="#D97706" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                今天是七夕哦！
+              </span>
+              <span class="text-xs text-slate-500">水曜日 · 黄昏</span>
+            </div>
+          </div>
+        </button>
+      </div>
+
+      <!-- 底部装饰边框 -->
+      <div class="absolute left-0 bottom-0 border-b-2 border-[#E8DFD3] pointer-events-none" style="right: calc(50% + 53px);"></div>
+      <div class="absolute right-0 bottom-0 border-b-2 border-[#E8DFD3] pointer-events-none" style="left: calc(50% + 53px);"></div>
+      <div class="absolute left-1/2 bottom-[-24px] -translate-x-1/2 w-[105px] h-[24px] border-2 border-t-0 border-[#E8DFD3] rounded-b-full bg-[#FDFAF5] pointer-events-none"></div>
+
+      <!-- 天气球 -->
+      <div class="absolute left-1/2 -translate-x-1/2 bottom-[-20px] z-10">
+        <div class="anime-orb-frame">
+          <div class="anime-orb" style="background: radial-gradient(circle at 50% 30%, #C2410C 0%, #E88D4F 35%, #F5C542 65%, #FDE68A 100%);">
+            <div class="absolute top-2.5 right-4 w-[27px] h-[27px] rounded-full" style="background: #FDBA74; box-shadow: 0 0 14px #FDBA74;"></div>
+            <div class="absolute bottom-0 left-0 right-0 h-[32%] z-[1]">
+              <svg viewBox="0 0 120 40" class="w-full h-full" preserveAspectRatio="none">
+                <path d="M0 40 L0 22 Q15 12 30 20 T60 16 T90 22 T120 14 L120 40 Z" fill="rgba(61,50,41,0.35)"/>
+                <path d="M0 40 L0 28 Q20 24 40 28 T80 26 T120 30 L120 40 Z" fill="rgba(61,50,41,0.5)"/>
+              </svg>
+            </div>
+            <div class="absolute inset-0 z-[3] flex flex-col items-center justify-center">
+              <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="drop-shadow-md mb-0.5"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
+              <span class="font-number text-base font-bold text-white drop-shadow-md">18:30</span>
+            </div>
+            <div class="absolute top-2 left-3 w-4 h-[11px] bg-white/30 rounded-full blur-[2px] z-[4] rotate-[-20deg]"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- BGM 播放器 -->
+      <div class="bgm-player hidden md:flex">
+        <div class="bgm-record" id="bgm-record">
+          <div class="absolute rounded-full flex items-center justify-center" style="width: 33px; height: 33px; border: 1.5px solid rgba(201,168,76,0.14); background: radial-gradient(circle at 50% 50%, #2a2418 0%, #1a1610 100%);">
+            <span class="text-[8px] text-[#C9A84C]/30 tracking-wider font-number">LP</span>
+          </div>
+          <div class="absolute rounded-full flex items-center justify-center" style="width: 12px; height: 12px; background: linear-gradient(135deg, #C9A84C 0%, #A0802E 100%); box-shadow: 0 0 5px rgba(201,168,76,0.35);">
+            <div class="rounded-full" style="width: 3.5px; height: 3.5px; background: #12100c;"></div>
+          </div>
+          <!-- 唱针 -->
+          <div class="absolute -top-1 -right-1 w-8 h-8 pointer-events-none">
+            <div class="absolute top-0 right-0.5 w-2.5 h-2.5 rounded-full" style="background: linear-gradient(135deg, #e8e0d8 0%, #c0b8b0 40%, #a09890 100%); box-shadow: 0 1px 2px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.3);"></div>
+            <div class="absolute top-2 right-1.5 w-7 h-[1.5px] origin-right" style="transform: rotate(-32deg); background: linear-gradient(90deg, rgba(192,184,176,0.9) 0%, rgba(160,152,144,0.95) 60%, rgba(200,194,188,0.7) 100%); box-shadow: 0 0 2px rgba(0,0,0,0.3);"></div>
+          </div>
+        </div>
+        <div class="flex-1 min-w-0 flex flex-col justify-center gap-[2px]">
+          <span class="block text-[12px] font-bold truncate leading-tight" style="color: #E8D59A;">《未播放歌曲》</span>
+          <div class="flex items-center gap-1.5">
+            <div class="w-[100px] flex items-end gap-[1px] h-2.5" id="bgm-waveform">
+              <script>
+                document.write(Array(24).fill(0).map((_,i)=>{
+                  const h = [40,70,55,85,60,90,50,75,45,80,35,65,50,70,40,60,30,55,45,70,35,50,40,60][i];
+                  return `<div class="flex-1 rounded-full transition-all duration-300 bgm-bar" style="height:${h}%;background:rgba(255,255,255,0.06)" data-index="${i}"></div>`;
+                }).join(''));
+              </script>
+            </div>
+            <span class="text-[8px] font-number shrink-0" style="color: rgba(232,213,154,0.45);" id="bgm-time">0:00</span>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <svg id="volume-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(232,213,154,0.45)" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+            <input type="range" id="bgm-volume" min="0" max="1" step="0.01" value="0.5" class="w-[100px] h-1 appearance-none rounded-full cursor-pointer" style="background: linear-gradient(90deg, #C9A84C 50%, rgba(255,255,255,0.1) 50%); outline: none;" aria-label="音量">
+          </div>
+        </div>
+        <div class="flex items-center gap-1 shrink-0">
+          <button id="bgm-shuffle" class="w-7 h-7 rounded-full flex items-center justify-center transition-all" style="color: rgba(255,255,255,0.3);" aria-label="随机播放" title="随机播放">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m16 3 4 4-4 4"/><path d="M20 7H4"/></svg>
+          </button>
+          <button id="bgm-prev" class="w-7 h-7 rounded-full flex items-center justify-center transition-all text-white/30 hover:text-white/60" aria-label="上一首" title="上一首">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M19 20L9 12l10-8v16zM5 19h2V5H5v14z"/></svg>
+          </button>
+          <button id="bgm-play-btn" class="w-8 h-8 rounded-full flex items-center justify-center relative" style="background: linear-gradient(135deg, #C9A84C 0%, #A0802E 100%); box-shadow: 0 2px 10px rgba(201,168,76,0.35);" aria-label="播放" title="播放">
+            <svg id="play-icon" width="14" height="14" viewBox="0 0 24 24" fill="#12100c" class="ml-0.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            <svg id="pause-icon" width="14" height="14" viewBox="0 0 24 24" fill="#12100c" class="hidden"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+          </button>
+          <button id="bgm-next" class="w-7 h-7 rounded-full flex items-center justify-center transition-all text-white/30 hover:text-white/60" aria-label="下一首" title="下一首">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M5 4l10 8-10 8V4zM19 5h-2v14h2V5z"/></svg>
+          </button>
+          <button id="bgm-list" class="w-7 h-7 rounded-full flex items-center justify-center transition-all" style="color: rgba(255,255,255,0.35);" aria-label="播放列表" title="播放列表">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 6h13"/><path d="M8 12h13"/><path d="M8 18h13"/><path d="M3 6h.01"/><path d="M3 12h.01"/><path d="M3 18h.01"/></svg>
+          </button>
+        </div>
+        <!-- 播放列表弹窗 -->
+        <div id="bgm-playlist" class="absolute top-full right-4 mt-2 w-56 bg-[#1a1610] border border-[#C9A84C]/20 rounded-xl shadow-2xl py-2 hidden z-50">
+          <div class="px-3 py-2 text-xs font-bold text-[#E8D59A] border-b border-white/10">播放列表</div>
+          <div class="px-3 py-2 text-xs text-white/50">暂无可用曲目</div>
+        </div>
+      </div>
+    </header>
+
+    <!-- 主体区域：四栏布局 -->
+    <div class="flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-[auto_1fr_320px]">
+
+      <!-- 左侧边栏：图标条 + 预览面板 -->
+      <aside class="hidden lg:flex min-h-0 min-w-0 overflow-hidden bg-[#F5F0EA] shadow-[inset_-1px_0_0_rgba(218,205,190,0.3)]">
+
+        <!-- 左栏图标条 -->
+        <div class="w-16 h-full border-r border-[#E8DFD3] flex flex-col items-center py-3 gap-2 z-10 shrink-0">
+          <button class="sidebar-btn active" data-tab="status" title="个人状态" aria-label="个人状态">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          </button>
+          <button class="sidebar-btn" data-tab="talents" title="天赋才能" aria-label="天赋才能">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>
+          </button>
+          <button class="sidebar-btn" data-tab="social" title="社交关系" aria-label="社交关系">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          </button>
+          <button class="sidebar-btn" data-tab="wealth" title="财富资产" aria-label="财富资产">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a2 2 0 0 0-2-2"/><path d="M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4"/></svg>
+          </button>
+          <button class="sidebar-btn" data-tab="calendar" title="日历事件" aria-label="日历事件">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/></svg>
+          </button>
+          <button class="sidebar-btn" data-tab="settings" title="系统设置" aria-label="系统设置">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.47a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
+
+          <div class="mt-auto pt-2 border-t border-slate-100 w-10"></div>
+
+          <button class="w-11 h-11 rounded-xl flex items-center justify-center bg-white text-coral-400 hover:bg-coral-50 hover:text-coral-500 shadow-sm transition-all" title="角色图鉴" aria-label="角色图鉴">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 13.5a4 4 0 0 0 4 4h12a4 4 0 0 0 4-4V8a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v5.5Z"/><path d="M12 11v.01"/><path d="M8 11v.01"/><path d="M16 11v.01"/></svg>
+          </button>
+        </div>
+
+        <!-- 预览面板 -->
+        <section class="w-[260px] h-full bg-[#F5F0EA] border-r border-[#E8DFD3] overflow-y-auto px-2.5 py-3 shrink-0">
+
+          <!-- 个人状态 -->
+          <div id="preview-status" class="preview-panel active space-y-2">
+            <div class="preview-title bg-gradient-to-r from-coral-50 via-coral-100/40 to-coral-50 border-b border-coral-100/60" style="color: var(--text-primary);">
+              个人状态
+              <div class="mt-1 mx-auto w-8 h-0.5 rounded-full bg-coral-500"></div>
+            </div>
+            <div class="glass-card card-coral p-3">
+              <div class="flex items-center gap-3">
+                <div class="w-[70px] h-[70px] rounded-xl bg-gradient-to-br from-coral-300/30 to-coral-500/20 border-2 border-white shadow-sm flex items-center justify-center overflow-hidden shrink-0 text-2xl font-bold text-white">
+                  叶
+                </div>
+                <div class="flex-1 min-w-0">
+                  <div class="font-heading text-lg font-bold text-slate-800 truncate">叶悠真</div>
+                  <div class="flex items-center gap-1.5 mt-1">
+                    <span class="px-2 py-0.5 rounded-full bg-white text-coral-500 text-[10px] font-medium whitespace-nowrap border border-coral-100">略显疲惫</span>
+                    <span class="px-2 py-0.5 rounded-full bg-white text-slate-500 text-[10px] whitespace-nowrap border border-slate-100">高中生</span>
+                  </div>
+                </div>
+              </div>
+              <div class="mt-3 space-y-1.5">
+                <div class="space-y-1">
+                  <div class="flex justify-between text-xs"><div class="flex items-center gap-1.5 text-slate-500"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg><span>体力</span></div><span class="font-number text-slate-700">78/100</span></div>
+                  <div class="stat-bar-bg"><div class="stat-bar-fill" style="width: 78%; background: #F43F5E;"></div></div>
+                </div>
+                <div class="space-y-1">
+                  <div class="flex justify-between text-xs"><div class="flex items-center gap-1.5 text-slate-500"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5a3 3 0 1 0-5.997.125 4 4 0 0 0-2.526 5.77 4 4 0 0 0 .556 6.588A4 4 0 1 0 12 18Z"/><path d="M12 5a3 3 0 1 1 5.997.125 4 4 0 0 1 2.526 5.77 4 4 0 0 1-.556 6.588A4 4 0 1 1 12 18Z"/><path d="M15 13a4.5 4.5 0 0 1-3-4 4.5 4.5 0 0 1-3 4"/><path d="M17.599 6.5a3 3 0 0 0 .399-1.375"/><path d="M6.003 5.125A3 3 0 0 0 6.401 6.5"/></svg><span>精神</span></div><span class="font-number text-slate-700">65/100</span></div>
+                  <div class="stat-bar-bg"><div class="stat-bar-fill" style="width: 65%; background: #0EA5E9;"></div></div>
+                </div>
+                <div class="space-y-1">
+                  <div class="flex justify-between text-xs"><div class="flex items-center gap-1.5 text-slate-500"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2"/></svg><span>健康</span></div><span class="font-number text-slate-700">82/100</span></div>
+                  <div class="stat-bar-bg"><div class="stat-bar-fill" style="width: 82%; background: #22C55E;"></div></div>
+                </div>
+              </div>
+              <div class="mt-3 pt-2.5 border-t border-coral-100/60 space-y-1.5">
+                <button class="w-full text-left flex items-center justify-between p-1.5 rounded-lg hover:bg-white/50 transition-colors"><span class="text-xs font-bold text-slate-500">身体状态</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></button>
+                <div class="px-1.5">
+                  <div class="text-sm font-bold text-slate-700 truncate">昨晚熬夜看书，今天上课时有些走神。</div>
+                  <div class="mt-1 flex flex-wrap gap-1">
+                    <span class="px-2 py-0.5 rounded-md bg-coral-50 text-coral-500 text-[10px] whitespace-nowrap border border-coral-100">轻微睡眠不足</span>
+                    <span class="px-2 py-0.5 rounded-md bg-coral-50 text-coral-500 text-[10px] whitespace-nowrap border border-coral-100">运动后肌肉酸痛</span>
+                    <span class="px-2 py-0.5 rounded-md bg-slate-100 text-slate-500 text-[10px] whitespace-nowrap border border-slate-200">颓废</span>
+                    <span class="px-2 py-0.5 rounded-md bg-slate-100 text-slate-500 text-[10px] whitespace-nowrap border border-slate-200">失眠</span>
+                  </div>
+                </div>
+                <button class="w-full text-left flex items-center justify-between p-1.5 rounded-lg hover:bg-white/50 transition-colors"><span class="text-xs font-bold text-slate-500">个人讯息</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></button>
+                <div class="px-1.5 space-y-0.5 text-xs text-slate-700">
+                  <div class="flex justify-between"><span class="text-slate-400">年龄</span><span class="font-number">18岁</span></div>
+                  <div class="flex justify-between"><span class="text-slate-400">身份</span><span class="truncate max-w-[120px]">高中生</span></div>
+                  <div class="flex justify-between"><span class="text-slate-400">住址</span><span class="truncate max-w-[120px]">东京都·世田谷区·樱丘一丁目</span></div>
+                  <div class="flex justify-between"><span class="text-slate-400">现金</span><span class="font-number">¥3,240</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 天赋才能 -->
+          <div id="preview-talents" class="preview-panel space-y-2">
+            <div class="preview-title bg-gradient-to-r from-violet-50 via-violet-100/40 to-violet-50 border-b border-violet-100/60">
+              天赋才能
+              <div class="mt-1 mx-auto w-8 h-0.5 rounded-full bg-lavender-500"></div>
+            </div>
+            <div class="flex gap-2 overflow-x-auto pb-1">
+              <button class="group relative flex flex-col items-center gap-1 px-2 py-2 min-w-[56px] rounded-xl bg-white/60 border border-lavender-100 hover:bg-white/80 transition-colors">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8B5CF6" stroke-width="2"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+                <span class="text-[10px] text-slate-700 whitespace-nowrap font-medium">共感者</span>
+              </button>
+              <button class="group relative flex flex-col items-center gap-1 px-2 py-2 min-w-[56px] rounded-xl bg-white/60 border border-lavender-100 hover:bg-white/80 transition-colors">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8B5CF6" stroke-width="2"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+                <span class="text-[10px] text-slate-700 whitespace-nowrap font-medium">夜猫子</span>
+              </button>
+              <button class="group relative flex flex-col items-center gap-1 px-2 py-2 min-w-[56px] rounded-xl bg-white/60 border border-lavender-100 hover:bg-white/80 transition-colors">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8B5CF6" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+                <span class="text-[10px] text-slate-700 whitespace-nowrap font-medium">过目不忘</span>
+              </button>
+            </div>
+
+            <!-- 通用领域 -->
+            <div class="glass-card p-2.5 w-full cursor-pointer hover:-translate-y-0.5 transition-all">
+              <div class="flex items-center justify-between mb-2">
+                <div class="flex items-center gap-1.5">
+                  <div class="w-6 h-6 rounded-lg flex items-center justify-center" style="background: linear-gradient(135deg, rgba(212,168,83,0.3), rgba(212,168,83,0.5));">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#D4A853" stroke-width="2"><path d="m16 2-2 3"/><path d="M21 8V6"/><path d="m21 3-1 1"/><path d="m16 8-1-1"/><path d="m7 8 1-1"/><path d="m3 8 2-2"/><path d="m3 21 9-8 3 3"/><path d="M13.5 6.5 17 3"/><path d="M21 21h-8"/><path d="m21 16-1 1"/><path d="M3 16h5"/><path d="m8 21-5-5"/></svg>
+                  </div>
+                  <span class="text-xs font-bold text-slate-700">通用领域</span>
+                </div>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-slate-400"><path d="m9 18 6-6-6-6"/></svg>
+              </div>
+              <div class="grid grid-cols-3 gap-1">
+                <div class="aspect-square rounded-lg border flex flex-col items-center justify-center gap-0.5 px-0.5" style="background-color: rgba(212,168,83,0.1); border-color: rgba(212,168,83,0.2);">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#D4A853" stroke-width="2"><path d="m16 2-2 3"/><path d="M21 8V6"/><path d="m21 3-1 1"/><path d="m16 8-1-1"/><path d="m7 8 1-1"/><path d="m3 8 2-2"/><path d="m3 21 9-8 3 3"/><path d="M13.5 6.5 17 3"/><path d="M21 21h-8"/><path d="m21 16-1 1"/><path d="M3 16h5"/><path d="m8 21-5-5"/></svg>
+                  <span class="text-[10px] text-slate-700 truncate text-center leading-tight max-w-full font-semibold">料理</span>
+                  <span class="text-[9px] text-slate-400 font-number leading-none">Lv.3/10</span>
+                </div>
+                <div class="aspect-square rounded-lg border flex flex-col items-center justify-center gap-0.5 px-0.5" style="background-color: rgba(212,168,83,0.1); border-color: rgba(212,168,83,0.2);">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#D4A853" stroke-width="2"><path d="m19 11-8-8-8.6 8.6a2 2 0 0 0 0 2.8l5.2 5.2c.8.8 2 .8 2.8 0L19 11Z"/><path d="m5 2 5 5"/><path d="M2 13h15"/><path d="M22 22v-5h-5"/></svg>
+                  <span class="text-[10px] text-slate-700 truncate text-center leading-tight max-w-full font-semibold">打扫</span>
+                  <span class="text-[9px] text-slate-400 font-number leading-none">Lv.2/10</span>
+                </div>
+                <div class="aspect-square rounded-lg bg-slate-50/50 border border-dashed border-slate-100"></div>
+              </div>
+            </div>
+
+            <!-- 专业领域 -->
+            <div class="glass-card p-2.5 w-full cursor-pointer hover:-translate-y-0.5 transition-all">
+              <div class="flex items-center justify-between mb-2">
+                <div class="flex items-center gap-1.5">
+                  <div class="w-6 h-6 rounded-lg flex items-center justify-center" style="background: linear-gradient(135deg, rgba(14,165,233,0.3), rgba(14,165,233,0.5));">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0EA5E9" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+                  </div>
+                  <span class="text-xs font-bold text-slate-700">专业领域</span>
+                </div>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-slate-400"><path d="m9 18 6-6-6-6"/></svg>
+              </div>
+              <div class="grid grid-cols-3 gap-1">
+                <div class="aspect-square rounded-lg border flex flex-col items-center justify-center gap-0.5 px-0.5" style="background-color: rgba(14,165,233,0.1); border-color: rgba(14,165,233,0.2);">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0EA5E9" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+                  <span class="text-[10px] text-slate-700 truncate text-center leading-tight max-w-full font-semibold">编程</span>
+                  <span class="text-[9px] text-slate-400 font-number leading-none">Lv.4/10</span>
+                </div>
+                <div class="aspect-square rounded-lg bg-slate-50/50 border border-dashed border-slate-100"></div>
+                <div class="aspect-square rounded-lg bg-slate-50/50 border border-dashed border-slate-100"></div>
+              </div>
+            </div>
+
+            <!-- 特殊领域 -->
+            <div class="glass-card p-2.5 w-full cursor-pointer hover:-translate-y-0.5 transition-all">
+              <div class="flex items-center justify-between mb-2">
+                <div class="flex items-center gap-1.5">
+                  <div class="w-6 h-6 rounded-lg flex items-center justify-center" style="background: linear-gradient(135deg, rgba(192,132,252,0.3), rgba(192,132,252,0.5));">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C084FC" stroke-width="2"><path d="m21.64 3.64-1.28-1.28a1.21 1.21 0 0 0-1.72 0L2.36 18.64a1.21 1.21 0 0 0 0 1.72l1.28 1.28a1.2 1.2 0 0 0 1.72 0L21.64 5.36a1.2 1.2 0 0 0 0-1.72"/><path d="m14 7 3 3"/><path d="M5 6v4"/><path d="M19 14v4"/><path d="M10 2v2"/><path d="M7 8H3"/><path d="M21 16h-4"/><path d="M11 3H9"/></svg>
+                  </div>
+                  <span class="text-xs font-bold text-slate-700">特殊领域</span>
+                </div>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-slate-400"><path d="m9 18 6-6-6-6"/></svg>
+              </div>
+              <div class="grid grid-cols-3 gap-1">
+                <div class="aspect-square rounded-lg border flex flex-col items-center justify-center gap-0.5 px-0.5" style="background-color: rgba(192,132,252,0.1); border-color: rgba(192,132,252,0.2);">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#C084FC" stroke-width="2"><path d="m21.64 3.64-1.28-1.28a1.21 1.21 0 0 0-1.72 0L2.36 18.64a1.21 1.21 0 0 0 0 1.72l1.28 1.28a1.2 1.2 0 0 0 1.72 0L21.64 5.36a1.2 1.2 0 0 0 0-1.72"/></svg>
+                  <span class="text-[10px] text-slate-700 truncate text-center leading-tight max-w-full font-semibold">魔术</span>
+                  <span class="text-[9px] text-slate-400 font-number leading-none">Lv.1/10</span>
+                </div>
+                <div class="aspect-square rounded-lg bg-slate-50/50 border border-dashed border-slate-100"></div>
+                <div class="aspect-square rounded-lg bg-slate-50/50 border border-dashed border-slate-100"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 社交关系 -->
+          <div id="preview-social" class="preview-panel space-y-2">
+            <div class="preview-title bg-gradient-to-r from-sky-50 via-sky-100/40 to-sky-50 border-b border-sky-100/60">
+              社交关系
+              <div class="mt-1 mx-auto w-8 h-0.5 rounded-full bg-sky-500"></div>
+            </div>
+            <button class="w-full py-2 rounded-xl bg-sky-100 border border-sky-200 text-sky-600 text-xs font-bold flex items-center justify-center gap-1.5 hover:bg-sky-200 transition-colors">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 6v12a3 3 0 1 0 3-3H6a3 3 0 1 0 3 3V6a3 3 0 1 0-3-3h12a3 3 0 1 0-3 3Z"/></svg>
+              关系网络
+            </button>
+            <div class="flex items-center justify-between"><span class="text-xs font-bold text-slate-500">在场角色</span></div>
+            <div class="glass-card flex items-center gap-2 p-2">
+              <div class="w-14 h-14 rounded-full bg-gradient-to-br from-coral-200 to-coral-300 border-2 border-white shadow-sm flex items-center justify-center text-lg font-bold text-white">美</div>
+              <div class="flex-1 min-w-0">
+                <div class="text-xs font-bold text-slate-700 truncate">叶和美</div>
+                <div class="text-[10px] text-slate-400 truncate">母亲 · 家人</div>
+              </div>
+              <div class="flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-coral-50 border border-coral-100">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="#FDA4AF" stroke="#FB7185" stroke-width="2"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+                <span class="text-[10px] font-number text-slate-700">92</span>
+              </div>
+            </div>
+            <div class="glass-card flex items-center gap-2 p-2">
+              <div class="w-14 h-14 rounded-full bg-gradient-to-br from-slate-300 to-slate-400 border-2 border-white shadow-sm flex items-center justify-center text-lg font-bold text-white">健</div>
+              <div class="flex-1 min-w-0">
+                <div class="text-xs font-bold text-slate-700 truncate">叶健太</div>
+                <div class="text-[10px] text-slate-400 truncate">父亲 · 家人</div>
+              </div>
+              <div class="flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-coral-50 border border-coral-100">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="#FDA4AF" stroke="#FB7185" stroke-width="2"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+                <span class="text-[10px] font-number text-slate-700">85</span>
+              </div>
+            </div>
+            <div class="glass-card flex items-center gap-2 p-2">
+              <div class="w-14 h-14 rounded-full bg-gradient-to-br from-sky-200 to-sky-300 border-2 border-white shadow-sm flex items-center justify-center text-lg font-bold text-white">千</div>
+              <div class="flex-1 min-w-0">
+                <div class="text-xs font-bold text-slate-700 truncate">佐仓千代</div>
+                <div class="text-[10px] text-slate-400 truncate">同班同学</div>
+              </div>
+              <div class="flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-coral-50 border border-coral-100">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="#FDA4AF" stroke="#FB7185" stroke-width="2"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+                <span class="text-[10px] font-number text-slate-700">74</span>
+              </div>
+            </div>
+            <div class="glass-card flex items-center gap-2 p-2">
+              <div class="w-14 h-14 rounded-full bg-gradient-to-br from-sky-200 to-sky-300 border-2 border-white shadow-sm flex items-center justify-center text-lg font-bold text-white">桐</div>
+              <div class="flex-1 min-w-0">
+                <div class="text-xs font-bold text-slate-700 truncate">桐谷莲</div>
+                <div class="text-[10px] text-slate-400 truncate">同班同学</div>
+              </div>
+              <div class="flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-coral-50 border border-coral-100">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="#FDA4AF" stroke="#FB7185" stroke-width="2"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+                <span class="text-[10px] font-number text-slate-700">68</span>
+              </div>
+            </div>
+            <div class="glass-card flex items-center gap-2 p-2">
+              <div class="w-14 h-14 rounded-full bg-gradient-to-br from-sky-200 to-sky-300 border-2 border-white shadow-sm flex items-center justify-center text-lg font-bold text-white">藤</div>
+              <div class="flex-1 min-w-0">
+                <div class="text-xs font-bold text-slate-700 truncate">藤堂静</div>
+                <div class="text-[10px] text-slate-400 truncate">邻居</div>
+              </div>
+              <div class="flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-coral-50 border border-coral-100">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="#FDA4AF" stroke="#FB7185" stroke-width="2"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+                <span class="text-[10px] font-number text-slate-700">61</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 财富资产 -->
+          <div id="preview-wealth" class="preview-panel space-y-3">
+            <div class="preview-title bg-gradient-to-r from-green-50 via-green-100/40 to-green-50 border-b border-green-100/60">
+              财富资产
+              <div class="mt-1 mx-auto w-8 h-0.5 rounded-full bg-mint-500"></div>
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+              <div class="glass-card card-mint p-2.5">
+                <div class="flex items-center gap-1 text-[10px] text-green-600"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg> 今日收入</div>
+                <div class="mt-1 font-number text-sm font-bold text-slate-700">+¥15,000</div>
+              </div>
+              <div class="glass-card card-coral p-2.5">
+                <div class="flex items-center gap-1 text-[10px] text-red-500"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/><polyline points="17 18 23 18 23 12"/></svg> 今日支出</div>
+                <div class="mt-1 font-number text-sm font-bold text-slate-700">-¥5,210</div>
+              </div>
+            </div>
+            <div class="glass-card card-cream p-3">
+              <div class="flex items-center justify-between"><span class="text-xs font-bold text-slate-500">现金</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0EA5E9" stroke-width="2"><rect width="20" height="12" x="2" y="6" rx="2"/><circle cx="12" cy="12" r="2"/><path d="M6 12h.01M18 12h.01"/></svg></div>
+              <div class="mt-1 font-number text-lg font-bold text-slate-800">¥3,240</div>
+            </div>
+            <div class="space-y-2">
+              <div class="glass-card p-2 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <div class="w-7 h-7 rounded-lg bg-amber-100 flex items-center justify-center text-sky-500"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg></div>
+                  <span class="text-xs text-slate-700">银行账户</span>
+                </div>
+                <span class="text-xs font-number text-slate-700">¥128,500</span>
+              </div>
+              <div class="glass-card p-2 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <div class="w-7 h-7 rounded-lg bg-amber-100 flex items-center justify-center text-sky-500"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg></div>
+                  <span class="text-xs text-slate-700">电子货币</span>
+                </div>
+                <span class="text-xs font-number text-slate-700">¥2,500</span>
+              </div>
+            </div>
+            <button class="w-full py-2.5 rounded-xl bg-green-100 border border-green-200 text-green-700 text-xs font-bold flex items-center justify-center gap-1.5 hover:bg-green-200 transition-colors">
+              财产详情 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>
+            </button>
+          </div>
+
+          <!-- 日程安排 -->
+          <div id="preview-calendar" class="preview-panel space-y-3">
+            <div class="preview-title bg-gradient-to-r from-sky-50 via-sky-100/40 to-sky-50 border-b border-sky-100/60">
+              日程安排
+              <div class="mt-1 mx-auto w-8 h-0.5 rounded-full bg-sky-500"></div>
+            </div>
+            <div class="grid grid-cols-3 gap-2">
+              <div class="glass-card p-2 flex flex-col min-h-[96px]">
+                <div class="flex items-center justify-between mb-1"><span class="text-[10px] font-bold text-slate-500">昨日</span><span class="text-[9px] text-slate-400">周二</span></div>
+                <div class="font-number text-lg font-bold text-slate-800 mb-0.5">07-07</div>
+                <span class="text-[9px] text-slate-400">无日程</span>
+              </div>
+              <div class="glass-card card-sky p-2 flex flex-col min-h-[96px]">
+                <div class="flex items-center justify-between mb-1"><span class="text-[10px] font-bold text-sky-600">今日</span><span class="text-[9px] text-slate-400">周三</span></div>
+                <div class="font-number text-lg font-bold text-slate-800 mb-0.5">07-08</div>
+                <span class="inline-block px-1.5 py-0.5 rounded bg-sky-100 text-sky-600 text-[9px] font-medium mb-1">七夕</span>
+                <div class="text-[10px] text-slate-600 truncate">与加藤惠逛书店</div>
+              </div>
+              <div class="glass-card p-2 flex flex-col min-h-[96px]">
+                <div class="flex items-center justify-between mb-1"><span class="text-[10px] font-bold text-slate-500">明天</span><span class="text-[9px] text-slate-400">周四</span></div>
+                <div class="font-number text-lg font-bold text-slate-800 mb-0.5">07-09</div>
+                <span class="text-[9px] text-slate-400">期中考试复习</span>
+              </div>
+            </div>
+            <div class="glass-card card-sky p-3">
+              <div class="flex items-center gap-2 mb-2"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0EA5E9" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" x2="22" y1="12" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg><span class="text-xs font-bold text-slate-600">世界事件</span></div>
+              <div class="space-y-1.5">
+                <div class="flex items-center justify-between text-xs"><span class="text-slate-700 truncate max-w-[140px]">东京都节能倡议</span><span class="text-[10px] text-slate-400 font-number">07-08</span></div>
+                <div class="flex items-center justify-between text-xs"><span class="text-slate-700 truncate max-w-[140px]">夏季流感预警</span><span class="text-[10px] text-slate-400 font-number">07-09</span></div>
+              </div>
+            </div>
+            <button class="w-full py-2.5 rounded-xl bg-sky-100 border border-sky-200 text-sky-600 text-xs font-bold flex items-center justify-center gap-1.5 hover:bg-sky-200 transition-colors">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/></svg>
+              日历总览 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>
+            </button>
+          </div>
+
+          <!-- 系统设置 -->
+          <div id="preview-settings" class="preview-panel space-y-3">
+            <div class="preview-title bg-gradient-to-r from-slate-50 via-slate-100/40 to-slate-50 border-b border-slate-200/60">
+              系统设置
+              <div class="mt-1 mx-auto w-8 h-0.5 rounded-full bg-slate-400"></div>
+            </div>
+            <div class="space-y-2">
+              <button class="w-full flex items-center gap-3 p-3 rounded-xl text-left transition-all hover:shadow-sm" style="background: #FFFBF7; border: 1px solid #E8DFD3;">
+                <div class="w-9 h-9 rounded-lg flex items-center justify-center shrink-0" style="background: rgba(196,149,58,0.08);"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#C4953A" stroke-width="2"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg></div>
+                <div class="flex-1 min-w-0 text-left"><span class="text-sm font-semibold block text-[#4A3728]">保存进度</span><span class="text-[10px] block text-[#B8A898]">复制当前对话为副本</span></div>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-[#B8A898]"><path d="m9 18 6-6-6-6"/></svg>
+              </button>
+              <button class="w-full flex items-center gap-3 p-3 rounded-xl text-left transition-all hover:shadow-sm" style="background: #FFFBF7; border: 1px solid #E8DFD3;">
+                <div class="w-9 h-9 rounded-lg flex items-center justify-center shrink-0" style="background: rgba(91,158,138,0.08);"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#5B9E8A" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg></div>
+                <div class="flex-1 min-w-0 text-left"><span class="text-sm font-semibold block text-[#4A3728]">导出存档</span><span class="text-[10px] block text-[#B8A898]">导出当前对话为 JSON</span></div>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-[#B8A898]"><path d="m9 18 6-6-6-6"/></svg>
+              </button>
+              <button class="w-full flex items-center gap-3 p-3 rounded-xl text-left transition-all hover:shadow-sm" style="background: #FFFBF7; border: 1px solid #E8DFD3;">
+                <div class="w-9 h-9 rounded-lg flex items-center justify-center shrink-0" style="background: rgba(139,126,200,0.08);"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8B7EC8" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg></div>
+                <div class="flex-1 min-w-0 text-left"><span class="text-sm font-semibold block text-[#4A3728]">导入存档</span><span class="text-[10px] block text-[#B8A898]">从 JSON 文件导入对话</span></div>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-[#B8A898]"><path d="m9 18 6-6-6-6"/></svg>
+              </button>
+            </div>
+            <button class="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-bold transition-all" style="background: #C4953A; color: white;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+              返回主菜单
+            </button>
+          </div>
+        </section>
+      </aside>
+
+      <!-- 中间叙事区 -->
+      <main class="min-h-0 min-w-0 overflow-hidden bg-[#FDFAF5] border-x border-[#E8DFD3] shadow-[inset_0_0_30px_rgba(61,50,41,0.03)] flex flex-col">
+        <!-- 消息滚动区 -->
+        <div id="narrative-scroll" class="flex-1 overflow-y-auto px-5 pt-8 pb-4 scroll-smooth">
+          <!-- 场景描述 -->
+          <div class="mb-3 flex justify-center">
+            <div class="max-w-[90%] text-center">
+              <p class="text-base leading-relaxed text-slate-600">你醒来时，窗外是四月的黄昏。远处传来电车的声音，风把窗帘吹得轻轻晃动。</p>
+            </div>
+          </div>
+
+          <!-- 对话气泡 -->
+          <div class="mb-3 flex justify-start">
+            <div class="w-full max-w-[92%] flex items-start gap-4">
+              <div class="w-24 h-24 rounded-2xl bg-gradient-to-br from-coral-200 to-coral-300 flex items-center justify-center overflow-hidden shrink-0" style="border: 3px solid #F04A3C; box-shadow: 0 0 0 3px rgba(240,74,60,0.12), 0 4px 16px rgba(240,74,60,0.18);">
+                <img src="/avatars/avatar-chiyo.jpg" alt="佐仓千代" class="w-full h-full object-cover" onerror="this.style.display='none'; this.parentElement.innerHTML='<span class=\'text-3xl font-bold text-white\'>千</span>';">
+              </div>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-2 mb-1.5">
+                  <span class="w-1.5 h-1.5 rounded-sm shrink-0" style="background: #F04A3C; transform: rotate(45deg);"></span>
+                  <span class="text-base font-extrabold tracking-wide" style="background: linear-gradient(135deg, #F04A3C 0%, #E87860 50%, #D4604A 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">佐仓千代</span>
+                </div>
+                <div class="inline-block px-5 py-3.5 rounded-2xl relative" style="background: rgba(255,255,255,0.85); backdrop-filter: blur(8px); border: 1px solid rgba(240,74,60,0.18); box-shadow: 0 2px 12px rgba(0,0,0,0.04);">
+                  <p class="text-[17px] leading-relaxed text-slate-700">悠真，今天放学后要一起去学生会室吗？</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 场景描述 -->
+          <div class="mb-3 flex justify-center">
+            <div class="max-w-[90%] text-center">
+              <p class="text-base leading-relaxed text-slate-600">她将书包抱在胸前，夕阳把她的发梢染成温暖的橘色。车站方向的铃声隐约传来。</p>
+            </div>
+          </div>
+
+          <!-- AI 生成中提示（与项目真实界面一致） -->
+          <div class="flex items-center gap-2 text-slate-400 text-sm py-2">
+            <span class="w-4 h-4 text-sky-400">✨</span>
+            <span>正在生成剧情……</span>
+          </div>
+        </div>
+
+        <!-- 输入区 -->
+        <div class="px-4 py-3 border-t border-[#E8DFD3] bg-[#FDFAF5]/95 relative shrink-0">
+          <div class="flex items-center gap-2">
+            <button id="tool-btn" class="w-10 h-10 rounded-full bg-cream-50 hover:bg-white border border-cream-100 flex items-center justify-center text-slate-500 transition-colors" title="功能" aria-label="功能">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+            </button>
+            <input type="text" id="narrative-input" class="narrative-input" placeholder="输入你想说的话……" aria-label="输入消息">
+            <button id="send-btn" class="w-10 h-10 rounded-full bg-gradient-to-r from-sky-400 to-sky-500 text-white flex items-center justify-center disabled:opacity-40 disabled:cursor-not-allowed hover:shadow-glow-sky transition-all" aria-label="发送">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" x2="11" y1="2" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+            </button>
+          </div>
+        </div>
+      </main>
+
+      <!-- 右侧面板 -->
+      <aside id="right-panel" class="hidden lg:block min-h-0 min-w-0 overflow-hidden bg-[#F3EEE7] shadow-[inset_1px_0_0_rgba(218,205,190,0.3)] relative">
+        <div class="h-full flex flex-col relative">
+          <!-- 场景印象图 -->
+          <div class="relative aspect-video w-full shrink-0">
+            <div class="relative w-full h-full overflow-hidden map-texture">
+              <img src="/images/scene-school-sunset.png" alt="场景印象图" class="absolute inset-0 w-full h-full object-cover" onerror="this.style.display='none'">
+              <div class="absolute inset-0 bg-gradient-to-br from-sky-100/60 via-amber-50/40 to-red-100/40"></div>
+              <div class="absolute bottom-0 left-0 right-0 h-1/2">
+                <svg viewBox="0 0 200 60" class="w-full h-full" preserveAspectRatio="none">
+                  <path d="M0 60 L0 30 Q30 15 60 28 T120 22 T180 32 L200 25 L200 60 Z" fill="rgba(100, 116, 139, 0.1)"/>
+                  <path d="M0 60 L0 42 Q40 36 80 44 T160 40 L200 48 L200 60 Z" fill="rgba(100, 116, 139, 0.16)"/>
+                </svg>
+              </div>
+              <div class="absolute top-3 left-3 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/80 backdrop-blur-sm border border-white/60 shadow-sm text-[10px] text-slate-600">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#FB7185" stroke-width="2"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+                <span>樱丘高中</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- GPS 小地图 -->
+          <div class="flex-[2] min-h-0 border-t border-[#E8DFD3] flex flex-col">
+            <div class="flex px-2 pt-2 pb-1 gap-1">
+              <button id="map-tab-city" class="flex-1 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 bg-sky-100 text-sky-600 border border-sky-200">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="3 6 9.3 6 11.7 3 19 3 19 18 13 18 10.7 21 5 21 5 9 3 9"/><path d="M9 9h1"/><path d="M9 13h1"/><path d="M13 9h1"/><path d="M13 13h1"/></svg>
+                城市地图
+              </button>
+              <button id="map-tab-national" class="flex-1 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 text-slate-400 hover:text-slate-600 hover:bg-white/40">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                全国地图
+              </button>
+              <button class="shrink-0 flex items-center gap-0.5 px-1.5 py-1.5 text-[10px] text-sky-500 hover:text-sky-600 transition-colors">
+                展开<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>
+              </button>
+            </div>
+            <div class="flex-1 min-h-0 mx-2 mb-2 rounded-2xl overflow-hidden border border-slate-100 shadow-sm bg-amber-50 relative">
+              <div class="absolute inset-0 map-texture"></div>
+              <div id="map-grid" class="absolute inset-0 opacity-30" style="background-image: linear-gradient(rgba(100,116,139,0.2) 1px, transparent 1px), linear-gradient(90deg, rgba(100,116,139,0.2) 1px, transparent 1px); background-size: 20% 20%;"></div>
+              <div id="map-regions">
+                <div class="absolute w-16 h-12 rounded-lg border border-white/40" style="left: 35%; top: 40%; transform: translate(-50%, -50%); background: rgba(107, 191, 115, 0.15);"></div>
+                <div class="absolute w-20 h-14 rounded-lg border border-white/40" style="left: 65%; top: 55%; transform: translate(-50%, -50%); background: rgba(91, 168, 160, 0.15);"></div>
+                <div class="absolute w-14 h-10 rounded-lg border border-white/40" style="left: 25%; top: 60%; transform: translate(-50%, -50%); background: rgba(232, 141, 79, 0.12);"></div>
+              </div>
+              <div id="map-markers">
+                <div class="absolute flex flex-col items-center" style="left: 50%; top: 50%; transform: translate(-50%, -100%);">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FB7185" stroke-width="2" class="drop-shadow-sm"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+                  <span class="mt-0.5 px-1.5 py-0.5 rounded bg-white/90 text-[10px] text-slate-700 whitespace-nowrap shadow-sm">自家公寓</span>
+                </div>
+                <div class="absolute flex flex-col items-center" style="left: 65%; top: 42%; transform: translate(-50%, -100%);">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0EA5E9" stroke-width="2" class="drop-shadow-sm"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+                  <span class="mt-0.5 px-1.5 py-0.5 rounded bg-white/90 text-[10px] text-slate-700 whitespace-nowrap shadow-sm">樱丘高中</span>
+                </div>
+                <div class="absolute flex flex-col items-center" style="left: 30%; top: 55%; transform: translate(-50%, -100%);">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8B5CF6" stroke-width="2" class="drop-shadow-sm"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+                  <span class="mt-0.5 px-1.5 py-0.5 rounded bg-white/90 text-[10px] text-slate-700 whitespace-nowrap shadow-sm">车站前书店</span>
+                </div>
+              </div>
+              <div class="absolute w-3 h-3 rounded-full bg-sky-500 border-2 border-white shadow-md z-10" style="left: 50%; top: 50%; transform: translate(-50%, -50%);"></div>
+              <div id="map-coords" class="absolute bottom-2 left-2 px-2 py-1 rounded-lg bg-white/80 backdrop-blur-sm border border-white/60 shadow-sm text-[10px] font-number text-slate-500">X:3500 Y:-1200</div>
+            </div>
+          </div>
+
+          <!-- 周边动态 / 通知 -->
+          <div class="flex-[3] min-h-0 border-t border-[#E8DFD3] flex flex-col">
+            <div class="flex px-2 pt-2 pb-1 gap-1">
+              <button id="notify-tab-nearby" class="flex-1 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 bg-coral-100 text-coral-600 border border-coral-200">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+                周边动态
+              </button>
+              <button id="notify-tab-notifications" class="flex-1 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 text-slate-400 hover:text-slate-600 hover:bg-white/40">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+                当前通知
+                <span class="w-4 h-4 rounded-full bg-coral-400 text-white text-[9px] flex items-center justify-center font-number">1</span>
+              </button>
+            </div>
+            <div class="flex-1 overflow-y-auto px-2 pb-16 space-y-1">
+              <div id="notify-list-nearby" class="space-y-1">
+                <div class="glass-card card-coral p-2">
+                  <div class="flex items-center justify-between mb-0.5"><span class="text-xs font-bold text-slate-700 truncate">便利店新品试吃</span><span class="text-[10px] text-slate-400 shrink-0 font-number">07-09</span></div>
+                  <p class="text-[11px] text-slate-500 leading-relaxed line-clamp-2">车站前的 Lawson 推出夏日限定甜品。</p>
+                </div>
+                <div class="glass-card p-2">
+                  <div class="flex items-center justify-between mb-0.5"><span class="text-xs font-bold text-slate-700 truncate">公园街头艺人</span><span class="text-[10px] text-slate-400 shrink-0 font-number">07-08</span></div>
+                  <p class="text-[11px] text-slate-500 leading-relaxed line-clamp-2">傍晚有人在公园弹唱，吸引了不少路人。</p>
+                </div>
+              </div>
+              <div id="notify-list-notifications" class="space-y-1 hidden">
+                <button class="w-full text-left rounded-2xl border p-2.5 transition-all bg-coral-50/50 border-coral-100 shadow-sm">
+                  <div class="flex items-center gap-2.5">
+                    <div class="w-7 h-7 rounded-lg flex items-center justify-center bg-sky-100 text-sky-500">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                      <div class="flex items-center justify-between"><span class="text-xs font-bold text-slate-700 truncate">收到新消息</span><span class="text-[10px] text-slate-400 whitespace-nowrap ml-2 font-number">18:25</span></div>
+                      <p class="text-[10px] text-slate-500 truncate mt-0.5">佐仓千代发来一条消息</p>
+                    </div>
+                  </div>
+                </button>
+                <button class="w-full text-left rounded-2xl border p-2.5 transition-all bg-white border-slate-100 shadow-sm">
+                  <div class="flex items-center gap-2.5">
+                    <div class="w-7 h-7 rounded-lg flex items-center justify-center bg-slate-100 text-slate-500">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/></svg>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                      <div class="flex items-center justify-between"><span class="text-xs font-bold text-slate-700 truncate">日程提醒</span><span class="text-[10px] text-slate-400 whitespace-nowrap ml-2 font-number">17:50</span></div>
+                      <p class="text-[10px] text-slate-500 truncate mt-0.5">今晚 20:00 与父亲通话</p>
+                    </div>
+                  </div>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 手机 -->
+          <div id="phone-container" class="desktop-only">
+            <!-- 收起状态 -->
+            <button id="phone-head" class="absolute bottom-0 left-1/2 -translate-x-1/2 z-50 h-10 phone-case flex items-center justify-center cursor-pointer" style="width: 288px;" aria-label="打开手机">
+              <div class="w-20 h-1 rounded-full bg-white/30"></div>
+              <div class="absolute right-4 flex items-center gap-2 text-white/70">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h.01"/><path d="M2 8.82a15 15 0 0 1 20 0"/><path d="M5 12.859a10 10 0 0 1 14 0"/><path d="M8.5 16.429a5 5 0 0 1 7 0"/></svg>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="16" height="10" x="4" y="6" rx="2"/><line x1="9" x2="9.01" y1="18" y2="18"/><line x1="15" x2="15.01" y1="18" y2="18"/></svg>
+              </div>
+            </button>
+
+            <!-- 完整手机 -->
+            <div id="phone-body" class="phone-body-mobile absolute bottom-0 left-1/2 -translate-x-1/2 z-50 phone-case flex flex-col overflow-hidden transition-transform duration-500" style="width: 288px; height: 560px; transform: translate(-50%, 110%);">
+              <button id="phone-close" class="h-10 shrink-0 flex items-center justify-center border-b border-white/10 relative" aria-label="收起手机">
+                <div class="w-20 h-1 rounded-full bg-white/30"></div>
+              </button>
+              <div class="flex-1 mx-3 mt-1 mb-3 phone-screen relative overflow-hidden">
+                <div id="phone-screen-content" class="relative z-10 h-full flex flex-col">
+                  <!-- 状态栏 -->
+                  <div class="flex items-center justify-between px-4 pt-2 pb-1 shrink-0">
+                    <span class="text-xs font-number text-slate-700/80">18:30</span>
+                    <div class="flex items-center gap-1.5 text-slate-700/70">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h.01"/><path d="M2 8.82a15 15 0 0 1 20 0"/><path d="M5 12.859a10 10 0 0 1 14 0"/><path d="M8.5 16.429a5 5 0 0 1 7 0"/></svg>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="16" height="10" x="4" y="6" rx="2"/><line x1="9" x2="9.01" y1="18" y2="18"/><line x1="15" x2="15.01" y1="18" y2="18"/></svg>
+                    </div>
+                  </div>
+                  <!-- 应用网格 -->
+                  <div id="phone-app-grid" class="flex-1 overflow-y-auto p-5 grid grid-cols-3 gap-4 content-start">
+                    <button class="phone-app flex flex-col items-center gap-2 group" data-app="news" data-color="#E88D4F">
+                      <div class="relative w-14 h-14 rounded-2xl flex items-center justify-center text-white shadow-md group-hover:scale-105 transition-transform" style="background: #E88D4F;">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/><path d="M18 14h-8"/><path d="M15 18h-5"/><path d="M10 6h8v4h-8V6Z"/></svg>
+                        <span class="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-[#F43F5E] border border-white"></span>
+                      </div>
+                      <span class="text-[11px] text-slate-700/90">新闻</span>
+                    </button>
+                    <button class="phone-app flex flex-col items-center gap-2 group" data-app="schedule" data-color="#5BA8A0">
+                      <div class="relative w-14 h-14 rounded-2xl flex items-center justify-center text-white shadow-md group-hover:scale-105 transition-transform" style="background: #5BA8A0;">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
+                      </div>
+                      <span class="text-[11px] text-slate-700/90">日程</span>
+                    </button>
+                    <button class="phone-app flex flex-col items-center gap-2 group" data-app="messages" data-color="#6BBF73">
+                      <div class="relative w-14 h-14 rounded-2xl flex items-center justify-center text-white shadow-md group-hover:scale-105 transition-transform" style="background: #6BBF73;">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>
+                        <span class="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-[#F43F5E] border border-white"></span>
+                      </div>
+                      <span class="text-[11px] text-slate-700/90">消息</span>
+                    </button>
+                    <button class="phone-app flex flex-col items-center gap-2 group" data-app="travel" data-color="#F5C542">
+                      <div class="relative w-14 h-14 rounded-2xl flex items-center justify-center text-white shadow-md group-hover:scale-105 transition-transform" style="background: #F5C542;">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+                      </div>
+                      <span class="text-[11px] text-slate-700/90">旅行</span>
+                    </button>
+                    <button class="phone-app flex flex-col items-center gap-2 group" data-app="mail" data-color="#7D6E5E">
+                      <div class="relative w-14 h-14 rounded-2xl flex items-center justify-center text-white shadow-md group-hover:scale-105 transition-transform" style="background: #7D6E5E;">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+                        <span class="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-[#F43F5E] border border-white"></span>
+                      </div>
+                      <span class="text-[11px] text-slate-700/90">邮件</span>
+                    </button>
+                    <button class="phone-app flex flex-col items-center gap-2 group" data-app="gallery" data-color="#C77D9E">
+                      <div class="relative w-14 h-14 rounded-2xl flex items-center justify-center text-white shadow-md group-hover:scale-105 transition-transform" style="background: #C77D9E;">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
+                      </div>
+                      <span class="text-[11px] text-slate-700/90">相册</span>
+                    </button>
+                    <button class="phone-app flex flex-col items-center gap-2 group" data-app="chat" data-color="#38BDF8">
+                      <div class="relative w-14 h-14 rounded-2xl flex items-center justify-center text-white shadow-md group-hover:scale-105 transition-transform" style="background: #38BDF8;">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                      </div>
+                      <span class="text-[11px] text-slate-700/90">聊天</span>
+                    </button>
+                    <button class="phone-app flex flex-col items-center gap-2 group" data-app="sns" data-color="#F43F5E">
+                      <div class="relative w-14 h-14 rounded-2xl flex items-center justify-center text-white shadow-md group-hover:scale-105 transition-transform" style="background: #F43F5E;">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+                      </div>
+                      <span class="text-[11px] text-slate-700/90">动态</span>
+                    </button>
+                    <button class="phone-app flex flex-col items-center gap-2 group" data-app="wallet" data-color="#22C55E">
+                      <div class="relative w-14 h-14 rounded-2xl flex items-center justify-center text-white shadow-md group-hover:scale-105 transition-transform" style="background: #22C55E;">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a2 2 0 0 0-2-2"/><path d="M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4"/></svg>
+                      </div>
+                      <span class="text-[11px] text-slate-700/90">钱包</span>
+                    </button>
+                  </div>
+                  <!-- 应用内界面 -->
+                  <div id="phone-app-screen" class="flex-1 overflow-y-auto p-5 space-y-4 hidden">
+                    <button id="phone-back" class="text-xs text-slate-500 hover:text-slate-700 transition-colors">← 返回桌面</button>
+                    <div id="phone-app-content"></div>
+                  </div>
+                </div>
+              </div>
+              <div class="h-5 shrink-0 flex items-center justify-center"><div class="w-24 h-1 rounded-full bg-white/30"></div></div>
+            </div>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </div>
+
+  <!-- 移动端右侧面板抽屉 -->
+  <div id="right-drawer-overlay"></div>
+  <div id="right-drawer" class="bg-[#F3EEE7] shadow-2xl">
+    <div class="h-full flex flex-col">
+      <div class="h-14 px-4 flex items-center justify-between border-b border-[#E8DFD3] bg-[#F3EEE7]">
+        <span class="font-bold text-slate-800">场景与动态</span>
+        <button id="right-drawer-close" class="w-8 h-8 rounded-full flex items-center justify-center hover:bg-white/50 transition-colors" aria-label="关闭抽屉">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+        </button>
+      </div>
+      <div class="flex-1 overflow-y-auto" id="right-drawer-content">
+        <!-- 由 JS 复制右侧面板内容 -->
+      </div>
+    </div>
+  </div>
+
+  <!-- 移动端打开右侧面板按钮 -->
+  <button id="right-drawer-toggle" class="fixed bottom-4 right-4 lg:hidden w-12 h-12 rounded-full bg-sky-500 text-white shadow-glow-sky flex items-center justify-center z-40" aria-label="打开场景与动态">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+  </button>
+
+  <script>
+    // 左栏切换
+    document.querySelectorAll('.sidebar-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.sidebar-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        const tab = btn.dataset.tab;
+        document.querySelectorAll('.preview-panel').forEach(p => p.classList.remove('active'));
+        document.getElementById('preview-' + tab).classList.add('active');
+      });
+    });
+
+    // BGM 播放器
+    const bgmRecord = document.getElementById('bgm-record');
+    const playIcon = document.getElementById('play-icon');
+    const pauseIcon = document.getElementById('pause-icon');
+    const bgmPlayBtn = document.getElementById('bgm-play-btn');
+    const bgmTime = document.getElementById('bgm-time');
+    const bgmVolume = document.getElementById('bgm-volume');
+    const volumeIcon = document.getElementById('volume-icon');
+    const bgmBars = document.querySelectorAll('.bgm-bar');
+    const bgmPlaylist = document.getElementById('bgm-playlist');
+    const bgmListBtn = document.getElementById('bgm-list');
+
+    let audio = new Audio('/bgm.mp3');
+    audio.volume = 0.5;
+    audio.preload = 'metadata';
+
+    function formatTime(t) {
+      if (!t || !isFinite(t)) return '0:00';
+      const m = Math.floor(t / 60);
+      const s = Math.floor(t % 60).toString().padStart(2, '0');
+      return `${m}:${s}`;
+    }
+
+    function updateWaveform() {
+      const ratio = audio.duration ? audio.currentTime / audio.duration : 0;
+      const played = Math.floor(ratio * 24);
+      bgmBars.forEach((bar, i) => {
+        bar.style.background = i < played
+          ? 'linear-gradient(180deg, #D4B85A 0%, #A0802E 100%)'
+          : 'rgba(255,255,255,0.06)';
+        bar.style.boxShadow = i < played ? '0 0 4px rgba(201,168,76,0.35)' : 'none';
+      });
+      bgmTime.textContent = formatTime(audio.currentTime);
+    }
+
+    audio.addEventListener('timeupdate', updateWaveform);
+    audio.addEventListener('ended', () => {
+      bgmRecord.classList.remove('playing');
+      playIcon.classList.remove('hidden');
+      pauseIcon.classList.add('hidden');
+    });
+
+    bgmPlayBtn.addEventListener('click', () => {
+      if (audio.paused) {
+        audio.play().then(() => {
+          bgmRecord.classList.add('playing');
+          playIcon.classList.add('hidden');
+          pauseIcon.classList.remove('hidden');
+        }).catch(() => {});
+      } else {
+        audio.pause();
+        bgmRecord.classList.remove('playing');
+        playIcon.classList.remove('hidden');
+        pauseIcon.classList.add('hidden');
+      }
+    });
+
+    bgmVolume.addEventListener('input', (e) => {
+      const v = parseFloat(e.target.value);
+      audio.volume = v;
+      e.target.style.background = `linear-gradient(90deg, #C9A84C ${v * 100}%, rgba(255,255,255,0.1) ${v * 100}%)`;
+      if (v === 0) {
+        volumeIcon.innerHTML = '<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" x2="17" y1="9" y2="15"/><line x1="17" x2="23" y1="9" y2="15"/>';
+      } else if (v < 0.3) {
+        volumeIcon.innerHTML = '<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>';
+      } else {
+        volumeIcon.innerHTML = '<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>';
+      }
+    });
+
+    document.getElementById('bgm-prev').addEventListener('click', () => {
+      audio.currentTime = 0;
+      updateWaveform();
+    });
+    document.getElementById('bgm-next').addEventListener('click', () => {
+      audio.currentTime = 0;
+      if (!audio.paused) audio.play();
+    });
+    document.getElementById('bgm-shuffle').addEventListener('click', function() {
+      this.classList.toggle('bg-[rgba(201,168,76,0.15)]');
+      this.style.color = this.classList.contains('bg-[rgba(201,168,76,0.15)]') ? '#E8D59A' : 'rgba(255,255,255,0.3)';
+    });
+    bgmListBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      bgmPlaylist.classList.toggle('hidden');
+    });
+    document.addEventListener('click', (e) => {
+      if (!bgmPlaylist.contains(e.target) && e.target !== bgmListBtn) {
+        bgmPlaylist.classList.add('hidden');
+      }
+    });
+
+    // 地图 Tab 切换
+    const mapTabCity = document.getElementById('map-tab-city');
+    const mapTabNational = document.getElementById('map-tab-national');
+    const mapGrid = document.getElementById('map-grid');
+    const mapCoords = document.getElementById('map-coords');
+    const mapMarkers = document.getElementById('map-markers');
+
+    function setMapTab(tab) {
+      if (tab === 'city') {
+        mapTabCity.className = 'flex-1 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 bg-sky-100 text-sky-600 border border-sky-200';
+        mapTabNational.className = 'flex-1 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 text-slate-400 hover:text-slate-600 hover:bg-white/40';
+        mapGrid.style.backgroundSize = '20% 20%';
+        mapCoords.textContent = 'X:3500 Y:-1200';
+        mapMarkers.style.opacity = '1';
+      } else {
+        mapTabNational.className = 'flex-1 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 bg-sky-100 text-sky-600 border border-sky-200';
+        mapTabCity.className = 'flex-1 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 text-slate-400 hover:text-slate-600 hover:bg-white/40';
+        mapGrid.style.backgroundSize = '10% 10%';
+        mapCoords.textContent = '全国概览';
+        mapMarkers.style.opacity = '0.7';
+      }
+    }
+    mapTabCity.addEventListener('click', () => setMapTab('city'));
+    mapTabNational.addEventListener('click', () => setMapTab('national'));
+
+    // 通知 Tab 切换
+    const notifyTabNearby = document.getElementById('notify-tab-nearby');
+    const notifyTabNotifications = document.getElementById('notify-tab-notifications');
+    const notifyListNearby = document.getElementById('notify-list-nearby');
+    const notifyListNotifications = document.getElementById('notify-list-notifications');
+    function setNotifyTab(tab) {
+      if (tab === 'nearby') {
+        notifyTabNearby.className = 'flex-1 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 bg-coral-100 text-coral-600 border border-coral-200';
+        notifyTabNotifications.className = 'flex-1 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 text-slate-400 hover:text-slate-600 hover:bg-white/40';
+        notifyListNearby.classList.remove('hidden');
+        notifyListNotifications.classList.add('hidden');
+      } else {
+        notifyTabNotifications.className = 'flex-1 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 bg-sky-100 text-sky-600 border border-sky-200';
+        notifyTabNearby.className = 'flex-1 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 text-slate-400 hover:text-slate-600 hover:bg-white/40';
+        notifyListNearby.classList.add('hidden');
+        notifyListNotifications.classList.remove('hidden');
+      }
+    }
+    notifyTabNearby.addEventListener('click', () => setNotifyTab('nearby'));
+    notifyTabNotifications.addEventListener('click', () => setNotifyTab('notifications'));
+
+    // 手机展开/收起
+    const phoneHead = document.getElementById('phone-head');
+    const phoneBody = document.getElementById('phone-body');
+    const phoneClose = document.getElementById('phone-close');
+    let phoneExpanded = false;
+    function togglePhone() {
+      phoneExpanded = !phoneExpanded;
+      if (phoneExpanded) {
+        phoneHead.classList.add('hidden');
+        phoneBody.style.transform = 'translate(-50%, 0%)';
+      } else {
+        phoneHead.classList.remove('hidden');
+        phoneBody.style.transform = 'translate(-50%, 110%)';
+        document.getElementById('phone-app-grid').classList.remove('hidden');
+        document.getElementById('phone-app-screen').classList.add('hidden');
+      }
+    }
+    phoneHead.addEventListener('click', togglePhone);
+    phoneClose.addEventListener('click', togglePhone);
+
+    // 手机 APP 内容
+    const appContents = {
+      news: `
+        <div class="space-y-3">
+          <div class="rounded-2xl bg-white border border-slate-100 shadow-sm p-3">
+            <div class="text-[10px] text-slate-400 mb-1">东京都新闻 · 17:30</div>
+            <h4 class="text-sm font-bold text-slate-800">夏季流感预警发布</h4>
+            <p class="text-xs text-slate-500 mt-1">卫生部门提醒注意室内通风与手部清洁。</p>
+          </div>
+          <div class="rounded-2xl bg-white border border-slate-100 shadow-sm p-3">
+            <div class="text-[10px] text-slate-400 mb-1">本地 · 16:00</div>
+            <h4 class="text-sm font-bold text-slate-800">车站前 Lawson 夏日限定甜品上市</h4>
+            <p class="text-xs text-slate-500 mt-1">新品试吃活动持续至本周末。</p>
+          </div>
+        </div>`,
+      schedule: `
+        <div class="space-y-3">
+          <div class="rounded-2xl bg-white border border-slate-100 shadow-sm p-3">
+            <h4 class="text-sm font-bold text-slate-800">与加藤惠逛书店</h4>
+            <p class="text-xs text-slate-500 mt-1">2026-07-08 17:30 · 久慈书店</p>
+          </div>
+          <div class="rounded-2xl bg-white border border-slate-100 shadow-sm p-3">
+            <h4 class="text-sm font-bold text-slate-800">期中考试复习</h4>
+            <p class="text-xs text-slate-500 mt-1">2026-07-09 19:00 · 自家公寓</p>
+          </div>
+        </div>`,
+      messages: `
+        <div class="space-y-3">
+          <div class="flex items-center gap-3 rounded-2xl bg-white border border-slate-100 shadow-sm p-3">
+            <div class="w-9 h-9 rounded-full bg-sky-100 flex items-center justify-center text-sm font-bold text-slate-700">母</div>
+            <div class="flex-1 min-w-0">
+              <h4 class="text-sm font-bold text-slate-800 truncate">妈妈</h4>
+              <p class="text-xs text-slate-500 truncate">记得买牛奶回来。</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-3 rounded-2xl bg-white border border-slate-100 shadow-sm p-3">
+            <div class="w-9 h-9 rounded-full bg-coral-100 flex items-center justify-center text-sm font-bold text-slate-700">千</div>
+            <div class="flex-1 min-w-0">
+              <h4 class="text-sm font-bold text-slate-800 truncate">佐仓千代</h4>
+              <p class="text-xs text-slate-500 truncate">放学后一起去学生会室吗？</p>
+            </div>
+          </div>
+        </div>`,
+      travel: `
+        <div class="space-y-3">
+          <div class="rounded-2xl bg-sky-50 border border-sky-100 p-3 text-center">
+            <div class="text-xs text-slate-500">当前位置</div>
+            <div class="mt-1 text-lg font-bold text-slate-800">樱丘高中</div>
+            <div class="text-[10px] text-slate-400 mt-1">X:3500 Y:-1200</div>
+          </div>
+          <div class="space-y-2">
+            <div class="flex items-center justify-between text-xs rounded-xl bg-white border border-slate-100 p-2.5"><span class="text-slate-700 truncate">自家公寓</span><span class="font-number text-slate-400">1.2km</span></div>
+            <div class="flex items-center justify-between text-xs rounded-xl bg-white border border-slate-100 p-2.5"><span class="text-slate-700 truncate">樱丘站</span><span class="font-number text-slate-400">0.8km</span></div>
+          </div>
+        </div>`,
+      mail: `
+        <div class="space-y-3">
+          <div class="rounded-2xl bg-white border border-slate-100 shadow-sm p-3">
+            <div class="flex items-center justify-between mb-1"><span class="text-xs font-bold text-slate-700">兼职委托确认</span><span class="text-[10px] text-slate-400">12:00</span></div>
+            <p class="text-xs text-slate-500 truncate">网页更新需求已确认，请于周末前提交初稿。</p>
+          </div>
+          <div class="rounded-2xl bg-white border border-slate-100 shadow-sm p-3">
+            <div class="flex items-center justify-between mb-1"><span class="text-xs font-bold text-slate-700">学园祭通知</span><span class="text-[10px] text-slate-400">09:30</span></div>
+            <p class="text-xs text-slate-500 truncate">明日 15:00 在学生会室召开准备会议。</p>
+          </div>
+        </div>`,
+      gallery: `
+        <div class="grid grid-cols-2 gap-2">
+          <div class="aspect-square rounded-xl bg-gradient-to-br from-coral-100 to-coral-200 flex items-center justify-center text-2xl font-bold text-white">夕</div>
+          <div class="aspect-square rounded-xl bg-gradient-to-br from-sky-100 to-sky-200 flex items-center justify-center text-2xl font-bold text-white">书</div>
+          <div class="aspect-square rounded-xl bg-gradient-to-br from-mint-100 to-mint-200 flex items-center justify-center text-2xl font-bold text-white">站</div>
+          <div class="aspect-square rounded-xl bg-gradient-to-br from-lavender-100 to-lavender-200 flex items-center justify-center text-2xl font-bold text-white">猫</div>
+        </div>`,
+      chat: `
+        <div class="space-y-3">
+          <div class="flex items-center gap-3 rounded-2xl bg-white border border-slate-100 shadow-sm p-3">
+            <div class="w-9 h-9 rounded-full bg-sky-100 flex items-center justify-center text-sm font-bold text-slate-700">千</div>
+            <div class="flex-1 min-w-0">
+              <h4 class="text-sm font-bold text-slate-800 truncate">佐仓千代</h4>
+              <p class="text-xs text-slate-500 truncate">明天放学有空吗？</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-3 rounded-2xl bg-white border border-slate-100 shadow-sm p-3">
+            <div class="w-9 h-9 rounded-full bg-coral-100 flex items-center justify-center text-sm font-bold text-slate-700">雪</div>
+            <div class="flex-1 min-w-0">
+              <h4 class="text-sm font-bold text-slate-800 truncate">雪之下雪乃</h4>
+              <p class="text-xs text-slate-500 truncate">读书会资料已整理好。</p>
+            </div>
+          </div>
+        </div>`,
+      sns: `
+        <div class="space-y-3">
+          <div class="rounded-2xl bg-white border border-slate-100 shadow-sm p-3">
+            <div class="flex items-center gap-2 mb-2">
+              <div class="w-7 h-7 rounded-full bg-coral-100 flex items-center justify-center text-xs font-bold text-slate-700">唯</div>
+              <span class="text-xs font-bold text-slate-700">平泽唯</span>
+            </div>
+            <p class="text-sm text-slate-700">今天的松饼超好吃，下次还想来。</p>
+            <div class="mt-2 flex items-center gap-1 text-xs text-slate-400">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg> 24
+            </div>
+          </div>
+          <div class="rounded-2xl bg-white border border-slate-100 shadow-sm p-3">
+            <div class="flex items-center gap-2 mb-2">
+              <div class="w-7 h-7 rounded-full bg-lavender-100 flex items-center justify-center text-xs font-bold text-slate-700">瑠</div>
+              <span class="text-xs font-bold text-slate-700">千反田爱瑠</span>
+            </div>
+            <p class="text-sm text-slate-700">放学路上发现了一家没见过的和果子店，有点在意。</p>
+            <div class="mt-2 flex items-center gap-1 text-xs text-slate-400">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg> 42
+            </div>
+          </div>
+        </div>`,
+      wallet: `
+        <div class="space-y-3">
+          <div class="rounded-2xl bg-green-50 border border-green-100 p-4 text-center">
+            <div class="text-xs text-slate-500">当前现金</div>
+            <div class="mt-1 text-2xl font-number font-bold text-slate-800">¥3,240</div>
+          </div>
+          <div class="space-y-2">
+            <div class="flex items-center justify-between text-xs rounded-xl bg-white border border-slate-100 p-2.5"><span class="text-slate-700 truncate">便利店午餐</span><span class="font-number text-red-500">-680</span></div>
+            <div class="flex items-center justify-between text-xs rounded-xl bg-white border border-slate-100 p-2.5"><span class="text-slate-700 truncate">兼职工资</span><span class="font-number text-green-500">+15,000</span></div>
+          </div>
+        </div>`
+    };
+
+    document.querySelectorAll('.phone-app').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const app = btn.dataset.app;
+        document.getElementById('phone-app-grid').classList.add('hidden');
+        document.getElementById('phone-app-screen').classList.remove('hidden');
+        document.getElementById('phone-app-content').innerHTML = appContents[app] || '<p class="text-center text-xs text-slate-400 py-8">该应用功能将在后续版本开放</p>';
+      });
+    });
+
+    document.getElementById('phone-back').addEventListener('click', () => {
+      document.getElementById('phone-app-grid').classList.remove('hidden');
+      document.getElementById('phone-app-screen').classList.add('hidden');
+    });
+
+    // 移动端右侧抽屉
+    const rightDrawer = document.getElementById('right-drawer');
+    const rightDrawerOverlay = document.getElementById('right-drawer-overlay');
+    const rightDrawerContent = document.getElementById('right-drawer-content');
+    const rightPanel = document.getElementById('right-panel');
+
+    function initDrawer() {
+      if (window.innerWidth < 1024 && rightDrawerContent.children.length === 0) {
+        rightDrawerContent.innerHTML = rightPanel.innerHTML;
+        // 抽屉中需要显示原本仅在桌面端显示的手机容器
+        const drawerPhoneContainer = rightDrawerContent.querySelector('#phone-container');
+        if (drawerPhoneContainer) drawerPhoneContainer.classList.remove('desktop-only');
+        // 重新绑定抽屉内的事件
+        const drawerPhoneHead = rightDrawerContent.querySelector('#phone-head');
+        const drawerPhoneClose = rightDrawerContent.querySelector('#phone-close');
+        const drawerPhoneBody = rightDrawerContent.querySelector('#phone-body');
+        let drawerPhoneExpanded = false;
+        if (drawerPhoneHead && drawerPhoneClose && drawerPhoneBody) {
+          function toggleDrawerPhone() {
+            drawerPhoneExpanded = !drawerPhoneExpanded;
+            drawerPhoneBody.style.transform = drawerPhoneExpanded ? 'translate(-50%, 0%)' : 'translate(-50%, 110%)';
+            drawerPhoneHead.style.display = drawerPhoneExpanded ? 'none' : 'flex';
+          }
+          drawerPhoneHead.addEventListener('click', toggleDrawerPhone);
+          drawerPhoneClose.addEventListener('click', toggleDrawerPhone);
+        }
+        rightDrawerContent.querySelectorAll('.phone-app').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const app = btn.dataset.app;
+            const grid = rightDrawerContent.querySelector('#phone-app-grid');
+            const screen = rightDrawerContent.querySelector('#phone-app-screen');
+            const content = rightDrawerContent.querySelector('#phone-app-content');
+            grid.classList.add('hidden');
+            screen.classList.remove('hidden');
+            content.innerHTML = appContents[app] || '<p class="text-center text-xs text-slate-400 py-8">该应用功能将在后续版本开放</p>';
+          });
+        });
+        const back = rightDrawerContent.querySelector('#phone-back');
+        if (back) {
+          back.addEventListener('click', () => {
+            rightDrawerContent.querySelector('#phone-app-grid').classList.remove('hidden');
+            rightDrawerContent.querySelector('#phone-app-screen').classList.add('hidden');
+          });
+        }
+      }
+    }
+
+    function openRightDrawer() {
+      initDrawer();
+      rightDrawer.classList.add('open');
+      rightDrawerOverlay.classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+    function closeRightDrawer() {
+      rightDrawer.classList.remove('open');
+      rightDrawerOverlay.classList.remove('open');
+      document.body.style.overflow = '';
+    }
+
+    document.getElementById('right-drawer-toggle').addEventListener('click', openRightDrawer);
+    document.getElementById('right-drawer-close').addEventListener('click', closeRightDrawer);
+    rightDrawerOverlay.addEventListener('click', closeRightDrawer);
+
+    window.addEventListener('resize', () => {
+      if (window.innerWidth >= 1024) closeRightDrawer();
+    });
+
+    // 叙事输入框发送按钮状态
+    const narrativeInput = document.getElementById('narrative-input');
+    const sendBtn = document.getElementById('send-btn');
+    narrativeInput.addEventListener('input', () => {
+      sendBtn.disabled = !narrativeInput.value.trim();
+    });
+    sendBtn.addEventListener('click', () => {
+      if (!narrativeInput.value.trim()) return;
+      narrativeInput.value = '';
+      sendBtn.disabled = true;
+    });
+  </script>
+</body>
+</html>

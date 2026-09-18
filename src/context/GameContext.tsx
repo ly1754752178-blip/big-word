@@ -1,4 +1,4 @@
-import { createContext, useContext, useReducer, ReactNode, useCallback } from 'react';
+import { createContext, useContext, useReducer, ReactNode, useCallback, useEffect } from 'react';
 import type {
   GameState,
   SidebarTab,
@@ -7,9 +7,23 @@ import type {
   OverlayViewType,
   DateMark,
   InAppNotification,
+  PhoneHomeItem,
+  PhoneUiStyleId,
+  WallpaperKind,
+  CustomWallpaper,
+  LatLon,
+  Destination,
+  RouteResult,
 } from '@/types';
 import { mockGameState } from '@/data/mockData';
 import { useLLM } from '@/hooks/useLLM';
+import { loadBizhiManifest } from '@/lib/phone-bizhi';
+import {
+  initWallpaperStore,
+  addCustomWallpaper as persistAddWallpaper,
+  removeCustomWallpapers as persistRemoveWallpapers,
+  clearCustomWallpapers,
+} from '@/lib/wallpaperStore';
 
 interface GameContextValue {
   state: GameState;
@@ -24,6 +38,11 @@ interface GameContextValue {
   setMapZoom: (zoom: number) => void;
   setMapCenter: (center: { x: number; y: number }) => void;
   setSelectedMarker: (id: string | null) => void;
+  setPlayerPosition: (pos: LatLon) => void;
+  setDestination: (pos: Destination) => void;
+  clearDestination: () => void;
+  setRoute: (route: RouteResult) => void;
+  clearRoute: () => void;
   openPhoneApp: (appId: PhoneAppId) => void;
   closePhoneApp: () => void;
   expandPhone: () => void;
@@ -33,9 +52,21 @@ interface GameContextValue {
   updateOverlayTitle: (title: string) => void;
   setDateMark: (date: string, mark: DateMark) => void;
   clearDateMark: (date: string) => void;
-  addInAppNotification: (notification: Omit<InAppNotification, 'id'>) => void;
-  removeInAppNotification: (id: string) => void;
+  addNotification: (notification: Omit<InAppNotification, 'id'>) => void;
+  dismissNotification: (id: string) => void;
+  clearNotifications: () => void;
   buyShopItem: (itemId: string) => void;
+  reorderPhoneHome: (fromIndex: number, toIndex: number) => void;
+  createPhoneFolder: (sourceIndex: number, targetIndex: number, name?: string) => void;
+  addAppToFolder: (appIndex: number, folderIndex: number) => void;
+  removeAppFromFolder: (folderIndex: number, appId: PhoneAppId) => void;
+  toggleAccessibilityMode: () => void;
+  setPhoneUiStyle: (style: PhoneUiStyleId) => void;
+  setActiveWallpaper: (kind: WallpaperKind, key: string) => void;
+  rollDefaultWallpaper: () => void;
+  importWallpaper: (blob: Blob, fileName: string, mimeType: string) => Promise<void>;
+  deleteWallpapers: (ids: string[]) => Promise<void>;
+  replaceWallpapers: (items: { blob: Blob; fileName: string; mimeType: string }[]) => Promise<void>;
 }
 
 const GameContext = createContext<GameContextValue | null>(null);
@@ -52,6 +83,11 @@ type Action =
   | { type: 'SET_MAP_ZOOM'; payload: number }
   | { type: 'SET_MAP_CENTER'; payload: { x: number; y: number } }
   | { type: 'SET_SELECTED_MARKER'; payload: string | null }
+  | { type: 'SET_PLAYER_POSITION'; payload: LatLon }
+  | { type: 'SET_DESTINATION'; payload: Destination }
+  | { type: 'CLEAR_DESTINATION' }
+  | { type: 'SET_ROUTE'; payload: RouteResult }
+  | { type: 'CLEAR_ROUTE' }
   | { type: 'TOGGLE_PHONE' }
   | { type: 'EXPAND_PHONE' }
   | { type: 'COLLAPSE_PHONE' }
@@ -63,8 +99,22 @@ type Action =
   | { type: 'SET_DATE_MARK'; payload: DateMark }
   | { type: 'CLEAR_DATE_MARK'; payload: string }
   | { type: 'ADD_IN_APP_NOTIFICATION'; payload: InAppNotification }
-  | { type: 'REMOVE_IN_APP_NOTIFICATION'; payload: string }
-  | { type: 'BUY_SHOP_ITEM'; payload: string };
+  | { type: 'DISMISS_IN_APP_NOTIFICATION'; payload: string }
+  | { type: 'CLEAR_IN_APP_NOTIFICATIONS' }
+  | { type: 'BUY_SHOP_ITEM'; payload: string }
+  | { type: 'REORDER_PHONE_HOME'; payload: { fromIndex: number; toIndex: number } }
+  | { type: 'CREATE_PHONE_FOLDER'; payload: { sourceIndex: number; targetIndex: number; name?: string } }
+  | { type: 'ADD_APP_TO_FOLDER'; payload: { appIndex: number; folderIndex: number } }
+  | { type: 'REMOVE_APP_FROM_FOLDER'; payload: { folderIndex: number; appId: PhoneAppId } }
+  | { type: 'TOGGLE_ACCESSIBILITY_MODE' }
+  | { type: 'SET_PHONE_UI_STYLE'; payload: PhoneUiStyleId }
+  | { type: 'SET_ACTIVE_WALLPAPER'; payload: { kind: WallpaperKind; key: string } }
+  | { type: 'ROLL_DEFAULT_WALLPAPER'; payload: string | null }
+  | { type: 'SET_BIZHI_MANIFEST'; payload: { defaults: string[]; builtins: string[] } }
+  | { type: 'LOAD_CUSTOM_WALLPAPERS'; payload: CustomWallpaper[] }
+  | { type: 'ADD_CUSTOM_WALLPAPER'; payload: CustomWallpaper }
+  | { type: 'REMOVE_CUSTOM_WALLPAPERS'; payload: string[] }
+  | { type: 'REPLACE_CUSTOM_WALLPAPERS'; payload: CustomWallpaper[] };
 
 const overlayTitles: Record<OverlayViewType, string> = {
   status: '个人状态',
@@ -155,6 +205,16 @@ function gameReducer(state: GameState, action: Action): GameState {
       return { ...state, map: { ...state.map, center: action.payload } };
     case 'SET_SELECTED_MARKER':
       return { ...state, selectedMarkerId: action.payload };
+    case 'SET_PLAYER_POSITION':
+      return { ...state, playerPosition: action.payload };
+    case 'SET_DESTINATION':
+      return { ...state, destination: action.payload };
+    case 'CLEAR_DESTINATION':
+      return { ...state, destination: null, route: null };
+    case 'SET_ROUTE':
+      return { ...state, route: action.payload };
+    case 'CLEAR_ROUTE':
+      return { ...state, route: null };
     case 'TOGGLE_PHONE':
       return { ...state, phoneExpanded: !state.phoneExpanded };
     case 'EXPAND_PHONE':
@@ -193,15 +253,27 @@ function gameReducer(state: GameState, action: Action): GameState {
       return { ...state, dateMarks: next };
     }
     case 'ADD_IN_APP_NOTIFICATION': {
+      // 去重：已有同标题通知则跳过
+      if (state.inAppNotifications.some((n) => n.title === action.payload.title)) return state;
+      const nextNotifications = [...state.inAppNotifications, action.payload];
+      if (nextNotifications.length > 3) {
+        nextNotifications.shift();
+      }
       return {
         ...state,
-        inAppNotifications: [...state.inAppNotifications, action.payload],
+        inAppNotifications: nextNotifications,
       };
     }
-    case 'REMOVE_IN_APP_NOTIFICATION': {
+    case 'DISMISS_IN_APP_NOTIFICATION': {
       return {
         ...state,
         inAppNotifications: state.inAppNotifications.filter((n) => n.id !== action.payload),
+      };
+    }
+    case 'CLEAR_IN_APP_NOTIFICATIONS': {
+      return {
+        ...state,
+        inAppNotifications: [],
       };
     }
     case 'BUY_SHOP_ITEM': {
@@ -221,6 +293,105 @@ function gameReducer(state: GameState, action: Action): GameState {
         inventory: nextInventory,
       };
     }
+    case 'REORDER_PHONE_HOME': {
+      const { fromIndex, toIndex } = action.payload;
+      if (fromIndex === toIndex) return state;
+      const layout = [...state.phoneHomeLayout];
+      const [moved] = layout.splice(fromIndex, 1);
+      layout.splice(toIndex, 0, moved);
+      return { ...state, phoneHomeLayout: layout };
+    }
+    case 'CREATE_PHONE_FOLDER': {
+      const { sourceIndex, targetIndex, name = '文件夹' } = action.payload;
+      const source = state.phoneHomeLayout[sourceIndex];
+      const target = state.phoneHomeLayout[targetIndex];
+      if (!source || source.type !== 'app' || !target || target.type !== 'app') return state;
+      const layout = [...state.phoneHomeLayout];
+      const removedSource = layout.splice(sourceIndex, 1)[0];
+      const insertAt = sourceIndex < targetIndex ? targetIndex - 1 : targetIndex;
+      const removedTarget = layout.splice(insertAt, 1)[0];
+      if (removedSource.type !== 'app' || removedTarget.type !== 'app') return state;
+      const folder: PhoneHomeItem = {
+        type: 'folder',
+        id: `folder-${Date.now()}`,
+        name,
+        appIds: [removedSource.appId, removedTarget.appId],
+      };
+      layout.splice(insertAt, 0, folder);
+      return { ...state, phoneHomeLayout: layout };
+    }
+    case 'ADD_APP_TO_FOLDER': {
+      const { appIndex, folderIndex } = action.payload;
+      const appItem = state.phoneHomeLayout[appIndex];
+      const folder = state.phoneHomeLayout[folderIndex];
+      if (!appItem || appItem.type !== 'app' || !folder || folder.type !== 'folder') return state;
+      const layout = [...state.phoneHomeLayout];
+      layout.splice(appIndex, 1);
+      const adjustedFolderIndex = appIndex < folderIndex ? folderIndex - 1 : folderIndex;
+      const targetFolder = layout[adjustedFolderIndex];
+      if (!targetFolder || targetFolder.type !== 'folder') return state;
+      layout[adjustedFolderIndex] = {
+        ...targetFolder,
+        appIds: [...targetFolder.appIds, appItem.appId],
+      };
+      return { ...state, phoneHomeLayout: layout };
+    }
+    case 'REMOVE_APP_FROM_FOLDER': {
+      const { folderIndex, appId } = action.payload;
+      const folder = state.phoneHomeLayout[folderIndex];
+      if (!folder || folder.type !== 'folder') return state;
+      const layout = [...state.phoneHomeLayout];
+      const remainingIds = folder.appIds.filter((id) => id !== appId);
+      const removedApp: PhoneHomeItem = { type: 'app', appId };
+      if (remainingIds.length < 2) {
+        const replacements: PhoneHomeItem[] = remainingIds.map((id) => ({
+          type: 'app' as const,
+          appId: id,
+        }));
+        layout.splice(folderIndex, 1, ...replacements);
+        layout.splice(folderIndex + replacements.length, 0, removedApp);
+      } else {
+        layout[folderIndex] = { ...folder, appIds: remainingIds };
+        layout.splice(folderIndex + 1, 0, removedApp);
+      }
+      return { ...state, phoneHomeLayout: layout };
+    }
+    case 'TOGGLE_ACCESSIBILITY_MODE': {
+      return { ...state, accessibilityMode: !state.accessibilityMode };
+    }
+    case 'SET_PHONE_UI_STYLE': {
+      try { localStorage.setItem('phone-ui-style', action.payload); } catch { /* */ }
+      return { ...state, phoneUiStyle: action.payload };
+    }
+    case 'SET_ACTIVE_WALLPAPER': {
+      try { localStorage.setItem('phone-active-wallpaper', JSON.stringify(action.payload)); } catch { /* */ }
+      return { ...state, wallpaperKind: action.payload.kind, wallpaperKey: action.payload.key };
+    }
+    case 'ROLL_DEFAULT_WALLPAPER':
+      return { ...state, rolledDefaultWallpaper: action.payload };
+    case 'SET_BIZHI_MANIFEST':
+      return { ...state, bizhiDefaults: action.payload.defaults, bizhiBuiltins: action.payload.builtins };
+    case 'LOAD_CUSTOM_WALLPAPERS':
+      return { ...state, customWallpapers: action.payload };
+    case 'ADD_CUSTOM_WALLPAPER': {
+      const customWallpapers = [...state.customWallpapers, action.payload];
+      try {
+        localStorage.setItem('phone-active-wallpaper', JSON.stringify({ kind: 'custom', key: action.payload.id }));
+      } catch { /* */ }
+      return { ...state, customWallpapers, wallpaperKind: 'custom', wallpaperKey: action.payload.id };
+    }
+    case 'REMOVE_CUSTOM_WALLPAPERS': {
+      const set = new Set(action.payload);
+      const customWallpapers = state.customWallpapers.filter((w) => !set.has(w.id));
+      const activeRemoved = state.wallpaperKind === 'custom' && set.has(state.wallpaperKey);
+      const active = activeRemoved ? { kind: 'default' as const, key: '' } : { kind: state.wallpaperKind, key: state.wallpaperKey };
+      try { localStorage.setItem('phone-active-wallpaper', JSON.stringify(active)); } catch { /* */ }
+      return { ...state, customWallpapers, wallpaperKind: active.kind, wallpaperKey: active.key };
+    }
+    case 'REPLACE_CUSTOM_WALLPAPERS': {
+      try { localStorage.setItem('phone-active-wallpaper', JSON.stringify({ kind: 'default', key: '' })); } catch { /* */ }
+      return { ...state, customWallpapers: action.payload, wallpaperKind: 'default', wallpaperKey: '' };
+    }
     default:
       return state;
   }
@@ -233,6 +404,25 @@ interface GameProviderProps {
 export function GameProvider({ children }: GameProviderProps) {
   const [state, dispatch] = useReducer(gameReducer, mockGameState);
   const llm = useLLM();
+
+  // 应用启动时：加载 bizhi 壁纸清单 + 初始化自定义壁纸存储（含旧数据迁移）
+  useEffect(() => {
+    loadBizhiManifest().then((manifest) => {
+      dispatch({ type: 'SET_BIZHI_MANIFEST', payload: manifest });
+    });
+    initWallpaperStore().then(({ customWallpapers, migratedActive }) => {
+      dispatch({ type: 'LOAD_CUSTOM_WALLPAPERS', payload: customWallpapers });
+      if (migratedActive) {
+        dispatch({ type: 'SET_ACTIVE_WALLPAPER', payload: migratedActive });
+      }
+    });
+  }, []);
+
+  const rollDefaultWallpaper = useCallback(() => {
+    const pool = state.bizhiDefaults;
+    const pick = pool.length > 0 ? pool[Math.floor(Math.random() * pool.length)] : null;
+    dispatch({ type: 'ROLL_DEFAULT_WALLPAPER', payload: pick });
+  }, [state.bizhiDefaults]);
 
   const timestamp = useCallback(
     () => new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' }),
@@ -342,6 +532,11 @@ export function GameProvider({ children }: GameProviderProps) {
     await generateNarrative(input);
   }, [state.narrative.messages, generateNarrative]);
 
+  const updateOverlayTitle = useCallback(
+    (title: string) => dispatch({ type: 'UPDATE_OVERLAY_TITLE', payload: title }),
+    []
+  );
+
   const value: GameContextValue = {
     state,
     setActiveTab: (tab) => dispatch({ type: 'SET_ACTIVE_TAB', payload: tab }),
@@ -355,21 +550,62 @@ export function GameProvider({ children }: GameProviderProps) {
     setMapZoom: (zoom) => dispatch({ type: 'SET_MAP_ZOOM', payload: zoom }),
     setMapCenter: (center) => dispatch({ type: 'SET_MAP_CENTER', payload: center }),
     setSelectedMarker: (id) => dispatch({ type: 'SET_SELECTED_MARKER', payload: id }),
+    setPlayerPosition: (pos) => dispatch({ type: 'SET_PLAYER_POSITION', payload: pos }),
+    setDestination: (pos) => dispatch({ type: 'SET_DESTINATION', payload: pos }),
+    clearDestination: () => dispatch({ type: 'CLEAR_DESTINATION' }),
+    setRoute: (route) => dispatch({ type: 'SET_ROUTE', payload: route }),
+    clearRoute: () => dispatch({ type: 'CLEAR_ROUTE' }),
     openPhoneApp: (appId) => dispatch({ type: 'OPEN_PHONE_APP', payload: appId }),
     closePhoneApp: () => dispatch({ type: 'CLOSE_PHONE_APP' }),
     expandPhone: () => dispatch({ type: 'TOGGLE_PHONE' }),
     collapsePhone: () => dispatch({ type: 'COLLAPSE_PHONE' }),
     openOverlayView: (type, payload) => dispatch({ type: 'OPEN_OVERLAY_VIEW', payload: type, meta: payload }),
     closeOverlayView: () => dispatch({ type: 'CLOSE_OVERLAY_VIEW' }),
-    updateOverlayTitle: (title) => dispatch({ type: 'UPDATE_OVERLAY_TITLE', payload: title }),
+    updateOverlayTitle,
     setDateMark: (date, mark) => dispatch({ type: 'SET_DATE_MARK', payload: { ...mark, date } }),
     clearDateMark: (date) => dispatch({ type: 'CLEAR_DATE_MARK', payload: date }),
-    addInAppNotification: (notification) => dispatch({
+    addNotification: (notification) => dispatch({
       type: 'ADD_IN_APP_NOTIFICATION',
-      payload: { ...notification, id: `notif-${Date.now()}` },
+      payload: {
+        ...notification,
+        id: `notif-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+      },
     }),
-    removeInAppNotification: (id) => dispatch({ type: 'REMOVE_IN_APP_NOTIFICATION', payload: id }),
+    dismissNotification: (id) => dispatch({ type: 'DISMISS_IN_APP_NOTIFICATION', payload: id }),
+    clearNotifications: () => dispatch({ type: 'CLEAR_IN_APP_NOTIFICATIONS' }),
     buyShopItem: (itemId) => dispatch({ type: 'BUY_SHOP_ITEM', payload: itemId }),
+    reorderPhoneHome: (fromIndex, toIndex) =>
+      dispatch({ type: 'REORDER_PHONE_HOME', payload: { fromIndex, toIndex } }),
+    createPhoneFolder: (sourceIndex, targetIndex, name) =>
+      dispatch({ type: 'CREATE_PHONE_FOLDER', payload: { sourceIndex, targetIndex, name } }),
+    addAppToFolder: (appIndex, folderIndex) =>
+      dispatch({ type: 'ADD_APP_TO_FOLDER', payload: { appIndex, folderIndex } }),
+    removeAppFromFolder: (folderIndex, appId) =>
+      dispatch({ type: 'REMOVE_APP_FROM_FOLDER', payload: { folderIndex, appId } }),
+    toggleAccessibilityMode: () => dispatch({ type: 'TOGGLE_ACCESSIBILITY_MODE' }),
+    setPhoneUiStyle: (style) => dispatch({ type: 'SET_PHONE_UI_STYLE', payload: style }),
+    setActiveWallpaper: (kind, key) => dispatch({ type: 'SET_ACTIVE_WALLPAPER', payload: { kind, key } }),
+    rollDefaultWallpaper,
+    importWallpaper: async (blob, fileName, mimeType) => {
+      const wallpaper = await persistAddWallpaper(blob, fileName, mimeType);
+      dispatch({ type: 'ADD_CUSTOM_WALLPAPER', payload: wallpaper });
+    },
+    deleteWallpapers: async (ids) => {
+      await persistRemoveWallpapers(ids);
+      state.customWallpapers
+        .filter((w) => ids.includes(w.id))
+        .forEach((w) => URL.revokeObjectURL(w.blobUrl));
+      dispatch({ type: 'REMOVE_CUSTOM_WALLPAPERS', payload: ids });
+    },
+    replaceWallpapers: async (items) => {
+      await clearCustomWallpapers();
+      state.customWallpapers.forEach((w) => URL.revokeObjectURL(w.blobUrl));
+      const added: CustomWallpaper[] = [];
+      for (const item of items) {
+        added.push(await persistAddWallpaper(item.blob, item.fileName, item.mimeType));
+      }
+      dispatch({ type: 'REPLACE_CUSTOM_WALLPAPERS', payload: added });
+    },
   };
 
   return <GameContext.Provider value={value}>{children}</GameContext.Provider>;

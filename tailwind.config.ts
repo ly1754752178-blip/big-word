@@ -89,6 +89,11 @@ const config: Config = {
         'phone-metal': '#C0C0C8',
         'phone-frame': '#8E8E93',
         'phone-glass': '#1C1C1E',
+
+        'gal-cream': '#FFF8F0',
+        'gal-wood': '#E8D5C4',
+        'gal-sakura': '#F8C3CD',
+        'gal-ink': '#5A4A3D',
       },
       fontFamily: {
         display: ['"Noto Sans JP"', '"PingFang SC"', '"Microsoft YaHei"', 'sans-serif'],

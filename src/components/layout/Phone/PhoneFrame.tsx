@@ -1,60 +1,199 @@
 import { ReactNode } from 'react';
 import { motion } from 'framer-motion';
-import { Wifi, Battery } from 'lucide-react';
 
 interface PhoneFrameProps {
   expanded: boolean;
   onHeadClick: () => void;
+  onCollapse?: () => void;
   children: ReactNode;
+  wallpaper?: string | null;
+  /** 主题默认屏幕背景色（无壁纸时使用） */
+  screenBg?: string;
 }
 
-export function PhoneFrame({ expanded, onHeadClick, children }: PhoneFrameProps) {
+export function PhoneFrame({ expanded, onHeadClick, onCollapse, children, wallpaper, screenBg }: PhoneFrameProps) {
   return (
-    <>
-      {/* 收起状态：扁平手机头部 —— 在右侧面板内居中 */}
+    <motion.div
+      initial={false}
+      animate={{ y: expanded ? 0 : 550 }}
+      transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+      className="absolute bottom-0 left-0 right-0 z-50 mx-auto"
+      style={{
+        width: '304px',
+        height: '592px',
+      }}
+    >
+      {/* 点击热区：覆盖手机顶部可见区域，在收起时拦截点击 */}
       {!expanded && (
-        <motion.button
-          type="button"
+        <div
           onClick={onHeadClick}
-          className="absolute bottom-0 left-1/2 -translate-x-1/2 z-50 h-10 phone-case flex items-center justify-center cursor-pointer"
-          style={{ width: '288px' }}
+          className="absolute top-0 left-0 right-0 z-[100] cursor-pointer"
+          style={{ height: '55px' }}
           aria-label="打开手机"
-        >
-          <div className="w-20 h-1 rounded-full bg-white/30" />
-          <div className="absolute right-4 flex items-center gap-2 text-white/70">
-            <Wifi className="w-4 h-4" />
-            <Battery className="w-4 h-4" />
-          </div>
-        </motion.button>
+          role="button"
+          tabIndex={0}
+          onKeyDown={(e) => { if (e.key === 'Enter') onHeadClick(); }}
+        />
       )}
+      {/* ── 左侧音量键 ── */}
+      <div
+        className="absolute -left-[6px] top-[100px] w-[6px] h-[28px] rounded-l-md"
+        style={{
+          background: 'linear-gradient(180deg, #4a4a4e 0%, #2a2a2e 30%, #1c1c1e 70%, #3a3a3e 100%)',
+          boxShadow: '-2px 1px 4px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.08)',
+        }}
+      />
+      <div
+        className="absolute -left-[6px] top-[140px] w-[6px] h-[48px] rounded-l-md"
+        style={{
+          background: 'linear-gradient(180deg, #4a4a4e 0%, #2a2a2e 30%, #1c1c1e 70%, #3a3a3e 100%)',
+          boxShadow: '-2px 1px 4px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.08)',
+        }}
+      />
+      <div
+        className="absolute -left-[6px] top-[84px] w-[6px] h-[14px] rounded-l-sm"
+        style={{
+          background: 'linear-gradient(180deg, #55555a 0%, #2a2a2e 50%, #3a3a3e 100%)',
+          boxShadow: '-2px 0 3px rgba(0,0,0,0.4)',
+        }}
+      />
 
-      {/* 完整手机 —— 在右侧面板内居中 */}
-      <motion.div
-        initial={{ y: '110%' }}
-        animate={{ y: expanded ? '0%' : '110%' }}
-        transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-        className="absolute bottom-0 left-0 right-0 z-50 phone-case flex flex-col overflow-hidden mx-auto"
-        style={{ width: '288px', height: '560px' }}
+      {/* ── 右侧电源键 ── */}
+      <div
+        className="absolute -right-[6px] top-[124px] w-[6px] h-[64px] rounded-r-md"
+        style={{
+          background: 'linear-gradient(180deg, #4a4a4e 0%, #2a2a2e 30%, #1c1c1e 70%, #3a3a3e 100%)',
+          boxShadow: '2px 1px 4px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.08)',
+        }}
+      />
+
+      {/* ── 深色钛金属外壳 ── */}
+      <div
+        className="w-full h-full rounded-[48px] p-[4px] flex flex-col relative"
+        style={{
+          background: `
+            linear-gradient(160deg,
+              #48484d 0%,
+              #2c2c30 12%,
+              #3e3e42 25%,
+              #1a1a1d 42%,
+              #323236 58%,
+              #1e1e22 75%,
+              #38383c 88%,
+              #2a2a2e 100%
+            )
+          `,
+          boxShadow: `
+            inset 0 0 0 1px rgba(255,255,255,0.07),
+            inset 0 1px 3px rgba(255,255,255,0.04),
+            0 -6px 28px rgba(0,0,0,0.5),
+            0 0 0 1px rgba(0,0,0,0.35),
+            0 4px 12px rgba(0,0,0,0.3)
+          `,
+        }}
       >
-        {/* 顶部边框 / 可点击收起 */}
-        <button
-          type="button"
-          onClick={onHeadClick}
-          className="h-10 shrink-0 flex items-center justify-center border-b border-white/10 relative"
+        {/* 天线带 - 顶部 */}
+        <div
+          className="absolute top-3 left-[30px] w-5 h-[2px] rounded-full"
+          style={{ background: 'rgba(0,0,0,0.25)' }}
+        />
+        <div
+          className="absolute top-3 right-[30px] w-5 h-[2px] rounded-full"
+          style={{ background: 'rgba(0,0,0,0.25)' }}
+        />
+
+        {/* ── 黑色前面板 ── */}
+        <div
+          className="flex-1 rounded-[44px] p-[8px] flex flex-col relative overflow-hidden"
+          style={{
+            background: '#080808',
+            boxShadow: `
+              inset 0 0 0 1px rgba(255,255,255,0.06),
+              inset 0 0 8px rgba(0,0,0,0.5)
+            `,
+          }}
         >
-          <div className="w-20 h-1 rounded-full bg-white/30" />
-        </button>
+          {/* Dynamic Island 刘海 —— 展开时点击此处可收起手机 */}
+          <div className="absolute top-[10px] left-1/2 -translate-x-1/2 z-30">
+            {expanded ? (
+              <button
+                type="button"
+                onClick={onCollapse}
+                className="h-[26px] w-[82px] rounded-full flex items-center justify-center gap-2 cursor-pointer"
+                style={{
+                  background: '#050505',
+                  boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.06), 0 1px 3px rgba(0,0,0,0.5)',
+                }}
+                aria-label="收起手机"
+              >
+                <div
+                  className="w-[46px] h-[9px] rounded-full"
+                  style={{
+                    background: '#0d0d0d',
+                    boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.04)',
+                  }}
+                />
+                <div
+                  className="w-[7px] h-[7px] rounded-full"
+                  style={{
+                    background: 'radial-gradient(circle at 35% 30%, #1a1a22 0%, #080810 70%, #000 100%)',
+                    boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.06), 0 0 2px rgba(0,0,0,0.4)',
+                  }}
+                />
+              </button>
+            ) : (
+              <div
+                className="h-[26px] w-[82px] rounded-full flex items-center justify-center gap-2"
+                style={{
+                  background: '#050505',
+                  boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.06), 0 1px 3px rgba(0,0,0,0.5)',
+                }}
+              >
+              <div
+                className="w-[46px] h-[9px] rounded-full"
+                style={{
+                  background: '#0d0d0d',
+                  boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.04)',
+                }}
+              />
+              <div
+                className="w-[7px] h-[7px] rounded-full"
+                style={{
+                  background: 'radial-gradient(circle at 35% 30%, #1a1a22 0%, #080810 70%, #000 100%)',
+                  boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.06), 0 0 2px rgba(0,0,0,0.4)',
+                }}
+              />
+            </div>
+            )}
+          </div>
 
-        {/* 屏幕区域 */}
-        <div className="flex-1 mx-3 mt-1 mb-3 phone-screen relative overflow-hidden">
-          <div className="relative z-10 h-full">{children}</div>
-        </div>
+          {/* 屏幕显示区 */}
+          <div
+            className="flex-1 rounded-[36px] relative overflow-hidden"
+            style={{
+              background: wallpaper
+                ? `url(${wallpaper}) center/cover no-repeat`
+                : (screenBg || '#FAF6F1'),
+              boxShadow: wallpaper
+                ? 'inset 0 0 0 1px rgba(0,0,0,0.08), inset 0 0 32px rgba(0,0,0,0.15)'
+                : 'inset 0 0 0 1px rgba(0,0,0,0.06), inset 0 0 16px rgba(0,0,0,0.04)',
+            }}
+          >
+            <div className="relative z-10 h-full">{children}</div>
+          </div>
 
-        {/* 底部 Home 指示条 */}
-        <div className="h-5 shrink-0 flex items-center justify-center">
-          <div className="w-24 h-1 rounded-full bg-white/30" />
+          {/* 底部 Home 指示条 */}
+          <div className="absolute bottom-[8px] left-1/2 -translate-x-1/2 z-30">
+            <div
+              className="w-[108px] h-[4px] rounded-full"
+              style={{
+                background: 'rgba(255,255,255,0.20)',
+                boxShadow: '0 1px 2px rgba(0,0,0,0.15)',
+              }}
+            />
+          </div>
         </div>
-      </motion.div>
-    </>
+      </div>
+    </motion.div>
   );
 }
