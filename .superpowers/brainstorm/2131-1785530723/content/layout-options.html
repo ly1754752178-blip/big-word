@@ -1,0 +1,56 @@
+<h2>手机界面重制：参考风格与 APP 布局确认</h2>
+<p class="subtitle">参考图：目标手机外框风格（左上角显示时间，顶部有刘海/灵动岛，银黑金属边框）</p>
+
+<div class="split">
+  <div class="mockup">
+    <div class="mockup-header">参考图 1</div>
+    <div class="mockup-body" style="display:flex;justify-content:center;align-items:center;">
+      <img src="/files/phone-ref-1.jpg" style="max-height:280px;max-width:100%;border-radius:12px;box-shadow:0 4px 12px rgba(0,0,0,0.15)" />
+    </div>
+  </div>
+  <div class="mockup">
+    <div class="mockup-header">参考图 2</div>
+    <div class="mockup-body" style="display:flex;justify-content:center;align-items:center;">
+      <img src="/files/phone-ref-2.jpg" style="max-height:280px;max-width:100%;border-radius:12px;box-shadow:0 4px 12px rgba(0,0,0,0.15)" />
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>重制计划摘要</h3>
+  <ul>
+    <li>手机外框：复刻参考图的金属边框、圆角、刘海/灵动岛、侧键、底部 Home 指示条</li>
+    <li>左上角显示当前时间（如 09:45），右上角保留信号/WiFi/电量图标</li>
+    <li>APP 替换为真实图标：LINE、X、Instagram、PayPay、Google Maps、Yahoo! JAPAN、TimeTree、Gmail、系统设置、YouTube、TikTok</li>
+    <li>移除原：聊天、消息、动态、相册、钱包、旅行、新闻、日程、邮箱</li>
+  </ul>
+</div>
+
+<div class="section">
+  <h3>需要确认：11 个 APP 如何排布？</h3>
+  <p class="subtitle">当前是 3×3 网格共 9 个 APP。替换后共 11 个 APP，请选择布局方式：</p>
+
+  <div class="options">
+    <div class="option" data-choice="3x4" onclick="toggleSelect(this)">
+      <div class="letter">A</div>
+      <div class="content">
+        <h3>3 列 × 4 行</h3>
+        <p>保持三列，向下扩展为 4 行。最后一行只有 2 个 APP，右侧留空；图标尺寸较大，易点击。</p>
+      </div>
+    </div>
+    <div class="option" data-choice="4x3" onclick="toggleSelect(this)">
+      <div class="letter">B</div>
+      <div class="content">
+        <h3>4 列 × 3 行</h3>
+        <p>改为四列，3 行正好放下 12 个位置（11 个 APP + 1 空位）。图标更小但更紧凑，接近 iPhone 小屏密度。</p>
+      </div>
+    </div>
+    <div class="option" data-choice="pages" onclick="toggleSelect(this)">
+      <div class="letter">C</div>
+      <div class="content">
+        <h3>保留 3×3 多桌面分页</h3>
+        <p>每页 9 个 APP，11 个分为两页，可左右滑动切换。实现更复杂但最接近真实手机体验。</p>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,4 +1,4 @@
-import { createContext, useContext, useReducer, ReactNode, useCallback } from 'react';
+import { createContext, useContext, useReducer, ReactNode, useCallback, useEffect } from 'react';
 import type {
   GameState,
   SidebarTab,
@@ -8,9 +8,22 @@ import type {
   DateMark,
   InAppNotification,
   PhoneHomeItem,
+  PhoneUiStyleId,
+  WallpaperKind,
+  CustomWallpaper,
+  LatLon,
+  Destination,
+  RouteResult,
 } from '@/types';
 import { mockGameState } from '@/data/mockData';
 import { useLLM } from '@/hooks/useLLM';
+import { loadBizhiManifest } from '@/lib/phone-bizhi';
+import {
+  initWallpaperStore,
+  addCustomWallpaper as persistAddWallpaper,
+  removeCustomWallpapers as persistRemoveWallpapers,
+  clearCustomWallpapers,
+} from '@/lib/wallpaperStore';
 
 interface GameContextValue {
   state: GameState;
@@ -25,6 +38,11 @@ interface GameContextValue {
   setMapZoom: (zoom: number) => void;
   setMapCenter: (center: { x: number; y: number }) => void;
   setSelectedMarker: (id: string | null) => void;
+  setPlayerPosition: (pos: LatLon) => void;
+  setDestination: (pos: Destination) => void;
+  clearDestination: () => void;
+  setRoute: (route: RouteResult) => void;
+  clearRoute: () => void;
   openPhoneApp: (appId: PhoneAppId) => void;
   closePhoneApp: () => void;
   expandPhone: () => void;
@@ -43,11 +61,12 @@ interface GameContextValue {
   addAppToFolder: (appIndex: number, folderIndex: number) => void;
   removeAppFromFolder: (folderIndex: number, appId: PhoneAppId) => void;
   toggleAccessibilityMode: () => void;
-  addWallpaper: (dataUrl: string) => void;
-  setActiveWallpaper: (index: number) => void;
-  removeWallpapers: (indices: number[]) => void;
-  setPrimaryColor: (color: string) => void;
-  setAccentColor: (color: string) => void;
+  setPhoneUiStyle: (style: PhoneUiStyleId) => void;
+  setActiveWallpaper: (kind: WallpaperKind, key: string) => void;
+  rollDefaultWallpaper: () => void;
+  importWallpaper: (blob: Blob, fileName: string, mimeType: string) => Promise<void>;
+  deleteWallpapers: (ids: string[]) => Promise<void>;
+  replaceWallpapers: (items: { blob: Blob; fileName: string; mimeType: string }[]) => Promise<void>;
 }
 
 const GameContext = createContext<GameContextValue | null>(null);
@@ -64,6 +83,11 @@ type Action =
   | { type: 'SET_MAP_ZOOM'; payload: number }
   | { type: 'SET_MAP_CENTER'; payload: { x: number; y: number } }
   | { type: 'SET_SELECTED_MARKER'; payload: string | null }
+  | { type: 'SET_PLAYER_POSITION'; payload: LatLon }
+  | { type: 'SET_DESTINATION'; payload: Destination }
+  | { type: 'CLEAR_DESTINATION' }
+  | { type: 'SET_ROUTE'; payload: RouteResult }
+  | { type: 'CLEAR_ROUTE' }
   | { type: 'TOGGLE_PHONE' }
   | { type: 'EXPAND_PHONE' }
   | { type: 'COLLAPSE_PHONE' }
@@ -83,11 +107,14 @@ type Action =
   | { type: 'ADD_APP_TO_FOLDER'; payload: { appIndex: number; folderIndex: number } }
   | { type: 'REMOVE_APP_FROM_FOLDER'; payload: { folderIndex: number; appId: PhoneAppId } }
   | { type: 'TOGGLE_ACCESSIBILITY_MODE' }
-  | { type: 'ADD_WALLPAPER'; payload: string }
-  | { type: 'SET_ACTIVE_WALLPAPER'; payload: number }
-  | { type: 'REMOVE_WALLPAPERS'; payload: number[] }
-  | { type: 'SET_PRIMARY_COLOR'; payload: string }
-  | { type: 'SET_ACCENT_COLOR'; payload: string };
+  | { type: 'SET_PHONE_UI_STYLE'; payload: PhoneUiStyleId }
+  | { type: 'SET_ACTIVE_WALLPAPER'; payload: { kind: WallpaperKind; key: string } }
+  | { type: 'ROLL_DEFAULT_WALLPAPER'; payload: string | null }
+  | { type: 'SET_BIZHI_MANIFEST'; payload: { defaults: string[]; builtins: string[] } }
+  | { type: 'LOAD_CUSTOM_WALLPAPERS'; payload: CustomWallpaper[] }
+  | { type: 'ADD_CUSTOM_WALLPAPER'; payload: CustomWallpaper }
+  | { type: 'REMOVE_CUSTOM_WALLPAPERS'; payload: string[] }
+  | { type: 'REPLACE_CUSTOM_WALLPAPERS'; payload: CustomWallpaper[] };
 
 const overlayTitles: Record<OverlayViewType, string> = {
   status: '个人状态',
@@ -178,6 +205,16 @@ function gameReducer(state: GameState, action: Action): GameState {
       return { ...state, map: { ...state.map, center: action.payload } };
     case 'SET_SELECTED_MARKER':
       return { ...state, selectedMarkerId: action.payload };
+    case 'SET_PLAYER_POSITION':
+      return { ...state, playerPosition: action.payload };
+    case 'SET_DESTINATION':
+      return { ...state, destination: action.payload };
+    case 'CLEAR_DESTINATION':
+      return { ...state, destination: null, route: null };
+    case 'SET_ROUTE':
+      return { ...state, route: action.payload };
+    case 'CLEAR_ROUTE':
+      return { ...state, route: null };
     case 'TOGGLE_PHONE':
       return { ...state, phoneExpanded: !state.phoneExpanded };
     case 'EXPAND_PHONE':
@@ -322,34 +359,38 @@ function gameReducer(state: GameState, action: Action): GameState {
     case 'TOGGLE_ACCESSIBILITY_MODE': {
       return { ...state, accessibilityMode: !state.accessibilityMode };
     }
-    case 'ADD_WALLPAPER': {
-      const wps = [...state.wallpapers, action.payload];
-      try { localStorage.setItem('phone-wallpapers', JSON.stringify(wps)); } catch { /* quota */ }
-      const idx = wps.length - 1;
-      try { localStorage.setItem('phone-active-wallpaper', String(idx)); } catch { /* */ }
-      return { ...state, wallpapers: wps, activeWallpaperIndex: idx };
+    case 'SET_PHONE_UI_STYLE': {
+      try { localStorage.setItem('phone-ui-style', action.payload); } catch { /* */ }
+      return { ...state, phoneUiStyle: action.payload };
     }
     case 'SET_ACTIVE_WALLPAPER': {
-      try { localStorage.setItem('phone-active-wallpaper', String(action.payload)); } catch { /* */ }
-      return { ...state, activeWallpaperIndex: action.payload };
+      try { localStorage.setItem('phone-active-wallpaper', JSON.stringify(action.payload)); } catch { /* */ }
+      return { ...state, wallpaperKind: action.payload.kind, wallpaperKey: action.payload.key };
     }
-    case 'REMOVE_WALLPAPERS': {
+    case 'ROLL_DEFAULT_WALLPAPER':
+      return { ...state, rolledDefaultWallpaper: action.payload };
+    case 'SET_BIZHI_MANIFEST':
+      return { ...state, bizhiDefaults: action.payload.defaults, bizhiBuiltins: action.payload.builtins };
+    case 'LOAD_CUSTOM_WALLPAPERS':
+      return { ...state, customWallpapers: action.payload };
+    case 'ADD_CUSTOM_WALLPAPER': {
+      const customWallpapers = [...state.customWallpapers, action.payload];
+      try {
+        localStorage.setItem('phone-active-wallpaper', JSON.stringify({ kind: 'custom', key: action.payload.id }));
+      } catch { /* */ }
+      return { ...state, customWallpapers, wallpaperKind: 'custom', wallpaperKey: action.payload.id };
+    }
+    case 'REMOVE_CUSTOM_WALLPAPERS': {
       const set = new Set(action.payload);
-      const filtered = state.wallpapers.filter((_, i) => !set.has(i));
-      try { localStorage.setItem('phone-wallpapers', JSON.stringify(filtered)); } catch { /* */ }
-      let newIdx = state.activeWallpaperIndex;
-      if (set.has(newIdx)) newIdx = -1;
-      else { let removed = 0; for (const ri of action.payload) if (ri < newIdx) removed++; newIdx -= removed; }
-      try { localStorage.setItem('phone-active-wallpaper', String(newIdx)); } catch { /* */ }
-      return { ...state, wallpapers: filtered, activeWallpaperIndex: newIdx };
+      const customWallpapers = state.customWallpapers.filter((w) => !set.has(w.id));
+      const activeRemoved = state.wallpaperKind === 'custom' && set.has(state.wallpaperKey);
+      const active = activeRemoved ? { kind: 'default' as const, key: '' } : { kind: state.wallpaperKind, key: state.wallpaperKey };
+      try { localStorage.setItem('phone-active-wallpaper', JSON.stringify(active)); } catch { /* */ }
+      return { ...state, customWallpapers, wallpaperKind: active.kind, wallpaperKey: active.key };
     }
-    case 'SET_PRIMARY_COLOR': {
-      try { localStorage.setItem('phone-primary-color', action.payload); } catch { /* */ }
-      return { ...state, primaryColor: action.payload };
-    }
-    case 'SET_ACCENT_COLOR': {
-      try { localStorage.setItem('phone-accent-color', action.payload); } catch { /* */ }
-      return { ...state, accentColor: action.payload };
+    case 'REPLACE_CUSTOM_WALLPAPERS': {
+      try { localStorage.setItem('phone-active-wallpaper', JSON.stringify({ kind: 'default', key: '' })); } catch { /* */ }
+      return { ...state, customWallpapers: action.payload, wallpaperKind: 'default', wallpaperKey: '' };
     }
     default:
       return state;
@@ -363,6 +404,25 @@ interface GameProviderProps {
 export function GameProvider({ children }: GameProviderProps) {
   const [state, dispatch] = useReducer(gameReducer, mockGameState);
   const llm = useLLM();
+
+  // 应用启动时：加载 bizhi 壁纸清单 + 初始化自定义壁纸存储（含旧数据迁移）
+  useEffect(() => {
+    loadBizhiManifest().then((manifest) => {
+      dispatch({ type: 'SET_BIZHI_MANIFEST', payload: manifest });
+    });
+    initWallpaperStore().then(({ customWallpapers, migratedActive }) => {
+      dispatch({ type: 'LOAD_CUSTOM_WALLPAPERS', payload: customWallpapers });
+      if (migratedActive) {
+        dispatch({ type: 'SET_ACTIVE_WALLPAPER', payload: migratedActive });
+      }
+    });
+  }, []);
+
+  const rollDefaultWallpaper = useCallback(() => {
+    const pool = state.bizhiDefaults;
+    const pick = pool.length > 0 ? pool[Math.floor(Math.random() * pool.length)] : null;
+    dispatch({ type: 'ROLL_DEFAULT_WALLPAPER', payload: pick });
+  }, [state.bizhiDefaults]);
 
   const timestamp = useCallback(
     () => new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' }),
@@ -490,6 +550,11 @@ export function GameProvider({ children }: GameProviderProps) {
     setMapZoom: (zoom) => dispatch({ type: 'SET_MAP_ZOOM', payload: zoom }),
     setMapCenter: (center) => dispatch({ type: 'SET_MAP_CENTER', payload: center }),
     setSelectedMarker: (id) => dispatch({ type: 'SET_SELECTED_MARKER', payload: id }),
+    setPlayerPosition: (pos) => dispatch({ type: 'SET_PLAYER_POSITION', payload: pos }),
+    setDestination: (pos) => dispatch({ type: 'SET_DESTINATION', payload: pos }),
+    clearDestination: () => dispatch({ type: 'CLEAR_DESTINATION' }),
+    setRoute: (route) => dispatch({ type: 'SET_ROUTE', payload: route }),
+    clearRoute: () => dispatch({ type: 'CLEAR_ROUTE' }),
     openPhoneApp: (appId) => dispatch({ type: 'OPEN_PHONE_APP', payload: appId }),
     closePhoneApp: () => dispatch({ type: 'CLOSE_PHONE_APP' }),
     expandPhone: () => dispatch({ type: 'TOGGLE_PHONE' }),
@@ -518,11 +583,29 @@ export function GameProvider({ children }: GameProviderProps) {
     removeAppFromFolder: (folderIndex, appId) =>
       dispatch({ type: 'REMOVE_APP_FROM_FOLDER', payload: { folderIndex, appId } }),
     toggleAccessibilityMode: () => dispatch({ type: 'TOGGLE_ACCESSIBILITY_MODE' }),
-    addWallpaper: (dataUrl) => dispatch({ type: 'ADD_WALLPAPER', payload: dataUrl }),
-    setActiveWallpaper: (index) => dispatch({ type: 'SET_ACTIVE_WALLPAPER', payload: index }),
-    removeWallpapers: (indices) => dispatch({ type: 'REMOVE_WALLPAPERS', payload: indices }),
-    setPrimaryColor: (color) => dispatch({ type: 'SET_PRIMARY_COLOR', payload: color }),
-    setAccentColor: (color) => dispatch({ type: 'SET_ACCENT_COLOR', payload: color }),
+    setPhoneUiStyle: (style) => dispatch({ type: 'SET_PHONE_UI_STYLE', payload: style }),
+    setActiveWallpaper: (kind, key) => dispatch({ type: 'SET_ACTIVE_WALLPAPER', payload: { kind, key } }),
+    rollDefaultWallpaper,
+    importWallpaper: async (blob, fileName, mimeType) => {
+      const wallpaper = await persistAddWallpaper(blob, fileName, mimeType);
+      dispatch({ type: 'ADD_CUSTOM_WALLPAPER', payload: wallpaper });
+    },
+    deleteWallpapers: async (ids) => {
+      await persistRemoveWallpapers(ids);
+      state.customWallpapers
+        .filter((w) => ids.includes(w.id))
+        .forEach((w) => URL.revokeObjectURL(w.blobUrl));
+      dispatch({ type: 'REMOVE_CUSTOM_WALLPAPERS', payload: ids });
+    },
+    replaceWallpapers: async (items) => {
+      await clearCustomWallpapers();
+      state.customWallpapers.forEach((w) => URL.revokeObjectURL(w.blobUrl));
+      const added: CustomWallpaper[] = [];
+      for (const item of items) {
+        added.push(await persistAddWallpaper(item.blob, item.fileName, item.mimeType));
+      }
+      dispatch({ type: 'REPLACE_CUSTOM_WALLPAPERS', payload: added });
+    },
   };
 
   return <GameContext.Provider value={value}>{children}</GameContext.Provider>;

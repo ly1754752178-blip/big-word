@@ -1,0 +1,60 @@
+<h2>手机界面重制方案</h2>
+<p class="subtitle">基于参考图与素材，我的推荐方案如下。如无异议，将按此直接实现。</p>
+
+<div class="split">
+  <div class="mockup">
+    <div class="mockup-header">参考图 1：银黑金属边框 + 刘海</div>
+    <div class="mockup-body" style="display:flex;justify-content:center;align-items:center;background:#2a2a2e;">
+      <img src="/files/phone-ref-1.jpg" style="max-height:260px;max-width:100%;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,0.4)" alt="参考手机外框1" />
+    </div>
+  </div>
+  <div class="mockup">
+    <div class="mockup-header">参考图 2：左上角时间 / 右上角状态图标</div>
+    <div class="mockup-body" style="display:flex;justify-content:center;align-items:center;background:#2a2a2e;">
+      <img src="/files/phone-ref-2.jpg" style="max-height:260px;max-width:100%;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,0.4)" alt="参考手机外框2" />
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>设计决策</h3>
+  <ul>
+    <li><strong>外框风格：</strong>复刻参考图的 iPhone 风格——银灰色金属边框、大圆角、顶部刘海/Dynamic Island、左侧音量键、右侧电源键、底部 Home 指示条。</li>
+    <li><strong>状态栏：</strong>左上角显示当前游戏时间（格式 09:45），右上角显示信号、WiFi、电量图标。</li>
+    <li><strong>APP 布局（推荐）：</strong><span style="color:#0ea5e9">3 列 × 4 行</span>。11 个 APP 中前 9 个填满 3 页首屏，第 10、11 个放在第四行左侧，右侧留空。图标尺寸与现有接近，保持易点击。</li>
+    <li><strong>APP 图标：</strong>使用你提供的 jpg 图标，复制到项目 public 目录，处理白边/异色边角后作为 <code><img></code> 渲染，不再使用 Lucide 图标 + 彩色背景块。</li>
+    <li><strong>APP 名称：</strong>使用图标对应的英文名（LINE、X、Instagram、PayPay、Google Maps、Yahoo! JAPAN、TimeTree、Gmail、Settings、YouTube、TikTok）。</li>
+    <li><strong>功能保留：</strong>LINE 继承旧「聊天」功能；X / Instagram / YouTube / TikTok 暂为占位；其余 APP 保持原有占位逻辑，后续再填充内容。</li>
+  </ul>
+</div>
+
+<div class="section">
+  <h3>APP 替换映射</h3>
+  <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;font-size:13px;">
+    <div style="padding:8px;background:#f8fafc;border-radius:8px;"><strong>新增 / 替换</strong></div>
+    <div style="padding:8px;background:#f8fafc;border-radius:8px;"><strong>移除</strong></div>
+    <div style="padding:8px;background:#fff;border:1px solid #e2e8f0;border-radius:8px;">LINE（替代聊天、消息、动态）</div>
+    <div style="padding:8px;background:#fff;border:1px solid #e2e8f0;border-radius:8px;">聊天、消息、动态</div>
+    <div style="padding:8px;background:#fff;border:1px solid #e2e8f0;border-radius:8px;">Instagram（替代相册）</div>
+    <div style="padding:8px;background:#fff;border:1px solid #e2e8f0;border-radius:8px;">相册</div>
+    <div style="padding:8px;background:#fff;border:1px solid #e2e8f0;border-radius:8px;">X（新增）</div>
+    <div style="padding:8px;background:#fff;border:1px solid #e2e8f0;border-radius:8px;">—</div>
+    <div style="padding:8px;background:#fff;border:1px solid #e2e8f0;border-radius:8px;">PayPay（替代钱包）</div>
+    <div style="padding:8px;background:#fff;border:1px solid #e2e8f0;border-radius:8px;">钱包</div>
+    <div style="padding:8px;background:#fff;border:1px solid #e2e8f0;border-radius:8px;">Google Maps（替代旅行）</div>
+    <div style="padding:8px;background:#fff;border:1px solid #e2e8f0;border-radius:8px;">旅行</div>
+    <div style="padding:8px;background:#fff;border:1px solid #e2e8f0;border-radius:8px;">Yahoo! JAPAN（替代新闻）</div>
+    <div style="padding:8px;background:#fff;border:1px solid #e2e8f0;border-radius:8px;">新闻</div>
+    <div style="padding:8px;background:#fff;border:1px solid #e2e8f0;border-radius:8px;">TimeTree（替代日程）</div>
+    <div style="padding:8px;background:#fff;border:1px solid #e2e8f0;border-radius:8px;">日程</div>
+    <div style="padding:8px;background:#fff;border:1px solid #e2e8f0;border-radius:8px;">Gmail（替代邮件）</div>
+    <div style="padding:8px;background:#fff;border:1px solid #e2e8f0;border-radius:8px;">邮件</div>
+    <div style="padding:8px;background:#fff;border:1px solid #e2e8f0;border-radius:8px;">系统设置 / YouTube / TikTok（新增）</div>
+    <div style="padding:8px;background:#fff;border:1px solid #e2e8f0;border-radius:8px;">—</div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>请确认</h3>
+  <p>如果方案 OK，请回复「确认」或「按此实现」，我将进入详细实施计划并直接完成。若对布局（3×4）、外框细节或 APP 功能映射有调整，请直接指出。</p>
+</div>

@@ -1,10 +1,12 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useGame } from '@/hooks/useGameState';
 import { PhoneFrame } from './PhoneFrame';
 import { PhoneAppGrid } from './PhoneAppGrid';
 import { PhoneAppScreen } from './PhoneAppScreen';
 import { PhoneFolderView } from './PhoneFolderView';
 import { Wifi, Battery } from 'lucide-react';
+import { getPhoneUiStyle } from '@/lib/phone-ui-styles';
+import { bizhiUrl } from '@/lib/phone-bizhi';
 import type { PhoneHomeFolder } from '@/types';
 
 export function Phone() {
@@ -18,17 +20,29 @@ export function Phone() {
     createPhoneFolder,
     addAppToFolder,
     removeAppFromFolder,
+    rollDefaultWallpaper,
   } = useGame();
   const {
     phoneExpanded, activePhoneApp, phoneApps, phoneHomeLayout, time,
-    accessibilityMode, wallpapers, activeWallpaperIndex, primaryColor,
+    accessibilityMode, phoneUiStyle, wallpaperKind, wallpaperKey,
+    rolledDefaultWallpaper, customWallpapers, bizhiDefaults,
   } = state;
   const [openFolderId, setOpenFolderId] = useState<string | null>(null);
 
+  const style = getPhoneUiStyle(phoneUiStyle);
   const activeApp = phoneApps.find((app) => app.id === activePhoneApp);
   const openFolder = openFolderId
     ? (phoneHomeLayout.find((item): item is PhoneHomeFolder => item.type === 'folder' && item.id === openFolderId) ?? null)
     : null;
+
+  // 进入游戏正文（手机挂载）时，若处于「默认壁纸」态，则从数字图中随机抽一张
+  const rolledRef = useRef(false);
+  useEffect(() => {
+    if (wallpaperKind !== 'default' || rolledRef.current) return;
+    if (bizhiDefaults.length === 0) return;
+    rollDefaultWallpaper();
+    rolledRef.current = true;
+  }, [wallpaperKind, bizhiDefaults, rollDefaultWallpaper]);
 
   const handleOpenFolder = (folder: PhoneHomeFolder) => setOpenFolderId(folder.id);
   const handleCloseFolder = () => setOpenFolderId(null);
@@ -39,11 +53,15 @@ export function Phone() {
     if (fi >= 0) removeAppFromFolder(fi, appId as Parameters<typeof removeAppFromFolder>[1]);
   };
 
-  // 壁纸仅在主屏幕（无APP打开）时显示
-  const hasCustomWallpaper = activeWallpaperIndex >= 0;
-  const wallpaper = (hasCustomWallpaper && !activeApp) ? wallpapers[activeWallpaperIndex] : null;
-  // 无壁纸时用主色调作为屏幕背景，有APP时也用主色调
-  const screenBg = !activeApp ? (wallpaper ? undefined : primaryColor) : primaryColor;
+  // 解析当前壁纸 URL（仅主屏幕显示壁纸，打开 APP 时用纯色底）
+  const wallpaperUrl = (() => {
+    if (wallpaperKind === 'default') return rolledDefaultWallpaper ? bizhiUrl(rolledDefaultWallpaper) : null;
+    if (wallpaperKind === 'builtin') return wallpaperKey ? bizhiUrl(wallpaperKey) : null;
+    if (wallpaperKind === 'custom') return customWallpapers.find((w) => w.id === wallpaperKey)?.blobUrl ?? null;
+    return null;
+  })();
+  const wallpaper = activeApp ? null : wallpaperUrl;
+  const screenBg = style.screenBg;
 
   return (
     <PhoneFrame
@@ -54,10 +72,10 @@ export function Phone() {
       screenBg={screenBg}
     >
       <div className="flex flex-col h-full">
-        {/* 状态栏 */}
+        {/* 状态栏（时间 + Wifi + 电量） */}
         <div
           className="flex items-center justify-between px-5 pt-3 pb-1 shrink-0 z-20 rounded-t-[36px]"
-          style={{ backgroundColor: primaryColor + '30', color: '#1e293b' }}
+          style={{ backgroundColor: style.statusBarBg, color: style.statusBarText }}
         >
           <span className="text-xs font-semibold tracking-tight">
             {String(time.hour).padStart(2, '0')}:{String(time.minute).padStart(2, '0')}

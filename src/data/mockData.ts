@@ -806,10 +806,30 @@ export const mockGameState: GameState = {
     { type: 'app', appId: 'tiktok' },
   ],
   accessibilityMode: false,
-  wallpapers: (() => { try { const raw = localStorage.getItem('phone-wallpapers'); return raw ? JSON.parse(raw) : []; } catch { return []; } })(),
-  activeWallpaperIndex: (() => { try { return parseInt(localStorage.getItem('phone-active-wallpaper') || '-1', 10); } catch { return -1; } })(),
-  primaryColor: (typeof localStorage !== 'undefined' && localStorage.getItem('phone-primary-color')) || '#3B82F6',
-  accentColor: (typeof localStorage !== 'undefined' && localStorage.getItem('phone-accent-color')) || '#10B981',
+  phoneUiStyle: (() => {
+    const v = localStorage.getItem('phone-ui-style');
+    if (v === 'dark' || v === 'sakura' || v === 'mint' || v === 'neon') return v;
+    return 'classic';
+  })(),
+  wallpaperKind: (() => {
+    try {
+      const parsed = JSON.parse(localStorage.getItem('phone-active-wallpaper') || '');
+      if (parsed && (parsed.kind === 'default' || parsed.kind === 'builtin' || parsed.kind === 'custom')) {
+        return parsed.kind;
+      }
+    } catch { /* 旧格式或缺失，回退默认 */ }
+    return 'default';
+  })(),
+  wallpaperKey: (() => {
+    try {
+      const parsed = JSON.parse(localStorage.getItem('phone-active-wallpaper') || '');
+      return typeof parsed?.key === 'string' ? parsed.key : '';
+    } catch { return ''; }
+  })(),
+  rolledDefaultWallpaper: null,
+  customWallpapers: [],
+  bizhiDefaults: [],
+  bizhiBuiltins: [],
   map: {
     center: { x: 3500, y: -1200 },
     zoom: 1,
@@ -912,6 +932,10 @@ export const mockGameState: GameState = {
   activePhoneApp: null,
   detailView: null,
   selectedMarkerId: null,
+  // 真实地理坐标（默认：东京·涩谷）
+  playerPosition: { lat: 35.658, lon: 139.7016 },
+  destination: null,
+  route: null,
   dateMarks: {
     '2026-07-07': { date: '2026-07-07', note: '电车月票充值日', mark: 'important' },
     '2026-07-10': { date: '2026-07-10', note: '学园祭准备会议', mark: 'anniversary' },

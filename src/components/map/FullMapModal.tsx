@@ -1,8 +1,12 @@
-import { useRef, useState, useCallback, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useGame } from '@/hooks/useGameState';
 import { GlassCard } from '@/components/ui/GlassCard';
-import { MapMarker } from './MapMarker';
-import { X, Navigation, Plus, Minus } from 'lucide-react';
+import { RealMap } from './RealMap';
+import { getRoute, TRAVEL_MODE_LABEL } from '@/lib/routing';
+import { getTransitRoute } from '@/lib/transit';
+import { buildTravelContext, travelContextToPrompt } from '@/lib/travel';
+import type { TravelMode, NarrativeMessage } from '@/types';
+import { X, Navigation, MapPin, Trash2, Footprints, Car, Bike, TrainFront, Loader2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 interface FullMapModalProps {
@@ -10,97 +14,68 @@ interface FullMapModalProps {
   view?: 'city' | 'national';
 }
 
+const MODES: { mode: TravelMode; icon: typeof Footprints }[] = [
+  { mode: 'walking', icon: Footprints },
+  { mode: 'driving', icon: Car },
+  { mode: 'cycling', icon: Bike },
+  { mode: 'transit', icon: TrainFront },
+];
+
 export function FullMapModal({ onClose, view = 'city' }: FullMapModalProps) {
-  const { state, setMapCenter, setMapZoom, setSelectedMarker } = useGame();
-  const { map } = state;
+  const { state, setDestination, clearDestination, setRoute, clearRoute, setPlayerPosition, appendNarrativeMessage, sendNarrativeMessage } = useGame();
+  const { playerPosition, destination, route } = state;
   const isCity = view === 'city';
-
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [isDragging, setIsDragging] = useState(false);
-  const dragStartRef = useRef({ x: 0, y: 0, centerX: 0, centerY: 0 });
-
-  const viewRange = 4000 / map.zoom;
-
-  const worldDeltaFromPixel = (pixelDelta: number, range: number, containerSize: number) => {
-    return (pixelDelta / containerSize) * range * 2;
-  };
-
-  const toPercent = (value: number, center: number, range: number) => {
-    return 50 + ((value - center) / range) * 50;
-  };
-
-  const handleMouseDown = useCallback(
-    (e: React.MouseEvent) => {
-      if (e.button !== 0) return;
-      setIsDragging(true);
-      dragStartRef.current = {
-        x: e.clientX,
-        y: e.clientY,
-        centerX: map.center.x,
-        centerY: map.center.y,
-      };
-    },
-    [map.center]
-  );
-
-  const handleMouseMove = useCallback(
-    (e: React.MouseEvent) => {
-      if (!isDragging || !containerRef.current) return;
-      const rect = containerRef.current.getBoundingClientRect();
-      const dx = worldDeltaFromPixel(e.clientX - dragStartRef.current.x, viewRange, rect.width);
-      const dy = worldDeltaFromPixel(e.clientY - dragStartRef.current.y, viewRange, rect.height);
-      setMapCenter({
-        x: dragStartRef.current.centerX - dx,
-        y: dragStartRef.current.centerY - dy,
-      });
-    },
-    [isDragging, viewRange, setMapCenter]
-  );
-
-  const handleMouseUp = useCallback(() => {
-    setIsDragging(false);
-  }, []);
-
-  const handleWheel = useCallback(
-    (e: React.WheelEvent) => {
-      e.preventDefault();
-      if (!containerRef.current) return;
-
-      const rect = containerRef.current.getBoundingClientRect();
-      const mouseX = e.clientX - rect.left;
-      const mouseY = e.clientY - rect.top;
-
-      const worldMouseX = map.center.x + ((mouseX / rect.width) * 2 - 1) * viewRange;
-      const worldMouseY = map.center.y + ((mouseY / rect.height) * 2 - 1) * viewRange;
-
-      const zoomFactor = e.deltaY > 0 ? 0.9 : 1.1;
-      const newZoom = Math.min(5, Math.max(0.5, map.zoom * zoomFactor));
-      const newRange = 4000 / newZoom;
-
-      const newCenterX = worldMouseX - ((mouseX / rect.width) * 2 - 1) * newRange;
-      const newCenterY = worldMouseY - ((mouseY / rect.height) * 2 - 1) * newRange;
-
-      setMapZoom(newZoom);
-      setMapCenter({ x: newCenterX, y: newCenterY });
-    },
-    [map.center, map.zoom, viewRange, setMapCenter, setMapZoom]
-  );
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const handleGlobalMouseUp = () => setIsDragging(false);
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose();
     };
-    window.addEventListener('mouseup', handleGlobalMouseUp);
     window.addEventListener('keydown', handleKeyDown);
-    return () => {
-      window.removeEventListener('mouseup', handleGlobalMouseUp);
-      window.removeEventListener('keydown', handleKeyDown);
-    };
+    return () => window.removeEventListener('keydown', handleKeyDown);
   }, [onClose]);
 
-  const handleMarkerClick = (markerId: string) => {
-    setSelectedMarker(markerId);
+  const handlePick = (pos: { lat: number; lon: number }, name?: string) => {
+    setDestination({
+      ...pos,
+      name: name ?? `自定义地点 (${pos.lat.toFixed(3)}, ${pos.lon.toFixed(3)})`,
+    });
+    clearRoute();
+    setError(null);
+  };
+
+  const handleRoute = async (mode: TravelMode) => {
+    if (!destination) return;
+    setLoading(true);
+    setError(null);
+    try {
+      const result =
+        mode === 'transit'
+          ? await getTransitRoute(playerPosition, destination)
+          : await getRoute(mode, playerPosition, destination);
+      setRoute(result);
+    } catch (e) {
+      clearRoute();
+      setError(e instanceof Error ? e.message : '路线计算失败');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleTravel = () => {
+    if (!destination || !route) return;
+    const ctx = buildTravelContext(playerPosition, destination, route);
+    const sysMsg: NarrativeMessage = {
+      id: `msg-${Date.now()}`,
+      type: 'system',
+      content: `【移动】${travelContextToPrompt(ctx)}\n\n<travel>${JSON.stringify(ctx)}</travel>`,
+      timestamp: new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' }),
+    };
+    appendNarrativeMessage(sysMsg);
+    setPlayerPosition({ lat: destination.lat, lon: destination.lon });
+    clearDestination();
+    void sendNarrativeMessage(`我出发了：${travelContextToPrompt(ctx)}`);
   };
 
   return (
@@ -115,7 +90,15 @@ export function FullMapModal({ onClose, view = 'city' }: FullMapModalProps) {
         <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100">
           <div className="flex items-center gap-2">
             <Navigation className="w-5 h-5 text-sky-500" />
-            <h2 className="font-heading text-lg font-bold text-slate-800">{isCity ? '城市地图' : '全国地图'}</h2>
+            <h2 className="font-heading text-lg font-bold text-slate-800">
+              {isCity ? '城市地图' : '全国地图'}
+            </h2>
+            {destination && (
+              <span className="ml-2 inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-coral-100 text-coral-600 text-[10px] max-w-[220px]">
+                <MapPin className="w-3 h-3 shrink-0" />
+                <span className="truncate">{destination.name}</span>
+              </span>
+            )}
           </div>
           <button
             type="button"
@@ -128,90 +111,81 @@ export function FullMapModal({ onClose, view = 'city' }: FullMapModalProps) {
         </div>
 
         {/* 地图区域 */}
-        <div
-          ref={containerRef}
-          onMouseDown={handleMouseDown}
-          onMouseMove={handleMouseMove}
-          onMouseUp={handleMouseUp}
-          onMouseLeave={handleMouseUp}
-          onWheel={handleWheel}
-          className={`relative flex-1 overflow-hidden bg-sky-50 ${isDragging ? 'cursor-grabbing' : 'cursor-grab'}`}
-        >
-          <div className="absolute inset-0 bg-gradient-to-br from-sky-100/50 via-cream-50/30 to-mint-50/40" />
-
-          <div
-            className="absolute inset-0 opacity-25"
-            style={{
-              backgroundImage: `
-                linear-gradient(rgba(148,163,184,0.25) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(148,163,184,0.25) 1px, transparent 1px)
-              `,
-              backgroundSize: '10% 10%',
-            }}
+        <div className="relative flex-1 min-h-0">
+          <RealMap
+            view={view}
+            playerPosition={playerPosition}
+            destination={destination}
+            route={route}
+            onMapClick={handlePick}
           />
 
-          {map.regions.map((region) => (
-            <div
-              key={region.id}
-              className="absolute rounded-xl border border-white/60 flex items-center justify-center"
-              style={{
-                left: `${toPercent(region.x, map.center.x, viewRange)}%`,
-                top: `${toPercent(region.y, map.center.y, viewRange)}%`,
-                width: `${(region.width / viewRange) * 50}%`,
-                height: `${(region.height / viewRange) * 50}%`,
-                transform: 'translate(-50%, -50%)',
-                backgroundColor: region.color,
-              }}
+          {destination && (
+            <button
+              type="button"
+              onClick={clearDestination}
+              className="absolute left-3 bottom-3 z-10 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/90 hover:bg-white backdrop-blur-sm border border-slate-200 shadow-soft text-xs font-bold text-slate-600 transition-colors"
             >
-              <span className="text-xs font-medium text-slate-700/80">{region.name}</span>
-            </div>
-          ))}
-
-          {map.markers.map((marker) => (
-            <MapMarker
-              key={marker.id}
-              marker={marker}
-              onClick={() => handleMarkerClick(marker.id)}
-              style={{
-                left: `${toPercent(marker.x, map.center.x, viewRange)}%`,
-                top: `${toPercent(marker.y, map.center.y, viewRange)}%`,
-              }}
-            />
-          ))}
-
-          <div
-            className="absolute w-4 h-4 rounded-full bg-mint-500 border-2 border-white shadow-lg z-10"
-            style={{
-              left: '50%',
-              top: '50%',
-              transform: 'translate(-50%, -50%)',
-            }}
-          />
+              <Trash2 className="w-3.5 h-3.5 text-coral-500" />
+              清除目的地
+            </button>
+          )}
         </div>
 
-        {/* 控制栏 */}
-        <div className="flex items-center justify-between px-5 py-3 border-t border-slate-100">
-          <span className="text-xs text-slate-500">按住左键拖动 · 滚轮缩放 · 点击标记查看详情</span>
+        {/* 底部操作区 */}
+        <div className="border-t border-slate-100">
+          {destination ? (
+            <div className="px-5 py-3 space-y-2">
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="text-xs text-slate-500 shrink-0">出行方式</span>
+                {MODES.map(({ mode, icon: Icon }) => (
+                  <button
+                    key={mode}
+                    type="button"
+                    disabled={loading}
+                    onClick={() => handleRoute(mode)}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-colors ${
+                      route?.mode === mode
+                        ? 'bg-sky-500 text-white'
+                        : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                    }`}
+                  >
+                    <Icon className="w-3.5 h-3.5" />
+                    {TRAVEL_MODE_LABEL[mode]}
+                  </button>
+                ))}
+              </div>
 
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={() => setMapZoom(Math.max(0.5, map.zoom - 0.2))}
-              className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-500 transition-colors"
-              aria-label="缩小"
-            >
-              <Minus className="w-4 h-4" />
-            </button>
-            <span className="text-sm font-number text-slate-500 w-12 text-center">{map.zoom.toFixed(1)}x</span>
-            <button
-              type="button"
-              onClick={() => setMapZoom(Math.min(5, map.zoom + 0.2))}
-              className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-500 transition-colors"
-              aria-label="放大"
-            >
-              <Plus className="w-4 h-4" />
-            </button>
-          </div>
+              {loading && (
+                <div className="flex items-center gap-2 text-xs text-slate-500">
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  正在计算路线…
+                </div>
+              )}
+              {error && <div className="text-xs text-coral-500">{error}</div>}
+              {route && !loading && (
+                <div className="flex items-center gap-3">
+                  <div className="flex-1 text-xs text-slate-600 leading-relaxed">
+                    <span className="inline-block mr-1.5 px-1.5 py-0.5 rounded bg-sky-100 text-sky-600 font-bold">
+                      {TRAVEL_MODE_LABEL[route.mode]}
+                    </span>
+                    {route.summary}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleTravel}
+                    className="shrink-0 px-3 py-1.5 rounded-full bg-mint-500 hover:opacity-90 text-white text-xs font-bold transition-opacity"
+                  >
+                    确认出发
+                  </button>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="px-5 py-3 text-xs text-slate-500">
+              点击地图选择目的地 · 滚轮缩放 · 拖动平移
+            </div>
+          )}
         </div>
       </GlassCard>
     </motion.div>
